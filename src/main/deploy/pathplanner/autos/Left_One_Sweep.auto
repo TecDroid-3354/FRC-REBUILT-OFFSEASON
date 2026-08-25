@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left_Trench_To_Neutral_1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left_Neutral_To_Bump_1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left_Bump_To_Score"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": true
+}
