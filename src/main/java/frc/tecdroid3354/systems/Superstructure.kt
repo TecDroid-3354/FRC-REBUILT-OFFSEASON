@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.tecdroid3354.commands.DriveCommands
 import frc.tecdroid3354.constants.DriveMultipliers
 import frc.tecdroid3354.constants.FieldConstants.TargetTranslations
@@ -19,10 +18,10 @@ import frc.tecdroid3354.constants.RobotConstants
 import frc.tecdroid3354.constants.RobotConstants.IS_RED_ALLIANCE
 import frc.tecdroid3354.constants.RobotMode
 import frc.tecdroid3354.constants.RobotTransformations
-import frc.tecdroid3354.subsystems.angularPosition.JointSubsystem
-import frc.tecdroid3354.subsystems.angularVelocity.FlywheelSubsystem
+import frc.tecdroid3354.subsystems.Hood.HoodSubsystem
+import frc.tecdroid3354.subsystems.Flywheel.FlywheelSubsystem
 import frc.tecdroid3354.subsystems.drive.Drive
-import frc.tecdroid3354.subsystems.linearDisplacement.ElevatorSubsystem
+import frc.tecdroid3354.subsystems.IntakeDeploy.IntakeDeploySubsystem
 import frc.tecdroid3354.subsystems.vision.Vision
 import frc.tecdroid3354.utils.InstantCommand
 import frc.tecdroid3354.utils.metersPerSecond
@@ -35,7 +34,7 @@ import java.util.function.Supplier
  * When using States, this file is responsible to control the logic flow */
 class Superstructure(private val controller: CommandPS5Controller,
                      private val simDrive: SwerveDriveSimulation, private val drive: Drive,
-                     private val joint: JointSubsystem, private val elevator: ElevatorSubsystem,
+                     private val joint: HoodSubsystem, private val elevator: IntakeDeploySubsystem,
                      private val flywheel: FlywheelSubsystem, private val vision: Vision): SubsystemBase("Superstructure") {
 
     private val fieldRelativeSpeeds: Supplier<ChassisSpeeds> = { drive.fieldRelativeChassisSpeeds }
@@ -141,17 +140,17 @@ class Superstructure(private val controller: CommandPS5Controller,
 
     /** Sets the joint to the preset home displacement */
     fun homeJoint(): Command {
-        return joint.setJointHomePosition().InstantCommand(joint)
+        return joint.setHoodHomePosition().InstantCommand(joint)
     }
 
     /** Sets the joint to the preset idle displacement */
     fun idleJoint(): Command {
-        return joint.setJointIdlePosition().InstantCommand(joint)
+        return joint.setHoodIdlePosition().InstantCommand(joint)
     }
 
     /** Sets the joint to the manual target displacement */
     fun setJointManualControl(): Command {
-        return joint.setJointManualPosition().InstantCommand(joint)
+        return joint.setHoodManualPosition().InstantCommand(joint)
     }
 
     // --------------- -------- -------- --------------- //
@@ -160,16 +159,16 @@ class Superstructure(private val controller: CommandPS5Controller,
 
     /** Sets the elevator to the preset home displacement */
     fun homeElevator(): Command {
-        return elevator.setElevatorHomeDisplacement().InstantCommand(elevator)
+        return elevator.setIntakeDeployHomeDisplacement().InstantCommand(elevator)
     }
 
     /** Sets the elevator to the preset idle displacement */
     fun idleElevator(): Command {
-        return elevator.setElevatorIdleDisplacement().InstantCommand(elevator)
+        return elevator.setIntakeDeployIdleDisplacement().InstantCommand(elevator)
     }
 
     /** Sets the elevator to the manual target displacement */
     fun setElevatorManualControl(): Command {
-        return elevator.setElevatorManualTargetDisplacement().InstantCommand(elevator)
+        return elevator.setIntakeDeployManualTargetDisplacement().InstantCommand(elevator)
     }
 }

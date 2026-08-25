@@ -13,7 +13,6 @@
 
 package frc.tecdroid3354.subsystems.drive;
 
-import static edu.wpi.first.units.Units.Amps;
 import static frc.tecdroid3354.utils.PhoenixUtil.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;

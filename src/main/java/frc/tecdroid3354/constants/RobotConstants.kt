@@ -3,7 +3,6 @@ package frc.tecdroid3354.constants
 import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.math.geometry.Transform3d
 import edu.wpi.first.math.geometry.Translation2d
-import edu.wpi.first.math.geometry.Translation3d
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.Mass
@@ -66,15 +65,11 @@ object RobotDimensions {
     val ROBOT_WIDTH                     : Distance = 26.5.inches.plus(BUMPERS_DEPTH)
     val ROBOT_HEIGHT                    : Distance = 0.6.meters
 
-    val INTAKE_LENGTH                   : Distance = 7.5.inches // Examples only, not included in template
-    val INTAKE_WIDTH                    : Distance = 26.5.inches
+    val HOOD_FORWARD_OFFSET            : Distance = (-0.19685).meters
+    val HOOD_UPWARD_OFFSET             : Distance = 0.1048.meters
 
-    val JOINT_WIDTH                     : Distance = 6.5.inches
-    val JOINT_FORWARD_OFFSET            : Distance = (-0.19685).meters
-    val JOINT_UPWARD_OFFSET             : Distance = 0.1048.meters
-
-    val ELEVATOR_MINIMUM_LENGTH         : Distance = 0.8.meters     // Note that "length" differs from "displacement"
-    val ELEVATOR_MAXIMUM_LENGTH         : Distance = 2.32.meters    // Minimum + Maximum displacement
+    val INTAKE_MINIMUM_LENGTH         : Distance = 0.8.meters     // Note that "length" differs from "displacement"
+    val INTAKE_MAXIMUM_LENGTH         : Distance = 2.32.meters    // Minimum + Maximum displacement
 }
 
 /**
@@ -123,23 +118,23 @@ object RobotTelemetry {
  */
 object RobotVisualization {
     const val MECHANISMS_ORIGIN_2D_NAME                     : String = "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB} Origin"
-    const val MECHANISMS_ARM_GUIDING_RAIL_2D_NAME           : String = "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB} Guiding Rail"
-    const val MECHANISMS_ARM_DISPLACEMENT_LIGAMENT_2D_NAME  : String = "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB} Displacement Ligament"
-    const val MECHANISMS_ARM_END_EFFECTOR_2D_NAME           : String = "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB} Carriage"
+    const val MECHANISMS_INTAKE_GUIDING_RAIL_2D_NAME           : String = "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB} Guiding Rail"
+    const val MECHANISMS_INTAKE_DISPLACEMENT_LIGAMENT_2D_NAME  : String = "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB} Displacement Ligament"
+    const val MECHANISMS_INTAKE_END_EFFECTOR_2D_NAME           : String = "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB} Carriage"
 
     val CANVAS_WIDTH                                        : Distance = 5.0.meters
     val CANVAS_HEIGHT                                       : Distance = 3.0.meters
     val CANVAS_COLOR                                        : Color8Bit = Color8Bit(Color.kDarkGray)
 
-    val ARM_GUIDING_RAIL_WIDTH                              : Double = 6.0 // Who knows the unit of this
+    val INTAKE_GUIDING_RAIL_WIDTH                              : Double = 6.0 // Who knows the unit of this
     val GUIDING_RAIL_COLOR                                  : Color8Bit = Color8Bit(Color.kDarkViolet)
 
-    val ARM_DISPLACEMENT_LIGAMENT_WIDTH                     : Double = 4.0
-    val ARM_DISPLACEMENT_LIGAMENT_INITIAL_ANGLE             : Angle = 0.0.degrees // Relative to guiding rail
-    val ARM_DISPLACEMENT_LIGAMENT_COLOR                     : Color8Bit = Color8Bit(Color.kBlack)
+    val INTAKE_DISPLACEMENT_LIGAMENT_WIDTH                     : Double = 4.0
+    val INTAKE_DISPLACEMENT_LIGAMENT_INITIAL_ANGLE             : Angle = 0.0.degrees // Relative to guiding rail
+    val INTAKE_DISPLACEMENT_LIGAMENT_COLOR                     : Color8Bit = Color8Bit(Color.kBlack)
 
-    val ARM_END_EFFECTOR_WIDTH                              : Double = 6.0
-    val ARM_END_EFFECTOR_HEIGHT                             : Distance = 0.05.meters
-    val ARM_END_EFFECTOR_RELATIVE_ANGLE                     : Angle = 0.0.degrees // Relative to displacement ligament
-    val ARM_END_EFFECTOR_COLOR                              : Color8Bit = Color8Bit(Color.kGold)
+    val INTAKE_END_EFFECTOR_WIDTH                              : Double = 6.0
+    val INTAKE_END_EFFECTOR_HEIGHT                             : Distance = 0.05.meters
+    val INTAKE_END_EFFECTOR_RELATIVE_ANGLE                     : Angle = 0.0.degrees // Relative to displacement ligament
+    val INTAKE_END_EFFECTOR_COLOR                              : Color8Bit = Color8Bit(Color.kGold)
 }

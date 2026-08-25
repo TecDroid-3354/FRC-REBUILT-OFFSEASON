@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.tecdroid3354.RobotVisualizer
 import frc.tecdroid3354.commands.DriveCommands
@@ -17,19 +16,19 @@ import frc.tecdroid3354.constants.RobotConstants
 import frc.tecdroid3354.constants.RobotConstants.IS_RED_ALLIANCE
 import frc.tecdroid3354.constants.RobotMode
 import frc.tecdroid3354.generated.SwerveTunerConstants
-import frc.tecdroid3354.subsystems.angularPosition.JointIO
-import frc.tecdroid3354.subsystems.angularPosition.JointIOSim
-import frc.tecdroid3354.subsystems.angularPosition.JointIOTalonFX
-import frc.tecdroid3354.subsystems.angularPosition.JointSubsystem
-import frc.tecdroid3354.subsystems.angularVelocity.FlywheelIO
-import frc.tecdroid3354.subsystems.angularVelocity.FlywheelIOSim
-import frc.tecdroid3354.subsystems.angularVelocity.FlywheelIOTalonFX
-import frc.tecdroid3354.subsystems.angularVelocity.FlywheelSubsystem
+import frc.tecdroid3354.subsystems.Hood.HoodIO
+import frc.tecdroid3354.subsystems.Hood.HoodIOSim
+import frc.tecdroid3354.subsystems.Hood.HoodIOTalonFX
+import frc.tecdroid3354.subsystems.Hood.HoodSubsystem
+import frc.tecdroid3354.subsystems.Flywheel.FlywheelIO
+import frc.tecdroid3354.subsystems.Flywheel.FlywheelIOSim
+import frc.tecdroid3354.subsystems.Flywheel.FlywheelIOTalonFX
+import frc.tecdroid3354.subsystems.Flywheel.FlywheelSubsystem
 import frc.tecdroid3354.subsystems.drive.*
-import frc.tecdroid3354.subsystems.linearDisplacement.ElevatorIO
-import frc.tecdroid3354.subsystems.linearDisplacement.ElevatorIOSim
-import frc.tecdroid3354.subsystems.linearDisplacement.ElevatorIOTalonFX
-import frc.tecdroid3354.subsystems.linearDisplacement.ElevatorSubsystem
+import frc.tecdroid3354.subsystems.IntakeDeploy.IntakeDeployIO
+import frc.tecdroid3354.subsystems.IntakeDeploy.IntakeDeployIOSim
+import frc.tecdroid3354.subsystems.IntakeDeploy.IntakeDeployIOTalonFX
+import frc.tecdroid3354.subsystems.IntakeDeploy.IntakeDeploySubsystem
 import frc.tecdroid3354.subsystems.vision.*
 import frc.tecdroid3354.systems.Superstructure
 import frc.tecdroid3354.utils.meters
@@ -68,9 +67,9 @@ object RobotContainer
 
     private lateinit var vision                 : Vision
 
-    private lateinit var jointSubsystem         : JointSubsystem
-    private lateinit var elevatorSubsystem      : ElevatorSubsystem
+    private lateinit var hoodSubsystem          : HoodSubsystem
     private lateinit var flywheelSubsystem      : FlywheelSubsystem
+    private lateinit var intakeDeploySubsystem  : IntakeDeploySubsystem
 
     lateinit var robotVisualizer                : RobotVisualizer
 
@@ -85,7 +84,7 @@ object RobotContainer
         superstructure = Superstructure( // Constructs the superstructure with initialized subsystems
             driverController,
             mapleSimDrive, drive,
-            jointSubsystem, elevatorSubsystem, flywheelSubsystem,
+            hoodSubsystem, intakeDeploySubsystem, flywheelSubsystem,
             vision
         )
 
@@ -227,8 +226,8 @@ object RobotContainer
                     VisionIOLimelight(VisionConstants.backCameraName, drive::getRotation),
                 )
 
-                jointSubsystem = JointSubsystem(JointIOTalonFX())
-                elevatorSubsystem = ElevatorSubsystem(ElevatorIOTalonFX())
+                hoodSubsystem = HoodSubsystem(HoodIOTalonFX())
+                intakeDeploySubsystem = IntakeDeploySubsystem(IntakeDeployIOTalonFX())
                 flywheelSubsystem = FlywheelSubsystem(FlywheelIOTalonFX())
             }
 
@@ -257,8 +256,8 @@ object RobotContainer
                     VisionIOPhotonVisionSim(VisionConstants.backCameraName, VisionConstants.robotToBackCamera, mapleSimDrive::getSimulatedDriveTrainPose),
                 )
 
-                jointSubsystem = JointSubsystem(JointIOSim())
-                elevatorSubsystem = ElevatorSubsystem(ElevatorIOSim())
+                hoodSubsystem = HoodSubsystem(HoodIOSim())
+                intakeDeploySubsystem = IntakeDeploySubsystem(IntakeDeployIOSim())
                 flywheelSubsystem = FlywheelSubsystem(FlywheelIOSim())
             }
 
@@ -271,15 +270,15 @@ object RobotContainer
                 // One dummy IO for each camera on the robot
                 vision = Vision(drive, object : VisionIO {}, object : VisionIO {}, object : VisionIO {})
 
-                jointSubsystem = JointSubsystem(JointIO.DummyJointIO())
-                elevatorSubsystem = ElevatorSubsystem(ElevatorIO.DummyElevatorIO())
+                hoodSubsystem = HoodSubsystem(HoodIO.DummyHoodIO())
+                intakeDeploySubsystem = IntakeDeploySubsystem(IntakeDeployIO.DummyIntakeDeployIO())
                 flywheelSubsystem = FlywheelSubsystem(FlywheelIO.DummyFlywheelIO())
             }
         }
 
         robotVisualizer = RobotVisualizer( // Independent of robot mode. Initialized at last to give it the parameters.
-            { jointSubsystem.getJointPosition() },
-            { elevatorSubsystem.getElevatorDisplacement() }
+            { hoodSubsystem.getHoodPosition() },
+            { intakeDeploySubsystem.getIntakeDeployDisplacement() }
         )
     }
 }

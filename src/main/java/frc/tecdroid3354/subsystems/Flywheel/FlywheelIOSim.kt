@@ -1,4 +1,4 @@
-package frc.tecdroid3354.subsystems.angularVelocity
+package frc.tecdroid3354.subsystems.Flywheel
 
 import com.ctre.phoenix6.signals.MotorAlignmentValue
 import com.ctre.phoenix6.sim.TalonFXSimState
@@ -102,9 +102,6 @@ class FlywheelIOSim : FlywheelIO {
         when (validatedSlot) { // Update the corresponding Slot Configs
             0 -> {
                 newMotorsConfig.Slot0 = SubsystemsControlGains.FLYWHEEL_MOTOR_PRIMARY_GAINS.updatePhoenixSlot0Configs()
-            }
-            1 -> {
-                newMotorsConfig.Slot1 = SubsystemsControlGains.FLYWHEEL_MOTOR_SECONDARY_GAINS.updatePhoenixSlot1Configs()
             }
             else -> { // Can assume else {} branch to be 2, but defaults to primary since tertiary are not declared.
                 newMotorsConfig.Slot2 = SubsystemsControlGains.FLYWHEEL_MOTOR_PRIMARY_GAINS.updatePhoenixSlot2Configs()

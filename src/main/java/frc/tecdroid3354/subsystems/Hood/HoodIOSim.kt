@@ -1,4 +1,4 @@
-package frc.tecdroid3354.subsystems.angularPosition
+package frc.tecdroid3354.subsystems.Hood
 
 import com.ctre.phoenix6.signals.MotorAlignmentValue
 import com.ctre.phoenix6.sim.TalonFXSimState
@@ -13,10 +13,9 @@ import frc.tecdroid3354.constants.RobotConstants
 import frc.tecdroid3354.constants.RobotDimensions
 import frc.tecdroid3354.constants.SubsystemsControlGains
 import frc.tecdroid3354.constants.SubsystemsControlRequests
-import frc.tecdroid3354.constants.SubsystemsMotionTargets
 import frc.tecdroid3354.constants.SubsystemsMovementLimits
 import frc.tecdroid3354.constants.SubsystemsPresetTargets
-import frc.tecdroid3354.subsystems.angularVelocity.FlywheelConstants
+import frc.tecdroid3354.subsystems.Flywheel.FlywheelConstants
 import frc.tecdroid3354.utils.interfaces.MotorIO
 import frc.tecdroid3354.utils.devices.OpTalonFX
 import frc.tecdroid3354.utils.kilogramSquareMeters
@@ -24,29 +23,28 @@ import frc.tecdroid3354.utils.meters
 import frc.tecdroid3354.utils.radians
 import frc.tecdroid3354.utils.radiansPerSecond
 import frc.tecdroid3354.utils.seconds
-import java.util.Optional
 
-class JointIOSim: JointIO {
+class HoodIOSim: HoodIO {
     private val subsystemSim: SingleJointedArmSim = SingleJointedArmSim(
         LinearSystemId.createSingleJointedArmSystem(
-            DCMotor.getKrakenX60Foc(JointConstants.Mechanical.NUMBER_OF_MOTORS),
-            JointConstants.Mechanical.MOMENT_OF_INERTIA.kilogramSquareMeters,
-            JointConstants.Mechanical.REDUCTION.getRatio()
+            DCMotor.getKrakenX44Foc(HoodConstants.Mechanical.NUMBER_OF_MOTORS),
+            HoodConstants.Mechanical.MOMENT_OF_INERTIA.kilogramSquareMeters,
+            HoodConstants.Mechanical.REDUCTION.getRatio()
         ),
-        DCMotor.getKrakenX60Foc(JointConstants.Mechanical.NUMBER_OF_MOTORS),
-        JointConstants.Mechanical.REDUCTION.getRatio(),
-        RobotDimensions.ELEVATOR_MINIMUM_LENGTH.meters,
-        (SubsystemsMovementLimits.JOINT_POSITION_LIMITS.minimum as Angle).radians,
-        (SubsystemsMovementLimits.JOINT_POSITION_LIMITS.maximum as Angle).radians,
+        DCMotor.getKrakenX44Foc(HoodConstants.Mechanical.NUMBER_OF_MOTORS),
+        HoodConstants.Mechanical.REDUCTION.getRatio(),
+        RobotDimensions.INTAKE_MINIMUM_LENGTH.meters,
+        (SubsystemsMovementLimits.HOOD_POSITION_LIMITS.minimum as Angle).radians,
+        (SubsystemsMovementLimits.HOOD_POSITION_LIMITS.maximum as Angle).radians,
         true,
-        SubsystemsPresetTargets.JOINT_HOME_ANGLE.radians
+        SubsystemsPresetTargets.HOOD_HOME_ANGLE.radians
     )
 
     private val leadMotorReal     : OpTalonFX = OpTalonFX(
-        JointConstants.Identification.LEAD_MOTOR_ID, JointConstants.Identification.JOINT_CANBUS_NAME
+        HoodConstants.Identification.LEAD_MOTOR_ID, HoodConstants.Identification.HOOD_CANBUS_NAME
     )
     private val followerMotorReal : OpTalonFX = OpTalonFX(
-        JointConstants.Identification.FOLLOWER_MOTOR_ID, JointConstants.Identification.JOINT_CANBUS_NAME
+        HoodConstants.Identification.FOLLOWER_MOTOR_ID, HoodConstants.Identification.HOOD_CANBUS_NAME
     )
 
     private val leadMotorSim        : TalonFXSimState = leadMotorReal.getMotorInstance().simState
@@ -57,12 +55,12 @@ class JointIOSim: JointIO {
         MotorAlignmentValue.Opposed -> true
     }
 
-    private val jointTargetPosition: MutAngle = Degrees.mutable(0.0)
-    private val jointManualTargetPosition: MutAngle = Degrees.mutable(0.0)
+    private val hoodTargetPosition: MutAngle = Degrees.mutable(0.0)
+    private val hoodManualTargetPosition: MutAngle = Degrees.mutable(0.0)
 
     @Suppress("DuplicatedCode")
-    override fun updateJointInputs(inputs: JointIO.JointIOInputs,
-                                   leadMotorInputs: MotorIO.MotorIOInputs, followerMotorInputs: MotorIO.MotorIOInputs)  {
+    override fun updateHoodInputs(inputs: HoodIO.HoodIOInputs,
+                                  leadMotorInputs: MotorIO.MotorIOInputs, followerMotorInputs: MotorIO.MotorIOInputs)  {
         //
         // START PHYSICS UPDATE
         //
@@ -73,11 +71,11 @@ class JointIOSim: JointIO {
 
         val motorPosition = leadMotorReal.getAngularSubsystemToMotorPosition(
             subsystemSim.angleRads.radians,
-            JointConstants.Mechanical.REDUCTION
+            HoodConstants.Mechanical.REDUCTION
         )
         val motorVelocity = leadMotorReal.getAngularSubsystemToMotorVelocity(
             subsystemSim.velocityRadPerSec.radiansPerSecond,
-            JointConstants.Mechanical.REDUCTION
+            HoodConstants.Mechanical.REDUCTION
         )
         val motorPositionFollower = if (inverseMotorReading) motorPosition.unaryMinus() else motorPosition
         val motorVelocityFollower = if (inverseMotorReading) motorVelocity.unaryMinus() else motorVelocity
@@ -90,32 +88,32 @@ class JointIOSim: JointIO {
         //
         // END PHYSICS UPDATE
         //
-        inputs.jointActualPosition.mut_replace(subsystemSim.angleRads.radians)
-        inputs.jointTargetPosition.mut_replace(jointTargetPosition)
-        inputs.jointManualTargetPosition.mut_replace(jointManualTargetPosition)
+        inputs.hoodActualPosition.mut_replace(subsystemSim.angleRads.radians)
+        inputs.hoodTargetPosition.mut_replace(hoodTargetPosition)
+        inputs.hoodManualTargetPosition.mut_replace(hoodManualTargetPosition)
 
         leadMotorReal.updateInputs(leadMotorInputs)
         followerMotorReal.updateInputs(followerMotorInputs)
     }
 
-    override fun updateJointManualPosition(newJointPosition: Angle) {
-        jointManualTargetPosition.mut_replace(newJointPosition)
+    override fun updateHoodManualPosition(newHoodPosition: Angle) {
+        hoodManualTargetPosition.mut_replace(newHoodPosition)
     }
 
-    override fun updateJointMotorsControlGains(slot: Int) {
+    override fun updateHoodMotorsControlGains(slot: Int) {
         val validatedSlot = MathUtil.clamp(slot, 0, 2) // Make sure the selected slot is either 0, 1, or 2
         // Clone the initial config
-        val newMotorsConfig = JointConstants.PhoenixMotorConfiguration.initialMotorsConfiguration.clone()
+        val newMotorsConfig = HoodConstants.PhoenixMotorConfiguration.initialMotorsConfiguration.clone()
 
         when (validatedSlot) { // Update the corresponding Slot Configs
             0 -> {
-                newMotorsConfig.Slot0 = SubsystemsControlGains.JOINT_MOTOR_PRIMARY_GAINS.updatePhoenixSlot0Configs()
+                newMotorsConfig.Slot0 = SubsystemsControlGains.HOOD_MOTOR_PRIMARY_GAINS.updatePhoenixSlot0Configs()
             }
             1 -> { // Secondary not declared
-                newMotorsConfig.Slot1 = SubsystemsControlGains.JOINT_MOTOR_PRIMARY_GAINS.updatePhoenixSlot1Configs()
+                newMotorsConfig.Slot1 = SubsystemsControlGains.HOOD_MOTOR_PRIMARY_GAINS.updatePhoenixSlot1Configs()
             }
             else -> { // Can assume else {} branch to be 2, but defaults to primary since tertiary are not declared.
-                newMotorsConfig.Slot2 = SubsystemsControlGains.JOINT_MOTOR_PRIMARY_GAINS.updatePhoenixSlot2Configs()
+                newMotorsConfig.Slot2 = SubsystemsControlGains.HOOD_MOTOR_PRIMARY_GAINS.updatePhoenixSlot2Configs()
             }
         }
 
@@ -123,48 +121,44 @@ class JointIOSim: JointIO {
         followerMotorReal.applyConfigAndClearFaults(newMotorsConfig)
     }
 
-    override fun setJointManualPosition(): Runnable {
+    override fun setHoodManualPosition(): Runnable {
         return {
-            jointTargetPosition.mut_replace(jointManualTargetPosition)
+            hoodTargetPosition.mut_replace(hoodManualTargetPosition)
 
-            leadMotorReal.angularSubsystemPositionDynamicRequest(
-                SubsystemsControlRequests.JOINT_CONTROL_TYPE,
-                jointManualTargetPosition,
-                SubsystemsMovementLimits.JOINT_POSITION_LIMITS,
-                JointConstants.Mechanical.REDUCTION,
-                Optional.of(SubsystemsMotionTargets.JOINT_SECONDARY_MOTION_TARGETS),
-                Optional.empty(), Optional.empty()
+            leadMotorReal.angularSubsystemPositionRequest(
+                SubsystemsControlRequests.HOOD_CONTROL_TYPE,
+                hoodManualTargetPosition,
+                SubsystemsMovementLimits.HOOD_POSITION_LIMITS,
+                HoodConstants.Mechanical.REDUCTION,
             )
         }
     }
 
-    override fun setJointPosition(jointPosition: Angle): Runnable {
+    override fun setHoodPosition(hoodPosition: Angle): Runnable {
         return {
-            jointTargetPosition.mut_replace(jointPosition)
+            hoodTargetPosition.mut_replace(hoodPosition)
 
-            leadMotorReal.angularSubsystemPositionDynamicRequest(
-                SubsystemsControlRequests.JOINT_CONTROL_TYPE,
-                jointPosition,
-                SubsystemsMovementLimits.JOINT_POSITION_LIMITS,
-                JointConstants.Mechanical.REDUCTION,
-                Optional.of(SubsystemsMotionTargets.JOINT_PRIMARY_MOTION_TARGETS),
-                Optional.empty(), Optional.empty()
+            leadMotorReal.angularSubsystemPositionRequest(
+                SubsystemsControlRequests.HOOD_CONTROL_TYPE,
+                hoodPosition,
+                SubsystemsMovementLimits.HOOD_POSITION_LIMITS,
+                HoodConstants.Mechanical.REDUCTION,
             )
         }
     }
 
-    override fun stopJoint(): Runnable {
+    override fun stopHood(): Runnable {
         return { leadMotorReal.stopMotor() }
     }
 
-    override fun coastJointMotors(): Runnable {
+    override fun coastHoodMotors(): Runnable {
         return {
             leadMotorReal.coast()
             followerMotorReal.coast()
         }
     }
 
-    override fun brakeJointMotors(): Runnable {
+    override fun brakeHoodMotors(): Runnable {
         return {
             leadMotorReal.brake()
             followerMotorReal.brake()
@@ -172,11 +166,11 @@ class JointIOSim: JointIO {
     }
 
     override fun initialMotorConfiguration() {
-        leadMotorReal.applyConfigAndClearFaults(JointConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
-        followerMotorReal.applyConfigAndClearFaults(JointConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
+        leadMotorReal.applyConfigAndClearFaults(HoodConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
+        followerMotorReal.applyConfigAndClearFaults(HoodConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
 
         followerMotorReal.follow(
             leadMotorReal.getMotorInstance(),
-            JointConstants.PhoenixMotorConfiguration.followerMotorAlignment)
+            HoodConstants.PhoenixMotorConfiguration.followerMotorAlignment)
     }
 }

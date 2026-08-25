@@ -6,7 +6,6 @@ import edu.wpi.first.math.geometry.Transform3d
 import edu.wpi.first.math.geometry.Translation3d
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.Distance
-import frc.tecdroid3354.constants.RobotConstants
 import frc.tecdroid3354.constants.RobotDimensions
 import frc.tecdroid3354.constants.RobotTelemetry
 import frc.tecdroid3354.constants.RobotVisualization
@@ -37,29 +36,29 @@ class RobotVisualizer(private val jointPosition: Supplier<Angle>,
     )
     private val armGuidingRail: LoggedMechanismLigament2d = armOrigin.append(
         LoggedMechanismLigament2d(
-            RobotVisualization.MECHANISMS_ARM_GUIDING_RAIL_2D_NAME,
-            RobotDimensions.ELEVATOR_MINIMUM_LENGTH.meters, // Initial length
+            RobotVisualization.MECHANISMS_INTAKE_GUIDING_RAIL_2D_NAME,
+            RobotDimensions.INTAKE_MINIMUM_LENGTH.meters, // Initial length
             SubsystemsPresetTargets.JOINT_HOME_ANGLE.degrees, // Initial angle
-            RobotVisualization.ARM_GUIDING_RAIL_WIDTH,
+            RobotVisualization.INTAKE_GUIDING_RAIL_WIDTH,
             RobotVisualization.GUIDING_RAIL_COLOR
         )
     )
     private val armDisplacementLigament: LoggedMechanismLigament2d = armGuidingRail.append(
         LoggedMechanismLigament2d(
-            RobotVisualization.MECHANISMS_ARM_DISPLACEMENT_LIGAMENT_2D_NAME,
-            (SubsystemsMovementLimits.ELEVATOR_DISPLACEMENT_LIMITS.minimum as Distance).meters, // Initial length
-            RobotVisualization.ARM_DISPLACEMENT_LIGAMENT_INITIAL_ANGLE.degrees, // Relative to guiding rail
-            RobotVisualization.ARM_DISPLACEMENT_LIGAMENT_WIDTH,
-            RobotVisualization.ARM_DISPLACEMENT_LIGAMENT_COLOR
+            RobotVisualization.MECHANISMS_INTAKE_DISPLACEMENT_LIGAMENT_2D_NAME,
+            (SubsystemsMovementLimits.INTAKE_DEPLOY_DISPLACEMENT_LIMITS.minimum as Distance).meters, // Initial length
+            RobotVisualization.INTAKE_DISPLACEMENT_LIGAMENT_INITIAL_ANGLE.degrees, // Relative to guiding rail
+            RobotVisualization.INTAKE_DISPLACEMENT_LIGAMENT_WIDTH,
+            RobotVisualization.INTAKE_DISPLACEMENT_LIGAMENT_COLOR
         )
     )
     private val armEndEffectorLigament: LoggedMechanismLigament2d = armDisplacementLigament.append(
         LoggedMechanismLigament2d(
-            RobotVisualization.MECHANISMS_ARM_END_EFFECTOR_2D_NAME,
-            RobotVisualization.ARM_END_EFFECTOR_HEIGHT.meters,
-            RobotVisualization.ARM_END_EFFECTOR_RELATIVE_ANGLE.degrees, // Relative to displacement ligament
-            RobotVisualization.ARM_END_EFFECTOR_WIDTH,
-            RobotVisualization.ARM_END_EFFECTOR_COLOR
+            RobotVisualization.MECHANISMS_INTAKE_END_EFFECTOR_2D_NAME,
+            RobotVisualization.INTAKE_END_EFFECTOR_HEIGHT.meters,
+            RobotVisualization.INTAKE_END_EFFECTOR_RELATIVE_ANGLE.degrees, // Relative to displacement ligament
+            RobotVisualization.INTAKE_END_EFFECTOR_WIDTH,
+            RobotVisualization.INTAKE_END_EFFECTOR_COLOR
         )
     )
 
@@ -68,9 +67,9 @@ class RobotVisualizer(private val jointPosition: Supplier<Angle>,
     //
 
     private val pivotOffset: Translation3d = Translation3d(
-        RobotDimensions.JOINT_FORWARD_OFFSET,
+        RobotDimensions.HOOD_FORWARD_OFFSET,
         0.0.meters,
-        RobotDimensions.JOINT_UPWARD_OFFSET,
+        RobotDimensions.HOOD_UPWARD_OFFSET,
     )
 
     /**

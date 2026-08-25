@@ -1,4 +1,4 @@
-package frc.tecdroid3354.subsystems.angularVelocity
+package frc.tecdroid3354.subsystems.Flywheel
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs
 import com.ctre.phoenix6.configs.MotionMagicConfigs
@@ -17,7 +17,6 @@ import frc.tecdroid3354.constants.RobotTelemetry
 import frc.tecdroid3354.constants.SimConstants
 import frc.tecdroid3354.constants.SubsystemsControlGains
 import frc.tecdroid3354.constants.SubsystemsMotionTargets
-import frc.tecdroid3354.subsystems.angularPosition.JointConstants
 import frc.tecdroid3354.utils.amps
 import frc.tecdroid3354.utils.devices.KrakenMotors
 import frc.tecdroid3354.utils.kilogramSquareMeters
@@ -121,7 +120,6 @@ object FlywheelConstants {
         const val LEAD_MOTOR_INPUTS_TAB                 : String = "${SUBSYSTEM_TAB}/Lead Motor"
         const val FOLLOWER_MOTOR_INPUTS_TAB             : String = "${SUBSYSTEM_TAB}/Follower Motor"
         const val SUBSYSTEM_PRIMARY_GAINS               : String = "$SUBSYSTEM_TAB Primary Gains"
-        const val SUBSYSTEM_SECONDARY_GAINS             : String = "$SUBSYSTEM_TAB Secondary Gains"
 
         const val LEAD_MOTOR_CONNECTION_ALERT_TAB       : String =
             "${RobotTelemetry.CONNECTION_ALERTS_TAB}/${Identification.FLYWHEEL_CANBUS_NAME}" +

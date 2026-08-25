@@ -1,4 +1,4 @@
-package frc.tecdroid3354.subsystems.angularVelocity;
+package frc.tecdroid3354.subsystems.Flywheel;
 
 import edu.wpi.first.units.measure.*;
 import frc.tecdroid3354.utils.interfaces.MotorIO;
