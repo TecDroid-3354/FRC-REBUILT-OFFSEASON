@@ -1,6 +1,5 @@
 package frc.tecdroid3354.subsystems.Hopper
 
-import com.ctre.phoenix6.signals.MotorAlignmentValue
 import com.ctre.phoenix6.sim.TalonFXSimState
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.system.plant.DCMotor
@@ -8,12 +7,18 @@ import edu.wpi.first.math.system.plant.LinearSystemId
 import edu.wpi.first.units.Units.DegreesPerSecond
 import edu.wpi.first.units.measure.AngularAcceleration
 import edu.wpi.first.units.measure.AngularVelocity
+import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.MutAngularVelocity
+import edu.wpi.first.wpilibj.simulation.ElevatorSim
 import edu.wpi.first.wpilibj.simulation.FlywheelSim
 import frc.tecdroid3354.constants.*
 import frc.tecdroid3354.utils.devices.OpTalonFX
 import frc.tecdroid3354.utils.interfaces.MotorIO
 import frc.tecdroid3354.utils.kilogramSquareMeters
+import frc.tecdroid3354.utils.kilograms
+import frc.tecdroid3354.utils.meters
+import frc.tecdroid3354.utils.metersPerSecond
+import frc.tecdroid3354.utils.rotationsPerMinute
 import frc.tecdroid3354.utils.seconds
 
 class HopperIOSim : HopperIO {
@@ -29,17 +34,8 @@ class HopperIOSim : HopperIO {
     private val leadMotorReal: OpTalonFX = OpTalonFX(
         HopperConstants.Identification.LEAD_MOTOR_ID,
         HopperConstants.Identification.HOPPER_CANBUS_NAME)
-    private val followerMotorReal: OpTalonFX = OpTalonFX(
-        HopperConstants.Identification.FOLLOWER_MOTOR_ID,
-        HopperConstants.Identification.HOPPER_CANBUS_NAME)
 
     private val leadMotorSim: TalonFXSimState = leadMotorReal.getMotorInstance().simState
-    private val followerMotorSim: TalonFXSimState = followerMotorReal.getMotorInstance().simState
-
-    private val inverseMotorReading: Boolean = when(HopperConstants.PhoenixMotorConfiguration.followerMotorAlignment) {
-        MotorAlignmentValue.Aligned -> false
-        MotorAlignmentValue.Opposed -> true
-    }
 
     /**
      * Note that [hopperVelocityTarget] may contain the same value as [manualHopperVelocityTarget] when
@@ -48,8 +44,7 @@ class HopperIOSim : HopperIO {
     private val manualHopperVelocityTarget: MutAngularVelocity = DegreesPerSecond.mutable(0.0)
     private val hopperVelocityTarget: MutAngularVelocity = DegreesPerSecond.mutable(0.0)
 
-    override fun updateHopperInputs(inputs: HopperIO.HopperIOInputs,
-                                    leadMotorInputs: MotorIO.MotorIOInputs, followerMotorInputs: MotorIO.MotorIOInputs) {
+    override fun updateHopperInputs(inputs: HopperIO.HopperIOInputs, leadMotorInputs: MotorIO.MotorIOInputs) {
         //
         // START PHYSICS UPDATE
         //
@@ -69,9 +64,6 @@ class HopperIOSim : HopperIO {
         leadMotorSim.setRotorVelocity(motorVelocity)
         leadMotorSim.setRotorAcceleration(motorAcceleration)
 
-        followerMotorSim.setRotorVelocity(if (inverseMotorReading) motorVelocity.unaryMinus() else motorVelocity)
-        followerMotorSim.setRotorAcceleration(if (inverseMotorReading) motorAcceleration.unaryMinus() else motorAcceleration)
-
         //
         // END PHYSICS UPDATE
         //
@@ -82,7 +74,6 @@ class HopperIOSim : HopperIO {
         inputs.hopperPresetVelocity.mut_replace(SubsystemsPresetTargets.HOPPER_PRESET_RPM)
 
         leadMotorReal.updateInputs(leadMotorInputs)
-        followerMotorReal.updateInputs(followerMotorInputs)
     }
 
     override fun updateHopperManualVelocity(newHopperManualVelocity: AngularVelocity) {
@@ -105,7 +96,6 @@ class HopperIOSim : HopperIO {
         }
 
         leadMotorReal.applyConfigAndClearFaults(newMotorsConfig)
-        followerMotorReal.applyConfigAndClearFaults(newMotorsConfig)
     }
 
     override fun enableHopperManualVelocity(): Runnable {
@@ -136,6 +126,7 @@ class HopperIOSim : HopperIO {
 
     override fun stopHopper(): Runnable {
         return {
+            hopperVelocityTarget.mut_replace(0.0.rotationsPerMinute)
             leadMotorReal.stopMotor()
         }
     }
@@ -143,23 +134,16 @@ class HopperIOSim : HopperIO {
     override fun coastHopperMotors(): Runnable {
         return {
             leadMotorReal.coast()
-            followerMotorReal.coast()
         }
     }
 
     override fun brakeHopperMotors(): Runnable {
         return {
             leadMotorReal.brake()
-            followerMotorReal.brake()
         }
     }
 
     override fun initialMotorConfiguration() {
         leadMotorReal.applyConfigAndClearFaults(HopperConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
-        followerMotorReal.applyConfigAndClearFaults(HopperConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
-
-        followerMotorReal.follow(
-            leadMotorReal.getMotorInstance(),
-            HopperConstants.PhoenixMotorConfiguration.followerMotorAlignment)
     }
 }

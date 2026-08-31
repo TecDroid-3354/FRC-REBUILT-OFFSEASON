@@ -43,24 +43,14 @@ class HoodIOSim: HoodIO {
     private val leadMotorReal     : OpTalonFX = OpTalonFX(
         HoodConstants.Identification.LEAD_MOTOR_ID, HoodConstants.Identification.HOOD_CANBUS_NAME
     )
-    private val followerMotorReal : OpTalonFX = OpTalonFX(
-        HoodConstants.Identification.FOLLOWER_MOTOR_ID, HoodConstants.Identification.HOOD_CANBUS_NAME
-    )
 
     private val leadMotorSim        : TalonFXSimState = leadMotorReal.getMotorInstance().simState
-    private val followerMotorSim    : TalonFXSimState = followerMotorReal.getMotorInstance().simState
-
-    private val inverseMotorReading: Boolean = when(FlywheelConstants.PhoenixMotorConfiguration.followerMotorAlignment) {
-        MotorAlignmentValue.Aligned -> false
-        MotorAlignmentValue.Opposed -> true
-    }
 
     private val hoodTargetPosition: MutAngle = Degrees.mutable(0.0)
     private val hoodManualTargetPosition: MutAngle = Degrees.mutable(0.0)
 
     @Suppress("DuplicatedCode")
-    override fun updateHoodInputs(inputs: HoodIO.HoodIOInputs,
-                                  leadMotorInputs: MotorIO.MotorIOInputs, followerMotorInputs: MotorIO.MotorIOInputs)  {
+    override fun updateHoodInputs(inputs: HoodIO.HoodIOInputs, leadMotorInputs: MotorIO.MotorIOInputs)  {
         //
         // START PHYSICS UPDATE
         //
@@ -77,14 +67,10 @@ class HoodIOSim: HoodIO {
             subsystemSim.velocityRadPerSec.radiansPerSecond,
             HoodConstants.Mechanical.REDUCTION
         )
-        val motorPositionFollower = if (inverseMotorReading) motorPosition.unaryMinus() else motorPosition
-        val motorVelocityFollower = if (inverseMotorReading) motorVelocity.unaryMinus() else motorVelocity
 
         leadMotorSim.setRawRotorPosition(motorPosition)
         leadMotorSim.setRotorVelocity(motorVelocity)
 
-        followerMotorSim.setRawRotorPosition(motorPositionFollower)
-        followerMotorSim.setRotorVelocity(motorVelocityFollower)
         //
         // END PHYSICS UPDATE
         //
@@ -93,7 +79,6 @@ class HoodIOSim: HoodIO {
         inputs.hoodManualTargetPosition.mut_replace(hoodManualTargetPosition)
 
         leadMotorReal.updateInputs(leadMotorInputs)
-        followerMotorReal.updateInputs(followerMotorInputs)
     }
 
     override fun updateHoodManualPosition(newHoodPosition: Angle) {
@@ -118,7 +103,6 @@ class HoodIOSim: HoodIO {
         }
 
         leadMotorReal.applyConfigAndClearFaults(newMotorsConfig)
-        followerMotorReal.applyConfigAndClearFaults(newMotorsConfig)
     }
 
     override fun setHoodManualPosition(): Runnable {
@@ -154,23 +138,16 @@ class HoodIOSim: HoodIO {
     override fun coastHoodMotors(): Runnable {
         return {
             leadMotorReal.coast()
-            followerMotorReal.coast()
         }
     }
 
     override fun brakeHoodMotors(): Runnable {
         return {
             leadMotorReal.brake()
-            followerMotorReal.brake()
         }
     }
 
     override fun initialMotorConfiguration() {
         leadMotorReal.applyConfigAndClearFaults(HoodConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
-        followerMotorReal.applyConfigAndClearFaults(HoodConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
-
-        followerMotorReal.follow(
-            leadMotorReal.getMotorInstance(),
-            HoodConstants.PhoenixMotorConfiguration.followerMotorAlignment)
     }
 }

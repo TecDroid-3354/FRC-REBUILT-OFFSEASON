@@ -18,7 +18,6 @@ class HopperSubsystem(private val io: HopperIO) : SubsystemBase(HopperConstants.
     // Auto generated file (by @AutoLog annotation in IO Layer)
     private val inputs: HopperIOInputsAutoLogged = HopperIOInputsAutoLogged()
     private val leadMotorInputs: MotorIOInputsAutoLogged = MotorIOInputsAutoLogged()
-    private val followerMotorInputs: MotorIOInputsAutoLogged = MotorIOInputsAutoLogged()
 
     /**
      * START OF CONNECTION ALERT VARIABLES. These alerts are published separately from other inputs.
@@ -26,8 +25,6 @@ class HopperSubsystem(private val io: HopperIO) : SubsystemBase(HopperConstants.
      */
     private val leadMotorConnectionAlert: Alert =
         Alert(HopperConstants.Telemetry.LEAD_MOTOR_CONNECTION_ALERT_TAB, Alert.AlertType.kError)
-    private val followerMotorConnectionAlert: Alert =
-        Alert(HopperConstants.Telemetry.FOLLOWER_MOTOR_CONNECTION_ALERT_TAB, Alert.AlertType.kError)
     /**
      * END OF CONNECTION ALERT VARIABLES
      */
@@ -46,16 +43,14 @@ class HopperSubsystem(private val io: HopperIO) : SubsystemBase(HopperConstants.
      */
     override fun periodic() {
         // IMPORTANT: This must be the first line in periodic() so that all other methods work with fresh data.
-        io.updateHopperInputs(inputs, leadMotorInputs, followerMotorInputs)
+        io.updateHopperInputs(inputs, leadMotorInputs)
 
         // Logs every field to the specified directory. It can be seen live through Elastic & AdvantageScope.
         Logger.processInputs(HopperConstants.Telemetry.SUBSYSTEM_TAB, inputs)
         Logger.processInputs(HopperConstants.Telemetry.LEAD_MOTOR_INPUTS_TAB, leadMotorInputs)
-        Logger.processInputs(HopperConstants.Telemetry.FOLLOWER_MOTOR_INPUTS_TAB, followerMotorInputs)
 
         // Update motor alerts based on inputs.
         leadMotorConnectionAlert.set(leadMotorInputs.isConnected.not())
-        followerMotorConnectionAlert.set(followerMotorInputs.isConnected.not())
 
         // Check if ControlGains coefficients were changed live and update the motors.
         if (SubsystemsControlGains.HOPPER_MOTOR_PRIMARY_GAINS.hadTunableUpdated()) {

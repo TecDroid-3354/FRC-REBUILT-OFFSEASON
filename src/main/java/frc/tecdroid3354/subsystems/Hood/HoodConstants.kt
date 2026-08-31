@@ -30,20 +30,19 @@ object HoodConstants {
      */
     object Identification {
         const val HOOD_CANBUS_NAME: String = CanBuses.RIO_CANBUS
-        const val LEAD_MOTOR_ID: Int = 20
-        const val FOLLOWER_MOTOR_ID: Int = 21
+        const val LEAD_MOTOR_ID: Int = 51
     }
 
     /**
      * Only for gear ratio ([Reduction]). In the case of linear subsystems, the sprocket also goes here.
      */
     object Mechanical {
-        val REDUCTION: Reduction = Reduction(360.0)
+        val REDUCTION: Reduction = Reduction((60.0 / 10.0) * (37.0 / 21.0))
 
         const val NUMBER_OF_MOTORS: Int = 1
 
-        // From OnShape, accounting for the elevator of Botzilla (2025) as of 26/07/2026
-        private val MECHANISM_INERTIA: MomentOfInertia = (1684.1562.times(SimConstants.FREEDOM_UNITS_TO_METRIC_MOI)).kilogramSquareMeters
+        // From OnShape, as of 26/08/2026
+        private val MECHANISM_INERTIA: MomentOfInertia = (154.498876.times(SimConstants.FREEDOM_UNITS_TO_METRIC_MOI)).kilogramSquareMeters
 
         // From mechanism perspective
         // Check: https://www.motioncontroltips.com/how-do-gearmotors-impact-reflected-mass-inertia-from-the-load/
@@ -58,6 +57,24 @@ object HoodConstants {
     }
 
     /**
+     * Only in the scenario you use a polynomial to calculate the target hood angle.
+     * In this example we assume two polynomials, one for scoring and another for assist (based off 2026 REBUILT)
+     *
+     * All polynomials were calculated from TecDroid's Trajectory Simulator.
+     */
+    object PolynomialCoefficients {
+        const val SCORING_X3_COEFF: Double = -0.257860
+        const val SCORING_X2_COEFF: Double = 0.823323
+        const val SCORING_X1_COEFF: Double = 8.641864
+        const val SCORING_X0_COEFF: Double = 0.238287
+
+        const val ASSIST_X3_COEFF: Double = 0.632129
+        const val ASSIST_X2_COEFF: Double = -8.336842
+        const val ASSIST_X1_COEFF: Double = 35.949862
+        const val ASSIST_X0_COEFF: Double = -20.551522
+    }
+
+    /**
      * Contains initial configuration for the subsystem motors assuming Phoenix API.
      * Configurations meant to be tunable live, limits, control gains, motion targets and movement presets
      * are all stored in a separate file where they are next to those of all other subsystems (excluding drivetrain).
@@ -65,8 +82,6 @@ object HoodConstants {
      * remains mostly untouched unless the Design or Electrical Teams change something.
      */
     object PhoenixMotorConfiguration {
-        val followerMotorAlignment: MotorAlignmentValue = MotorAlignmentValue.Aligned
-
         private val neutralMode: NeutralModeValue = NeutralModeValue.Brake
         private val motorDirection: InvertedValue = InvertedValue.CounterClockwise_Positive
 
@@ -99,15 +114,11 @@ object HoodConstants {
     object Telemetry {
         const val SUBSYSTEM_TAB                         : String = "Hood"
         const val LEAD_MOTOR_INPUTS_TAB                 : String = "${SUBSYSTEM_TAB}/Lead Motor"
-        const val FOLLOWER_MOTOR_INPUTS_TAB             : String = "${SUBSYSTEM_TAB}/Follower Motor"
 
         const val SUBSYSTEM_PRIMARY_GAINS               : String = "$SUBSYSTEM_TAB Primary Gains"
 
         const val LEAD_MOTOR_CONNECTION_ALERT_TAB       : String =
             "${RobotTelemetry.CONNECTION_ALERTS_TAB}/${Identification.HOOD_CANBUS_NAME}" +
                     "/${SUBSYSTEM_TAB} Motor id=${Identification.LEAD_MOTOR_ID}"
-        const val FOLLOWER_MOTOR_CONNECTION_ALERT_TAB   : String =
-            "${RobotTelemetry.CONNECTION_ALERTS_TAB}/${Identification.HOOD_CANBUS_NAME}" +
-                    "/${SUBSYSTEM_TAB} Motor id=${Identification.FOLLOWER_MOTOR_ID}"
     }
 }

@@ -55,7 +55,7 @@ public class DriveCommands {
     private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
     private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
 
-    private static final MutAngle lastDriveAngle = Degrees.mutable(0.0);
+    public static final MutAngle lastDriveAngle = Degrees.mutable(0.0);
 
     private DriveCommands() {}
 
@@ -223,6 +223,7 @@ public class DriveCommands {
         // Construct command
         return Commands.run(
                         () -> {
+                            lastDriveAngle.mut_replace(Radians.of(rotationSupplier.get().getRadians()));
                             // Get linear velocity
                             Translation2d linearVelocity =
                                     getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());

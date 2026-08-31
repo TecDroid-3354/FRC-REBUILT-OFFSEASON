@@ -20,8 +20,8 @@ object IntakeRollersConstants {
      */
     object Identification {
         const val INTAKE_ROLLERS_CANBUS_NAME: String = CanBuses.RIO_CANBUS
-        const val LEAD_MOTOR_ID: Int = 40
-        const val FOLLOWER_MOTOR_ID: Int = 41
+        const val LEAD_MOTOR_ID: Int = 22
+        const val FOLLOWER_MOTOR_ID: Int = 21
     }
 
     /**
@@ -29,14 +29,12 @@ object IntakeRollersConstants {
      * In the case of linear subsystems, the sprocket also goes here.
      */
     object Mechanical {
-        val REDUCTION: Reduction = Reduction(1.0)
+        val REDUCTION: Reduction = Reduction(2.0)
 
         const val NUMBER_OF_MOTORS: Int = 2
 
-        // From OnShape, accounting for the main roller and subsystem of Tutankabot as of 26/07/2026
-        // Note that simulation will probably reach target slower than our 2026 robot, as that one
-        // had 4 KrakenX60 dedicated to the subsystem, whereas this example assumes only 2.
-        private val MECHANISM_INERTIA: MomentOfInertia = (66.006.times(SimConstants.FREEDOM_UNITS_TO_METRIC_MOI)).kilogramSquareMeters
+        // From OnShape as of 26/08/2026
+        private val MECHANISM_INERTIA: MomentOfInertia = (20.454.times(SimConstants.FREEDOM_UNITS_TO_METRIC_MOI)).kilogramSquareMeters
 
         // From mechanism perspective
         // Check: https://www.motioncontroltips.com/how-do-gearmotors-impact-reflected-mass-inertia-from-the-load/

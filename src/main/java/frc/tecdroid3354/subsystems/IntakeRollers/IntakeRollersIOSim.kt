@@ -14,6 +14,7 @@ import frc.tecdroid3354.constants.*
 import frc.tecdroid3354.utils.devices.OpTalonFX
 import frc.tecdroid3354.utils.interfaces.MotorIO
 import frc.tecdroid3354.utils.kilogramSquareMeters
+import frc.tecdroid3354.utils.rotationsPerMinute
 import frc.tecdroid3354.utils.seconds
 
 class IntakeRollersIOSim : IntakeRollersIO {
@@ -136,6 +137,7 @@ class IntakeRollersIOSim : IntakeRollersIO {
 
     override fun stopIntakeRollers(): Runnable {
         return {
+            intakeRollersVelocityTarget.mut_replace(0.0.rotationsPerMinute)
             leadMotorReal.stopMotor()
         }
     }

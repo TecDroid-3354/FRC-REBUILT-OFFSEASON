@@ -58,7 +58,8 @@ public interface FlywheelIO {
      * @param inputs The generated {@link FlywheelIOInputs} object keeping track of everything.
      */
     void updateFlywheelInputs(FlywheelIOInputs inputs,
-                              MotorIO.MotorIOInputs leadMotorInputs, MotorIO.MotorIOInputs followerMotorInputs);
+                              MotorIO.MotorIOInputs leadMotorInputs, MotorIO.MotorIOInputs followerMotorLeftInputs,
+                              MotorIO.MotorIOInputs followerMotorRightOneInputs, MotorIO.MotorIOInputs followerMotorRightTwoInputs);
 
     /**
      * Used to update the in-file variable containing the manual target velocity. This resets with every code reload.
@@ -139,7 +140,8 @@ public interface FlywheelIO {
 
         @Override
         public void updateFlywheelInputs(FlywheelIOInputs inputs,
-                                         MotorIO.MotorIOInputs leadMotorInputs, MotorIO.MotorIOInputs followerMotorInputs) {
+                                         MotorIO.MotorIOInputs leadMotorInputs, MotorIO.MotorIOInputs followerMotorLeftInputs,
+                                         MotorIO.MotorIOInputs followerMotorRightOneInputs, MotorIO.MotorIOInputs followerMotorRightTwoInputs) {
 
         }
 

@@ -48,7 +48,8 @@ data class Factor(val value: Double)
 // Extension Members
 //
 
-fun Angle.toRotation2d() = Rotation2d(this)
+fun Angle.toRotation2d(): Rotation2d = Rotation2d(this)
+fun Rotation2d.toAngle(): Angle = Radians.of(this.radians)
 
 /**
  * The whole purpose of the below extension members (including 'Inverse Extension Members') is to make

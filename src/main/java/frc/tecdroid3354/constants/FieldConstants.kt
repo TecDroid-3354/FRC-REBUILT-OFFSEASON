@@ -1,6 +1,7 @@
 package frc.tecdroid3354.constants
 
 import edu.wpi.first.math.geometry.Translation2d
+import edu.wpi.first.units.measure.Distance
 import frc.tecdroid3354.utils.Boundary
 import frc.tecdroid3354.utils.inches
 import frc.tecdroid3354.utils.meters
@@ -31,5 +32,19 @@ object FieldConstants {
     object TargetTranslations {
         val BLUE_HUB                    : Translation2d = Translation2d(4.625.meters, 4.030.meters)
         val RED_HUB                     : Translation2d = Translation2d(11.92.meters, 4.030.meters)
+
+        val UPPER_BLUE_ASSIST           : Translation2d = Translation2d(3.625.meters, 5.42.meters)
+        val BOTTOM_BLUE_ASSIST          : Translation2d = Translation2d(3.625.meters, 2.64.meters)
+
+        val UPPER_RED_ASSIST            : Translation2d = Translation2d(12.92.meters, 5.42.meters)
+        val BOTTOM_RED_ASSIST           : Translation2d = Translation2d(12.92.meters, 2.64.meters)
+    }
+
+    object FieldDimensions {
+        val X_AXIS_WIDTH                    : Distance = 16.51.meters
+        val Y_AXIS_HEIGHT                   : Distance = 8.04.meters
+
+        val NEUTRAL_ZONE_BLUE_END_X_AXIS    : Distance = 5.19.meters
+        val NEUTRAL_ZONE_RED_END_X_AXIS     : Distance = 11.35.meters
     }
 }

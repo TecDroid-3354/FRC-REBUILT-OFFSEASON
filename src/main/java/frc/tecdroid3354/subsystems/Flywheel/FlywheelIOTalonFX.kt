@@ -10,6 +10,7 @@ import frc.tecdroid3354.constants.SubsystemsMovementLimits
 import frc.tecdroid3354.constants.SubsystemsPresetTargets
 import frc.tecdroid3354.utils.interfaces.MotorIO
 import frc.tecdroid3354.utils.devices.OpTalonFX
+import frc.tecdroid3354.utils.rotationsPerMinute
 
 /**
  * Hardware layer for TalonFX motor controllers. Only file where [com.ctre.phoenix6.hardware.TalonFX]
@@ -22,8 +23,14 @@ class FlywheelIOTalonFX: FlywheelIO {
     private val leadMotorController: OpTalonFX = OpTalonFX(
         FlywheelConstants.Identification.LEAD_MOTOR_ID,
         FlywheelConstants.Identification.FLYWHEEL_CANBUS_NAME)
-    private val followerMotorController: OpTalonFX = OpTalonFX(
-        FlywheelConstants.Identification.FOLLOWER_MOTOR_ID,
+    private val followerMotorLeftController: OpTalonFX = OpTalonFX(
+        FlywheelConstants.Identification.FOLLOWER_LEFT_ID,
+        FlywheelConstants.Identification.FLYWHEEL_CANBUS_NAME)
+    private val followerMotorRightOneController: OpTalonFX = OpTalonFX(
+        FlywheelConstants.Identification.FOLLOWER_RIGHT_ONE_ID,
+        FlywheelConstants.Identification.FLYWHEEL_CANBUS_NAME)
+    private val followerMotorRightTwoController: OpTalonFX = OpTalonFX(
+        FlywheelConstants.Identification.FOLLOWER_RIGHT_TWO_ID,
         FlywheelConstants.Identification.FLYWHEEL_CANBUS_NAME)
 
     /**
@@ -34,7 +41,8 @@ class FlywheelIOTalonFX: FlywheelIO {
     private val flywheelVelocityTarget: MutAngularVelocity = DegreesPerSecond.mutable(0.0)
 
     override fun updateFlywheelInputs(inputs: FlywheelIO.FlywheelIOInputs,
-                                      leadMotorInputs: MotorIO.MotorIOInputs, followerMotorInputs: MotorIO.MotorIOInputs) {
+                                      leadMotorInputs: MotorIO.MotorIOInputs, followerMotorLeftInputs: MotorIO.MotorIOInputs,
+                                      followerMotorRightOneInputs: MotorIO.MotorIOInputs, followerMotorRightTwoInputs: MotorIO.MotorIOInputs) {
         inputs.flywheelActualVelocity.mut_replace(leadMotorController.getMotorToAngularSubsystemVelocity(
             FlywheelConstants.Mechanical.REDUCTION
         ))
@@ -43,7 +51,9 @@ class FlywheelIOTalonFX: FlywheelIO {
         inputs.flywheelPresetVelocity.mut_replace(SubsystemsPresetTargets.FLYWHEEL_PRESET_RPM)
 
         leadMotorController.updateInputs(leadMotorInputs)
-        followerMotorController.updateInputs(followerMotorInputs)
+        followerMotorLeftController.updateInputs(followerMotorLeftInputs)
+        followerMotorRightOneController.updateInputs(followerMotorRightOneInputs)
+        followerMotorRightTwoController.updateInputs(followerMotorRightTwoInputs)
     }
 
     override fun updateFlywheelManualVelocity(newFlywheelManualVelocity: AngularVelocity) {
@@ -66,7 +76,9 @@ class FlywheelIOTalonFX: FlywheelIO {
         }
 
         leadMotorController.applyConfigAndClearFaults(newMotorsConfig)
-        followerMotorController.applyConfigAndClearFaults(newMotorsConfig)
+        followerMotorLeftController.applyConfigAndClearFaults(newMotorsConfig)
+        followerMotorRightOneController.applyConfigAndClearFaults(newMotorsConfig)
+        followerMotorRightTwoController.applyConfigAndClearFaults(newMotorsConfig)
     }
 
     override fun enableFlywheelManualVelocity(): Runnable {
@@ -109,6 +121,7 @@ class FlywheelIOTalonFX: FlywheelIO {
 
     override fun stopFlywheel(): Runnable {
         return {
+            flywheelVelocityTarget.mut_replace(0.0.rotationsPerMinute)
             leadMotorController.stopMotor()
         }
     }
@@ -116,23 +129,36 @@ class FlywheelIOTalonFX: FlywheelIO {
     override fun coastFlywheelMotors(): Runnable {
         return {
             leadMotorController.coast()
-            followerMotorController.coast()
+            followerMotorLeftController.coast()
+            followerMotorRightOneController.coast()
+            followerMotorRightTwoController.coast()
         }
     }
 
     override fun brakeFlywheelMotors(): Runnable {
         return {
             leadMotorController.brake()
-            followerMotorController.brake()
+            followerMotorLeftController.brake()
+            followerMotorRightOneController.brake()
+            followerMotorRightTwoController.brake()
         }
     }
 
     override fun initialMotorConfiguration() {
         leadMotorController.applyConfigAndClearFaults(FlywheelConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
-        followerMotorController.applyConfigAndClearFaults(FlywheelConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
+        followerMotorLeftController.applyConfigAndClearFaults(FlywheelConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
+        followerMotorRightOneController.applyConfigAndClearFaults(FlywheelConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
+        followerMotorRightTwoController.applyConfigAndClearFaults(FlywheelConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
 
-        followerMotorController.follow(
+        followerMotorLeftController.follow(
             leadMotorController.getMotorInstance(),
-            FlywheelConstants.PhoenixMotorConfiguration.followerMotorAlignment)
+            FlywheelConstants.PhoenixMotorConfiguration.followerLeftMotorAlignment)
+
+        followerMotorRightOneController.follow(
+            leadMotorController.getMotorInstance(),
+            FlywheelConstants.PhoenixMotorConfiguration.followerRightMotorAlignment)
+        followerMotorRightTwoController.follow(
+            leadMotorController.getMotorInstance(),
+            FlywheelConstants.PhoenixMotorConfiguration.followerRightMotorAlignment)
     }
 }

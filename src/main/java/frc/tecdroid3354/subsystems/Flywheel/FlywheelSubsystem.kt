@@ -2,23 +2,32 @@ package frc.tecdroid3354.subsystems.Flywheel
 
 import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Distance
+import edu.wpi.first.units.measure.Time
 import edu.wpi.first.wpilibj.Alert
 import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.RunCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import frc.tecdroid3354.constants.SubsystemTolerances
 import frc.tecdroid3354.constants.SubsystemsControlGains
 import frc.tecdroid3354.constants.SubsystemsTunableTargets
 import frc.tecdroid3354.utils.InstantCommandIgnoreDisabled
 import frc.tecdroid3354.utils.interfaces.MotorIOInputsAutoLogged
 import frc.tecdroid3354.utils.meters
 import frc.tecdroid3354.utils.rotationsPerMinute
+import frc.tecdroid3354.utils.seconds
 import org.littletonrobotics.junction.Logger
+import java.util.function.Supplier
+import kotlin.math.abs
 import kotlin.math.pow
 
 class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelConstants.Telemetry.SUBSYSTEM_TAB) {
     // Auto generated file (by @AutoLog annotation in IO Layer)
     private val inputs: FlywheelIOInputsAutoLogged = FlywheelIOInputsAutoLogged()
     private val leadMotorInputs: MotorIOInputsAutoLogged = MotorIOInputsAutoLogged()
-    private val followerMotorInputs: MotorIOInputsAutoLogged = MotorIOInputsAutoLogged()
+    private val followerMotorLeftInputs: MotorIOInputsAutoLogged = MotorIOInputsAutoLogged()
+    private val followerMotorRightOneInputs: MotorIOInputsAutoLogged = MotorIOInputsAutoLogged()
+    private val followerMotorRightTwoInputs: MotorIOInputsAutoLogged = MotorIOInputsAutoLogged()
+
 
     /**
      * START OF CONNECTION ALERT VARIABLES. These alerts are published separately from other inputs.
@@ -46,23 +55,23 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
      */
     override fun periodic() {
         // IMPORTANT: This must be the first line in periodic() so that all other methods work with fresh data.
-        io.updateFlywheelInputs(inputs, leadMotorInputs, followerMotorInputs)
+        io.updateFlywheelInputs(inputs, leadMotorInputs, followerMotorLeftInputs,
+            followerMotorRightOneInputs, followerMotorRightTwoInputs,)
 
         // Logs every field to the specified directory. It can be seen live through Elastic & AdvantageScope.
         Logger.processInputs(FlywheelConstants.Telemetry.SUBSYSTEM_TAB, inputs)
         Logger.processInputs(FlywheelConstants.Telemetry.LEAD_MOTOR_INPUTS_TAB, leadMotorInputs)
-        Logger.processInputs(FlywheelConstants.Telemetry.FOLLOWER_MOTOR_INPUTS_TAB, followerMotorInputs)
+        Logger.processInputs(FlywheelConstants.Telemetry.FOLLOWER_LEFT_MOTOR_INPUTS_TAB, followerMotorLeftInputs)
+        Logger.processInputs(FlywheelConstants.Telemetry.FOLLOWER_RIGHT_MOTOR_ONE_INPUTS_TAB, followerMotorRightOneInputs)
+        Logger.processInputs(FlywheelConstants.Telemetry.FOLLOWER_RIGHT_MOTOR_TWO_INPUTS_TAB, followerMotorRightTwoInputs)
 
         // Update motor alerts based on inputs.
         leadMotorConnectionAlert.set(leadMotorInputs.isConnected.not())
-        followerMotorConnectionAlert.set(followerMotorInputs.isConnected.not())
+        followerMotorConnectionAlert.set(followerMotorLeftInputs.isConnected.not())
 
         // Check if ControlGains coefficients were changed live and update the motors.
         if (SubsystemsControlGains.FLYWHEEL_MOTOR_PRIMARY_GAINS.hadTunableUpdated()) {
             io.updateFlywheelMotorsControlGains(0) // Updates Slot0 because is the primary set
-        }
-        if (SubsystemsControlGains.FLYWHEEL_MOTOR_SECONDARY_GAINS.hadTunableUpdated()) {
-            io.updateFlywheelMotorsControlGains(1) // Updates Slot1 because is the secondary set
         }
 
         // Check if the manual target RPMs were changed live and update the target.
@@ -92,10 +101,12 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
      * See I/O implementation comment for details.
      * @param flywheelDistanceToTarget Differs from robot distance to target (odometry); account for offsets from robot center.
      */
-    fun enableFlywheelCalculatedScoringVelocity(flywheelDistanceToTarget: Distance): Runnable {
-        val flywheelCalculatedVelocity = getCalculatedFlywheelScoringVelocity(flywheelDistanceToTarget)
-
-        return io.enableFlywheelCalculatedVelocity(flywheelCalculatedVelocity)
+    fun enableFlywheelCalculatedScoringVelocity(flywheelDistanceToTarget: Supplier<Distance>): Command {
+        // The .run() is because of how Runnables work, it ensures it runs again and doesn't freeze (even inside a RunCommand)
+        return RunCommand({
+            val flywheelCalculatedVelocity = getCalculatedFlywheelScoringVelocity(flywheelDistanceToTarget.get())
+            io.enableFlywheelCalculatedVelocity(flywheelCalculatedVelocity).run()
+        }, this)
     }
 
     /**
@@ -104,10 +115,12 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
      * See I/O implementation comment for details.
      * @param flywheelDistanceToTarget Differs from robot distance to target (odometry); account for offsets from robot center.
      */
-    fun enableFlywheelCalculatedAssistVelocity(flywheelDistanceToTarget: Distance): Runnable {
-        val flywheelCalculatedVelocity = getCalculatedFlywheelAssistVelocity(flywheelDistanceToTarget)
-
-        return io.enableFlywheelCalculatedVelocity(flywheelCalculatedVelocity)
+    fun enableFlywheelCalculatedAssistVelocity(flywheelDistanceToTarget: Supplier<Distance>): Command {
+        // The .run() is because of how Runnables work, it ensures it runs again and doesn't freeze (even inside a RunCommand)
+        return RunCommand({
+            val flywheelCalculatedVelocity = getCalculatedFlywheelAssistVelocity(flywheelDistanceToTarget.get())
+            io.enableFlywheelCalculatedVelocity(flywheelCalculatedVelocity).run()
+        }, this)
     }
 
     /**
@@ -115,6 +128,17 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
      */
     fun stopFlywheel(): Runnable {
         return io.stopFlywheel()
+    }
+
+    /** Returns the flywheel velocity according to the [inputs] */
+    fun getFlywheelVelocity(): AngularVelocity {
+        return inputs.flywheelActualVelocity
+    }
+
+    /** Returns true when the flywheel is within tolerance for its target */
+    fun getIsAtTarget(): Boolean {
+        return abs(inputs.flywheelTargetVelocity.minus(inputs.flywheelActualVelocity).rotationsPerMinute) <
+                SubsystemTolerances.FLYWHEEL_TARGET_TOLERANCE.rotationsPerMinute
     }
 
     /**
@@ -131,6 +155,28 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
         return io.brakeFlywheelMotors().InstantCommandIgnoreDisabled(this)
     }
 
+    fun getCalculatedScoringTimeOfFlight(flywheelDistanceToTarget: Distance): Time {
+        val distanceInMeters = flywheelDistanceToTarget.meters
+        val calculatedTOF =
+            FlywheelConstants.PolynomialCoefficients.TOF_SCORING_X3_COEFF.times(distanceInMeters.pow(3.0)) +
+                    FlywheelConstants.PolynomialCoefficients.TOF_SCORING_X2_COEFF.times(distanceInMeters.pow(2.0)) +
+                    FlywheelConstants.PolynomialCoefficients.TOF_SCORING_X1_COEFF.times(distanceInMeters) +
+                    FlywheelConstants.PolynomialCoefficients.TOF_SCORING_X0_COEFF
+
+        return calculatedTOF.seconds
+    }
+
+    fun getCalculatedAssistTimeOfFlight(flywheelDistanceToTarget: Distance): Time {
+        val distanceInMeters = flywheelDistanceToTarget.meters
+        val calculatedTOF =
+            FlywheelConstants.PolynomialCoefficients.TOF_ASSIST_X3_COEFF.times(distanceInMeters.pow(3.0)) +
+                    FlywheelConstants.PolynomialCoefficients.TOF_ASSIST_X2_COEFF.times(distanceInMeters.pow(2.0)) +
+                    FlywheelConstants.PolynomialCoefficients.TOF_ASSIST_X1_COEFF.times(distanceInMeters) +
+                    FlywheelConstants.PolynomialCoefficients.TOF_ASSIST_X0_COEFF
+
+        return calculatedTOF.seconds
+    }
+
     /**
      * Only if applicable. This is implemented here because it does not change between hardware / simulation layers.
      *
@@ -145,7 +191,6 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
      *
      *   - Polynomial Output: Rotations Per Minute
      *
-     * The output is divided by 60 before creating the [AngularVelocity] object, which accepts Rotations Per Second.
      * @param flywheelDistanceToTarget Differs from robot distance to target; account for offsets from robot center.
      * @return The [AngularVelocity] calculated by the scoring polynomial.
      */
@@ -174,7 +219,6 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
      *
      *   - Polynomial Output: Rotations Per Minute
      *
-     * The output is divided by 60 before creating the [AngularVelocity] object, which accepts Rotations Per Second.
      * @param flywheelDistanceToTarget Differs from robot distance to target; account for offsets from robot center.
      * @return The [AngularVelocity] calculated by the assist polynomial.
      */

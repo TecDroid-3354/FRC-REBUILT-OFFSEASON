@@ -19,8 +19,8 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d
 import java.util.function.Supplier
 
-class RobotVisualizer(private val jointPosition: Supplier<Angle>,
-                      private val elevatorDisplacement: Supplier<Distance>) {
+class RobotVisualizer(private val hoodPosition: Supplier<Angle>,
+                      private val intakeDeployDisplacement: Supplier<Distance>) {
     //
     // VISUALIZATION IN 2D ONLY
     //
@@ -29,21 +29,21 @@ class RobotVisualizer(private val jointPosition: Supplier<Angle>,
         RobotVisualization.CANVAS_HEIGHT.meters,
         RobotVisualization.CANVAS_COLOR,
     )
-    private val armOrigin: LoggedMechanismRoot2d = robot2d.getRoot(
+    private val intakeDeployOrigin: LoggedMechanismRoot2d = robot2d.getRoot(
         RobotVisualization.MECHANISMS_ORIGIN_2D_NAME,
         RobotVisualization.CANVAS_WIDTH.div(2.0).meters,
         0.0, // Starts at the bottom of the canvas
     )
-    private val armGuidingRail: LoggedMechanismLigament2d = armOrigin.append(
+    private val intakeDeployGuidingRail: LoggedMechanismLigament2d = intakeDeployOrigin.append(
         LoggedMechanismLigament2d(
             RobotVisualization.MECHANISMS_INTAKE_GUIDING_RAIL_2D_NAME,
             RobotDimensions.INTAKE_MINIMUM_LENGTH.meters, // Initial length
-            SubsystemsPresetTargets.JOINT_HOME_ANGLE.degrees, // Initial angle
+            SubsystemsPresetTargets.HOOD_HOME_ANGLE.degrees, // Initial angle
             RobotVisualization.INTAKE_GUIDING_RAIL_WIDTH,
             RobotVisualization.GUIDING_RAIL_COLOR
         )
     )
-    private val armDisplacementLigament: LoggedMechanismLigament2d = armGuidingRail.append(
+    private val intakeDeployDisplacementLigament: LoggedMechanismLigament2d = intakeDeployGuidingRail.append(
         LoggedMechanismLigament2d(
             RobotVisualization.MECHANISMS_INTAKE_DISPLACEMENT_LIGAMENT_2D_NAME,
             (SubsystemsMovementLimits.INTAKE_DEPLOY_DISPLACEMENT_LIMITS.minimum as Distance).meters, // Initial length
@@ -52,7 +52,7 @@ class RobotVisualizer(private val jointPosition: Supplier<Angle>,
             RobotVisualization.INTAKE_DISPLACEMENT_LIGAMENT_COLOR
         )
     )
-    private val armEndEffectorLigament: LoggedMechanismLigament2d = armDisplacementLigament.append(
+    private val intakeDeployEndEffectorLigament: LoggedMechanismLigament2d = intakeDeployDisplacementLigament.append(
         LoggedMechanismLigament2d(
             RobotVisualization.MECHANISMS_INTAKE_END_EFFECTOR_2D_NAME,
             RobotVisualization.INTAKE_END_EFFECTOR_HEIGHT.meters,
@@ -78,8 +78,8 @@ class RobotVisualizer(private val jointPosition: Supplier<Angle>,
      */
     fun updateRobotVisualization() {
         // 2D UPDATE ONLY
-        armGuidingRail.setAngle(jointPosition.get().degrees)
-        armDisplacementLigament.setLength(elevatorDisplacement.get().meters)
+        intakeDeployGuidingRail.setAngle(hoodPosition.get().degrees)
+        intakeDeployDisplacementLigament.setLength(intakeDeployDisplacement.get().meters)
 
         // 3D UPDATE ONLY
         // NOTE: for Botzilla, the pivot is a bit weirdly configured. For Tutankabot it doesn't work at all (different subsystems).
@@ -87,15 +87,15 @@ class RobotVisualizer(private val jointPosition: Supplier<Angle>,
         // Just don't visualize the 2D / 3D components in AdvantageScope to see the full (stationary) robot.
 
         // Pivot pose at the fixed chassis offset with the live joint pitch angle
-        val currentPivotPose = Pose3d(
+        val currentHoodPose = Pose3d(
             Translation3d(),//pivotOffset,
-            Rotation3d(0.0.degrees, jointPosition.get().unaryMinus(), 0.0.degrees)
+            Rotation3d(0.0.degrees, hoodPosition.get().unaryMinus(), 0.0.degrees)
         )
 
         // Extend linearly along the local axis (Z-up or X-forward based on your CAD)
-        val calculatedArmPose = currentPivotPose.transformBy(
+        val calculatedArmPose = currentHoodPose.transformBy(
             Transform3d(
-                Translation3d(elevatorDisplacement.get(), 0.0.meters, 0.0.meters),
+                Translation3d(intakeDeployDisplacement.get(), 0.0.meters, 0.0.meters),
                 Rotation3d() // Pure translation along local arm orientation
             )
         )
@@ -106,7 +106,7 @@ class RobotVisualizer(private val jointPosition: Supplier<Angle>,
 
         // Logging results
         Logger.recordOutput(RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB, robot2d)
-        Logger.recordOutput(RobotTelemetry.SUBSYSTEM_VISUALIZATION_3D_TAB + "/Arm Pose", calculatedArmPose)
+        Logger.recordOutput(RobotTelemetry.SUBSYSTEM_VISUALIZATION_3D_TAB + "/Intake Deploy Pose", calculatedArmPose)
         Logger.recordOutput(RobotTelemetry.SUBSYSTEM_VISUALIZATION_3D_TAB + "/End Effector Pose", calculatedEndEffectorPose)
     }
 }

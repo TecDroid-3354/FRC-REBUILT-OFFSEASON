@@ -41,13 +41,13 @@ import java.util.Optional
 class IntakeDeployIOSim: IntakeDeployIO {
     private val subsystemSim: ElevatorSim = ElevatorSim( // WPILIB Physics Simulation
         LinearSystemId.createElevatorSystem(
-            DCMotor.getKrakenX60Foc(Mechanical.NUMBER_OF_MOTORS), Mechanical.MASS.kilograms,
+            DCMotor.getKrakenX44Foc(Mechanical.NUMBER_OF_MOTORS), Mechanical.MASS.kilograms,
             Mechanical.SPROCKET.radius.meters, Mechanical.REDUCTION.getRatio()
         ),
-        DCMotor.getKrakenX60Foc(Mechanical.NUMBER_OF_MOTORS),
+        DCMotor.getKrakenX44Foc(Mechanical.NUMBER_OF_MOTORS),
         (SubsystemsMovementLimits.INTAKE_DEPLOY_DISPLACEMENT_LIMITS.minimum as Distance).meters,
         (SubsystemsMovementLimits.INTAKE_DEPLOY_DISPLACEMENT_LIMITS.maximum as Distance).meters,
-        true,
+        false,
         SubsystemsPresetTargets.INTAKE_DEPLOY_HOME_DISPLACEMENT.meters,
     )
 
@@ -60,23 +60,14 @@ class IntakeDeployIOSim: IntakeDeployIO {
     //
     private val leadMotorReal: OpTalonFX =
         OpTalonFX(IntakeDeployConstants.Identification.LEAD_MOTOR_ID, IntakeDeployConstants.Identification.INTAKE_DEPLOY_CANBUS_NAME)
-    private val followerMotorReal: OpTalonFX =
-        OpTalonFX(IntakeDeployConstants.Identification.FOLLOWER_MOTOR_ID, IntakeDeployConstants.Identification.INTAKE_DEPLOY_CANBUS_NAME)
 
     // It is important that the Sim Motors come directly from real motors
     private val leadMotorSim: TalonFXSimState = leadMotorReal.getMotorInstance().simState
-    private val followerMotorSim: TalonFXSimState = followerMotorReal.getMotorInstance().simState
-
-    private val inverseMotorReading: Boolean = when(IntakeDeployConstants.PhoenixMotorConfiguration.followerMotorAlignment) {
-        MotorAlignmentValue.Aligned -> false
-        MotorAlignmentValue.Opposed -> true
-    }
 
     private val intakeDeployTargetDisplacement      : MutDistance = Meters.mutable(0.0)
     private val intakeDeployManualTargetDisplacement: MutDistance = Meters.mutable(0.0)
 
-    override fun updateIntakeDeployInputs(inputs: IntakeDeployIO.IntakeDeployIOInputs,
-                                          leadMotorInputs: MotorIO.MotorIOInputs, followerMotorInputs: MotorIO.MotorIOInputs) {
+    override fun updateIntakeDeployInputs(inputs: IntakeDeployIO.IntakeDeployIOInputs, leadMotorInputs: MotorIO.MotorIOInputs) {
         //
         // START OF PHYSICS UPDATE
         //
@@ -101,9 +92,6 @@ class IntakeDeployIOSim: IntakeDeployIO {
         leadMotorSim.setRawRotorPosition(motorPosition)
         leadMotorSim.setRotorVelocity(motorVelocity)
 
-        followerMotorSim.setRawRotorPosition(if (inverseMotorReading) motorPosition.unaryMinus() else motorPosition)
-        followerMotorSim.setRotorVelocity(if (inverseMotorReading) motorVelocity.unaryMinus() else motorVelocity)
-
         //
         // END OF PHYSICS UPDATE
         //
@@ -113,7 +101,6 @@ class IntakeDeployIOSim: IntakeDeployIO {
         inputs.intakeDeployManualTargetDisplacement.mut_replace(intakeDeployManualTargetDisplacement)
 
         leadMotorReal.updateInputs(leadMotorInputs)
-        followerMotorReal.updateInputs(followerMotorInputs)
     }
 
     override fun updateIntakeDeployManualDisplacement(newIntakeDeployManualDisplacement: Distance) {
@@ -139,7 +126,6 @@ class IntakeDeployIOSim: IntakeDeployIO {
         }
 
         leadMotorReal.applyConfigAndClearFaults(newMotorsConfig)
-        followerMotorReal.applyConfigAndClearFaults(newMotorsConfig)
     }
 
     override fun setIntakeDeployManualTargetDisplacement(): Runnable {
@@ -169,7 +155,10 @@ class IntakeDeployIOSim: IntakeDeployIO {
                 SubsystemsMovementLimits.INTAKE_DEPLOY_DISPLACEMENT_LIMITS,
                 Mechanical.SPROCKET,
                 Mechanical.REDUCTION,
-                Optional.of(SubsystemsMotionTargets.INTAKE_DEPLOY_PRIMARY_MOTION_TARGETS),
+                Optional.of( // For Clustered position, secondary motion targets will be used
+                    if (this.intakeDeployTargetDisplacement == SubsystemsPresetTargets.INTAKE_DEPLOY_CLUSTERING_DISPLACEMENT)
+                        SubsystemsMotionTargets.INTAKE_DEPLOY_SECONDARY_MOTION_TARGETS
+                    else SubsystemsMotionTargets.INTAKE_DEPLOY_PRIMARY_MOTION_TARGETS),
                 Optional.empty(), Optional.empty()
             )
         }
@@ -182,25 +171,17 @@ class IntakeDeployIOSim: IntakeDeployIO {
     override fun coastIntakeDeployMotors(): Runnable {
         return {
             leadMotorReal.coast()
-            followerMotorReal.coast()
         }
     }
 
     override fun brakeIntakeDeployMotors(): Runnable {
         return {
             leadMotorReal.brake()
-            followerMotorReal.brake()
         }
     }
 
     override fun initialMotorConfiguration() {
         leadMotorReal.applyConfigAndClearFaults(IntakeDeployConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
-        followerMotorReal.applyConfigAndClearFaults(IntakeDeployConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
-
-        followerMotorReal.follow(
-            leadMotorReal.getMotorInstance(),
-            IntakeDeployConstants.PhoenixMotorConfiguration.followerMotorAlignment)
     }
-
 
 }

@@ -14,15 +14,11 @@ class HoodIOTalonFX: HoodIO {
     private val leadMotorController: OpTalonFX = OpTalonFX(
         HoodConstants.Identification.LEAD_MOTOR_ID, HoodConstants.Identification.HOOD_CANBUS_NAME
     )
-    private val followerMotorController: OpTalonFX = OpTalonFX(
-        HoodConstants.Identification.FOLLOWER_MOTOR_ID, HoodConstants.Identification.HOOD_CANBUS_NAME
-    )
 
     private val hoodTargetPosition: MutAngle = Degrees.mutable(0.0)
     private val hoodManualTargetPosition: MutAngle = Degrees.mutable(0.0)
 
-    override fun updateHoodInputs(inputs: HoodIO.HoodIOInputs,
-                                  leadMotorInputs: MotorIO.MotorIOInputs, followerMotorInputs: MotorIO.MotorIOInputs) {
+    override fun updateHoodInputs(inputs: HoodIO.HoodIOInputs, leadMotorInputs: MotorIO.MotorIOInputs) {
         inputs.hoodActualPosition.mut_replace(leadMotorController.getMotorToAngularSubsystemPosition(
             HoodConstants.Mechanical.REDUCTION
         ))
@@ -30,7 +26,6 @@ class HoodIOTalonFX: HoodIO {
         inputs.hoodManualTargetPosition.mut_replace(hoodManualTargetPosition)
 
         leadMotorController.updateInputs(leadMotorInputs)
-        followerMotorController.updateInputs(followerMotorInputs)
     }
 
     override fun updateHoodManualPosition(newHoodPosition: Angle) {
@@ -55,7 +50,6 @@ class HoodIOTalonFX: HoodIO {
         }
 
         leadMotorController.applyConfigAndClearFaults(newMotorsConfig)
-        followerMotorController.applyConfigAndClearFaults(newMotorsConfig)
     }
 
     override fun setHoodManualPosition(): Runnable {
@@ -91,23 +85,16 @@ class HoodIOTalonFX: HoodIO {
     override fun coastHoodMotors(): Runnable {
         return {
             leadMotorController.coast()
-            followerMotorController.coast()
         }
     }
 
     override fun brakeHoodMotors(): Runnable {
         return {
             leadMotorController.brake()
-            followerMotorController.brake()
         }
     }
 
     override fun initialMotorConfiguration() {
         leadMotorController.applyConfigAndClearFaults(HoodConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
-        followerMotorController.applyConfigAndClearFaults(HoodConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
-
-        followerMotorController.follow(
-            leadMotorController.getMotorInstance(),
-            HoodConstants.PhoenixMotorConfiguration.followerMotorAlignment)
     }
 }

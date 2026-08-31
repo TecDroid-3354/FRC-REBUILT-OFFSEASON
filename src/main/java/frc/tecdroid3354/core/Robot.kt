@@ -39,9 +39,6 @@ object Robot : LoggedRobot() {
     }
 
     override fun robotInit() {
-        // For PathPlanner Auto Building to work with Named Commands. Must be called during robot init.
-        RobotContainer.registerNamedCommandsInit()
-
         // Just silences the annoying joystick unplugged warning
         DriverStation.silenceJoystickConnectionWarning(true)
 

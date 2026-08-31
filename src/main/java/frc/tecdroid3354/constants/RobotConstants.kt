@@ -40,10 +40,10 @@ object RobotConstants {
 
 /** Contains robot-level values that affect movement calculations, such as mass, MOI and wheel cof */
 object RobotPhysics {
-    val RobotMass       : Mass              = 52.896.kilograms
+    val RobotMass       : Mass              = 58.0.kilograms
     // Measured from Tutankabot's CAD as of 02/08/2026 -> Selected all Main Layout and picked Lzz MOI from Mass & Properties
     // This gives around ~ 5.396 kg * m^2
-    val RobotMOI        : MomentOfInertia   = (18_440.2857 * SimConstants.FREEDOM_UNITS_TO_METRIC_MOI).kilogramSquareMeters
+    val RobotMOI        : MomentOfInertia   = (26_560.8661 * SimConstants.FREEDOM_UNITS_TO_METRIC_MOI).kilogramSquareMeters
 
     // This is an estimate that assumes the robot as a solid rectangular plate of uniformly-distributed mass.
     // Since the robot tends to have non-uniformly distributed mass, this tends to be an underestimate.
@@ -68,8 +68,8 @@ object RobotDimensions {
     val HOOD_FORWARD_OFFSET            : Distance = (-0.19685).meters
     val HOOD_UPWARD_OFFSET             : Distance = 0.1048.meters
 
-    val INTAKE_MINIMUM_LENGTH         : Distance = 0.8.meters     // Note that "length" differs from "displacement"
-    val INTAKE_MAXIMUM_LENGTH         : Distance = 2.32.meters    // Minimum + Maximum displacement
+    val INTAKE_MINIMUM_LENGTH         : Distance = 21.25.inches     // Note that "length" differs from "displacement"
+    val INTAKE_MAXIMUM_LENGTH         : Distance = 33.05.inches    // Minimum length + Maximum displacement
 }
 
 /**
@@ -79,9 +79,11 @@ object RobotDimensions {
  * i.e., Robot's transformation from center to a subsystem.
  */
 object RobotTransformations {
-    val ROBOT_TO_SHOOTER = Transform3d(0.0.meters, (-0.15).meters, 0.5.meters,
+    val ROBOT_TO_SHOOTER = Transform3d((-6.1311).inches, 0.0.inches, 20.6417.inches, // Previously, (x,y) inverted
         Rotation3d(0.0.degrees, 0.0.degrees, 180.0.degrees))
-    val ROBOT_TO_INTAKE = Translation2d(0.0.meters, 0.25.meters)
+
+    val ROBOT_TO_INTAKE = Transform3d((-22.9982).inches, 0.0.inches, 6.7805.inches,
+        Rotation3d(0.0.degrees, 0.0.degrees, 0.0.degrees))
 }
 
 /**
@@ -117,16 +119,16 @@ object RobotTelemetry {
  * For all 2D / 3D robot visualization constants, which will then assemble all subsystems inside [frc.tecdroid3354.RobotVisualizer]
  */
 object RobotVisualization {
-    const val MECHANISMS_ORIGIN_2D_NAME                     : String = "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB} Origin"
-    const val MECHANISMS_INTAKE_GUIDING_RAIL_2D_NAME           : String = "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB} Guiding Rail"
-    const val MECHANISMS_INTAKE_DISPLACEMENT_LIGAMENT_2D_NAME  : String = "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB} Displacement Ligament"
-    const val MECHANISMS_INTAKE_END_EFFECTOR_2D_NAME           : String = "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB} Carriage"
+    const val MECHANISMS_ORIGIN_2D_NAME                         : String = "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB} Origin"
+    const val MECHANISMS_INTAKE_GUIDING_RAIL_2D_NAME            : String = "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB} Guiding Rail"
+    const val MECHANISMS_INTAKE_DISPLACEMENT_LIGAMENT_2D_NAME   : String = "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB} Displacement Ligament"
+    const val MECHANISMS_INTAKE_END_EFFECTOR_2D_NAME            : String = "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB} Carriage"
 
     val CANVAS_WIDTH                                        : Distance = 5.0.meters
     val CANVAS_HEIGHT                                       : Distance = 3.0.meters
     val CANVAS_COLOR                                        : Color8Bit = Color8Bit(Color.kDarkGray)
 
-    val INTAKE_GUIDING_RAIL_WIDTH                              : Double = 6.0 // Who knows the unit of this
+    val INTAKE_GUIDING_RAIL_WIDTH                           : Double = 6.0 // Who knows the unit of this
     val GUIDING_RAIL_COLOR                                  : Color8Bit = Color8Bit(Color.kDarkViolet)
 
     val INTAKE_DISPLACEMENT_LIGAMENT_WIDTH                     : Double = 4.0

@@ -8,6 +8,7 @@ import frc.tecdroid3354.constants.SubsystemsControlGains
 import frc.tecdroid3354.constants.SubsystemsControlRequests
 import frc.tecdroid3354.constants.SubsystemsMotionTargets
 import frc.tecdroid3354.constants.SubsystemsMovementLimits
+import frc.tecdroid3354.constants.SubsystemsPresetTargets
 import frc.tecdroid3354.utils.devices.OpTalonFX
 import frc.tecdroid3354.subsystems.IntakeDeploy.IntakeDeployConstants.Identification
 import frc.tecdroid3354.subsystems.IntakeDeploy.IntakeDeployConstants.Mechanical
@@ -25,14 +26,11 @@ class IntakeDeployIOTalonFX : IntakeDeployIO {
     // Make sure to configure it.
     private val leadMotorController : OpTalonFX = OpTalonFX(Identification.LEAD_MOTOR_ID,
                                                             Identification.INTAKE_DEPLOY_CANBUS_NAME)
-    // Make sure to configure it and set it as follower.
-    private val followerMotorController : OpTalonFX = OpTalonFX(Identification.FOLLOWER_MOTOR_ID,
-                                                            Identification.INTAKE_DEPLOY_CANBUS_NAME)
+
     private val intakeDeployTargetDisplacement      : MutDistance = Meters.mutable(0.0)
     private val intakeDeployManualTargetDisplacement: MutDistance = Meters.mutable(0.0)
 
-    override fun updateIntakeDeployInputs(inputs: IntakeDeployIO.IntakeDeployIOInputs,
-                                          leadMotorInputs: MotorIO.MotorIOInputs, followerMotorInputs: MotorIO.MotorIOInputs) {
+    override fun updateIntakeDeployInputs(inputs: IntakeDeployIO.IntakeDeployIOInputs, leadMotorInputs: MotorIO.MotorIOInputs) {
         inputs.intakeDeployDisplacement.mut_replace(leadMotorController.getMotorToLinearSubsystemDisplacement(
             Mechanical.REDUCTION, Mechanical.SPROCKET
         ))
@@ -40,7 +38,6 @@ class IntakeDeployIOTalonFX : IntakeDeployIO {
         inputs.intakeDeployManualTargetDisplacement.mut_replace(intakeDeployManualTargetDisplacement)
 
         leadMotorController.updateInputs(leadMotorInputs)
-        followerMotorController.updateInputs(followerMotorInputs)
     }
 
     override fun updateIntakeDeployManualDisplacement(newIntakeDeployManualDisplacement: Distance) {
@@ -66,7 +63,6 @@ class IntakeDeployIOTalonFX : IntakeDeployIO {
         }
 
         leadMotorController.applyConfigAndClearFaults(newMotorsConfig)
-        followerMotorController.applyConfigAndClearFaults(newMotorsConfig)
     }
 
     override fun setIntakeDeployManualTargetDisplacement(): Runnable {
@@ -96,7 +92,10 @@ class IntakeDeployIOTalonFX : IntakeDeployIO {
                 SubsystemsMovementLimits.INTAKE_DEPLOY_DISPLACEMENT_LIMITS,
                 Mechanical.SPROCKET,
                 Mechanical.REDUCTION,
-                Optional.of(SubsystemsMotionTargets.INTAKE_DEPLOY_PRIMARY_MOTION_TARGETS),
+                Optional.of( // For Clustered position, secondary motion targets will be used
+                    if (this.intakeDeployTargetDisplacement == SubsystemsPresetTargets.INTAKE_DEPLOY_CLUSTERING_DISPLACEMENT)
+                        SubsystemsMotionTargets.INTAKE_DEPLOY_SECONDARY_MOTION_TARGETS
+                    else SubsystemsMotionTargets.INTAKE_DEPLOY_PRIMARY_MOTION_TARGETS),
                 Optional.empty(), Optional.empty()
             )
         }
@@ -109,23 +108,16 @@ class IntakeDeployIOTalonFX : IntakeDeployIO {
     override fun coastIntakeDeployMotors(): Runnable {
         return {
             leadMotorController.coast()
-            followerMotorController.coast()
         }
     }
 
     override fun brakeIntakeDeployMotors(): Runnable {
        return {
             leadMotorController.brake()
-            followerMotorController.brake()
        }
     }
 
     override fun initialMotorConfiguration() {
         leadMotorController.applyConfigAndClearFaults(IntakeDeployConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
-        followerMotorController.applyConfigAndClearFaults(IntakeDeployConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
-
-        followerMotorController.follow(
-            leadMotorController.getMotorInstance(),
-            IntakeDeployConstants.PhoenixMotorConfiguration.followerMotorAlignment)
     }
 }

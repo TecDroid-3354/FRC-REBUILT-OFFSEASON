@@ -18,6 +18,7 @@ import frc.tecdroid3354.constants.SubsystemsPresetTargets
 import frc.tecdroid3354.utils.interfaces.MotorIO
 import frc.tecdroid3354.utils.devices.OpTalonFX
 import frc.tecdroid3354.utils.kilogramSquareMeters
+import frc.tecdroid3354.utils.rotationsPerMinute
 import frc.tecdroid3354.utils.seconds
 
 class FlywheelIOSim : FlywheelIO {
@@ -33,14 +34,26 @@ class FlywheelIOSim : FlywheelIO {
     private val leadMotorReal: OpTalonFX = OpTalonFX(
         FlywheelConstants.Identification.LEAD_MOTOR_ID,
         FlywheelConstants.Identification.FLYWHEEL_CANBUS_NAME)
-    private val followerMotorReal: OpTalonFX = OpTalonFX(
-        FlywheelConstants.Identification.FOLLOWER_MOTOR_ID,
+    private val followerMotorLeftReal: OpTalonFX = OpTalonFX(
+        FlywheelConstants.Identification.FOLLOWER_LEFT_ID,
+        FlywheelConstants.Identification.FLYWHEEL_CANBUS_NAME)
+    private val followerMotorRightOneReal: OpTalonFX = OpTalonFX(
+        FlywheelConstants.Identification.FOLLOWER_RIGHT_ONE_ID,
+        FlywheelConstants.Identification.FLYWHEEL_CANBUS_NAME)
+    private val followerMotorRightTwoReal: OpTalonFX = OpTalonFX(
+        FlywheelConstants.Identification.FOLLOWER_RIGHT_TWO_ID,
         FlywheelConstants.Identification.FLYWHEEL_CANBUS_NAME)
 
     private val leadMotorSim: TalonFXSimState = leadMotorReal.getMotorInstance().simState
-    private val followerMotorSim: TalonFXSimState = followerMotorReal.getMotorInstance().simState
+    private val followerMotorLeftSim: TalonFXSimState = followerMotorLeftReal.getMotorInstance().simState
+    private val followerMotorRightOneSim: TalonFXSimState = followerMotorRightOneReal.getMotorInstance().simState
+    private val followerMotorRightTwoSim: TalonFXSimState = followerMotorRightTwoReal.getMotorInstance().simState
 
-    private val inverseMotorReading: Boolean = when(FlywheelConstants.PhoenixMotorConfiguration.followerMotorAlignment) {
+    private val inverseMotorLeftReading: Boolean = when(FlywheelConstants.PhoenixMotorConfiguration.followerLeftMotorAlignment) {
+        MotorAlignmentValue.Aligned -> false
+        MotorAlignmentValue.Opposed -> true
+    }
+    private val inverseMotorRightReading: Boolean = when(FlywheelConstants.PhoenixMotorConfiguration.followerRightMotorAlignment) {
         MotorAlignmentValue.Aligned -> false
         MotorAlignmentValue.Opposed -> true
     }
@@ -53,7 +66,8 @@ class FlywheelIOSim : FlywheelIO {
     private val flywheelVelocityTarget: MutAngularVelocity = DegreesPerSecond.mutable(0.0)
 
     override fun updateFlywheelInputs(inputs: FlywheelIO.FlywheelIOInputs,
-                                      leadMotorInputs: MotorIO.MotorIOInputs, followerMotorInputs: MotorIO.MotorIOInputs) {
+                                      leadMotorInputs: MotorIO.MotorIOInputs, followerMotorLeftInputs: MotorIO.MotorIOInputs,
+                                      followerMotorRightOneInputs: MotorIO.MotorIOInputs, followerMotorRightTwoInputs: MotorIO.MotorIOInputs) {
         //
         // START PHYSICS UPDATE
         //
@@ -73,8 +87,14 @@ class FlywheelIOSim : FlywheelIO {
         leadMotorSim.setRotorVelocity(motorVelocity)
         leadMotorSim.setRotorAcceleration(motorAcceleration)
 
-        followerMotorSim.setRotorVelocity(if (inverseMotorReading) motorVelocity.unaryMinus() else motorVelocity)
-        followerMotorSim.setRotorAcceleration(if (inverseMotorReading) motorAcceleration.unaryMinus() else motorAcceleration)
+        followerMotorLeftSim.setRotorVelocity(if (inverseMotorLeftReading) motorVelocity.unaryMinus() else motorVelocity)
+        followerMotorLeftSim.setRotorAcceleration(if (inverseMotorLeftReading) motorAcceleration.unaryMinus() else motorAcceleration)
+
+        followerMotorRightOneSim.setRotorVelocity(if (inverseMotorRightReading) motorVelocity.unaryMinus() else motorVelocity)
+        followerMotorRightOneSim.setRotorAcceleration(if (inverseMotorRightReading) motorAcceleration.unaryMinus() else motorAcceleration)
+
+        followerMotorRightTwoSim.setRotorVelocity(if (inverseMotorRightReading) motorVelocity.unaryMinus() else motorVelocity)
+        followerMotorRightTwoSim.setRotorAcceleration(if (inverseMotorRightReading) motorAcceleration.unaryMinus() else motorAcceleration)
 
         //
         // END PHYSICS UPDATE
@@ -86,7 +106,9 @@ class FlywheelIOSim : FlywheelIO {
         inputs.flywheelPresetVelocity.mut_replace(SubsystemsPresetTargets.FLYWHEEL_PRESET_RPM)
 
         leadMotorReal.updateInputs(leadMotorInputs)
-        followerMotorReal.updateInputs(followerMotorInputs)
+        followerMotorLeftReal.updateInputs(followerMotorLeftInputs)
+        followerMotorRightOneReal.updateInputs(followerMotorRightOneInputs)
+        followerMotorRightTwoReal.updateInputs(followerMotorRightTwoInputs)
     }
 
     override fun updateFlywheelManualVelocity(newFlywheelManualVelocity: AngularVelocity) {
@@ -109,7 +131,9 @@ class FlywheelIOSim : FlywheelIO {
         }
 
         leadMotorReal.applyConfigAndClearFaults(newMotorsConfig)
-        followerMotorReal.applyConfigAndClearFaults(newMotorsConfig)
+        followerMotorLeftReal.applyConfigAndClearFaults(newMotorsConfig)
+        followerMotorRightOneReal.applyConfigAndClearFaults(newMotorsConfig)
+        followerMotorRightTwoReal.applyConfigAndClearFaults(newMotorsConfig)
     }
 
     override fun enableFlywheelManualVelocity(): Runnable {
@@ -152,6 +176,7 @@ class FlywheelIOSim : FlywheelIO {
 
     override fun stopFlywheel(): Runnable {
         return {
+            flywheelVelocityTarget.mut_replace(0.0.rotationsPerMinute)
             leadMotorReal.stopMotor()
         }
     }
@@ -159,23 +184,36 @@ class FlywheelIOSim : FlywheelIO {
     override fun coastFlywheelMotors(): Runnable {
         return {
             leadMotorReal.coast()
-            followerMotorReal.coast()
+            followerMotorLeftReal.coast()
+            followerMotorRightOneReal.coast()
+            followerMotorRightTwoReal.coast()
         }
     }
 
     override fun brakeFlywheelMotors(): Runnable {
         return {
             leadMotorReal.brake()
-            followerMotorReal.brake()
+            followerMotorLeftReal.brake()
+            followerMotorRightOneReal.brake()
+            followerMotorRightTwoReal.brake()
         }
     }
 
     override fun initialMotorConfiguration() {
         leadMotorReal.applyConfigAndClearFaults(FlywheelConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
-        followerMotorReal.applyConfigAndClearFaults(FlywheelConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
+        followerMotorLeftReal.applyConfigAndClearFaults(FlywheelConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
+        followerMotorRightOneReal.applyConfigAndClearFaults(FlywheelConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
+        followerMotorRightTwoReal.applyConfigAndClearFaults(FlywheelConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
 
-        followerMotorReal.follow(
+        followerMotorLeftReal.follow(
             leadMotorReal.getMotorInstance(),
-            FlywheelConstants.PhoenixMotorConfiguration.followerMotorAlignment)
+            FlywheelConstants.PhoenixMotorConfiguration.followerLeftMotorAlignment)
+
+        followerMotorRightOneReal.follow(
+            leadMotorReal.getMotorInstance(),
+            FlywheelConstants.PhoenixMotorConfiguration.followerRightMotorAlignment)
+        followerMotorRightTwoReal.follow(
+            leadMotorReal.getMotorInstance(),
+            FlywheelConstants.PhoenixMotorConfiguration.followerRightMotorAlignment)
     }
 }

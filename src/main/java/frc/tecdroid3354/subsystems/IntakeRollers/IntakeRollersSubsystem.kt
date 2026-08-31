@@ -86,6 +86,11 @@ class IntakeRollersSubsystem(private val io: IntakeRollersIO) : SubsystemBase(In
         return io.stopIntakeRollers()
     }
 
+    /** Checks if the rollers velocity is greater than 100 RPMs. The threshold is an arbitrary value. */
+    fun getIsActive(): Boolean {
+        return inputs.intakeRollersActualVelocity.gt(100.0.rotationsPerMinute)
+    }
+
     /**
      * Changes NeutralMode / IdleMode of the motors to Coast.
      */

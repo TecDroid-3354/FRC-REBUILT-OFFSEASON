@@ -9,6 +9,7 @@ import edu.wpi.first.units.Units.Seconds
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Distance
+import edu.wpi.first.units.measure.Time
 import frc.tecdroid3354.generated.SwerveTunerConstants
 import frc.tecdroid3354.subsystems.Hood.HoodConstants
 import frc.tecdroid3354.subsystems.Flywheel.FlywheelConstants
@@ -22,13 +23,13 @@ import frc.tecdroid3354.utils.controlProfiles.LoggedTunableNumber
 import frc.tecdroid3354.utils.controlProfiles.TunableControlGains
 import frc.tecdroid3354.utils.controlProfiles.ControlGains
 import frc.tecdroid3354.utils.degrees
+import frc.tecdroid3354.utils.degreesPerSecond
 import frc.tecdroid3354.utils.devices.OpPositionControlRequests
 import frc.tecdroid3354.utils.devices.OpPositionControlRequests.*
 import frc.tecdroid3354.utils.devices.OpVelocityControlRequests
 import frc.tecdroid3354.utils.devices.OpVelocityControlRequests.*
 import frc.tecdroid3354.utils.inches
 import frc.tecdroid3354.utils.metersPerSecond
-import frc.tecdroid3354.utils.radiansPerSecond
 import frc.tecdroid3354.utils.rotationsPerMinute
 import frc.tecdroid3354.utils.safety.MeasureLimits
 import frc.tecdroid3354.utils.seconds
@@ -38,6 +39,9 @@ object DriveMultipliers {
     const val CONTROLLER_PRIMARY_X_MULTIPLIER       : Double = 0.8
     const val CONTROLLER_PRIMARY_Y_MULTIPLIER       : Double = 0.8
     const val CONTROLLER_PRIMARY_THETA_MULTIPLIER   : Double = 0.6 // Only in case of continuous rotation
+
+    // Used for Shoot on the Move
+    const val CONTROLLER_SOTM_LIMIT_MULTIPLIER      : Double = 0.42
 }
 
 /**
@@ -51,6 +55,21 @@ object SubsystemsControlRequests {
     val HOPPER_CONTROL_TYPE             : OpVelocityControlRequests = VELOCITY_TORQUE
     val INTAKE_DEPLOY_CONTROL_TYPE      : OpPositionControlRequests = POSITION_DYNAMIC_TORQUE
     val INTAKE_ROLLERS_CONTROL_TYPE     : OpVelocityControlRequests = VELOCITY_TORQUE
+}
+
+/** Stores the tolerance of each subsystem. This also includes tolerances for sequences and simulation. */
+object SubsystemTolerances {
+    val FLYWHEEL_TARGET_TOLERANCE                       : AngularVelocity = 45.0.rotationsPerMinute
+    val INTAKE_DEPLOY_TOLERANCE                         : Distance = 0.5.inches
+    val INTAKE_TIME_TOLERANCE_BEFORE_CLUSTER            : Time = 1.35.seconds
+
+    val DRIVE_HEADING_TOLERANCE                         : Angle = 2.0.degrees
+
+    val AUTONOMOUS_SCORING_SEQUENCE_TIME_TOLERANCE      : Time = 4.2.seconds
+
+    // Throughput of ~ 18 bps, which is a bit less because of loop cycles.
+    val SIMULATION_FUEL_LAUNCH_TIMEOUT_TOLERANCE        : Time = 0.0555.seconds
+    const val SIMULATION_HOPPER_FUEL_CAPACITY_TOLERANCE : Int = 70
 }
 
 /**
@@ -74,25 +93,25 @@ object SubsystemsMovementLimits {
     // TOWER ONLY
     //
     val TOWER_VELOCITY_LIMITS: MeasureLimits<AngularVelocityUnit> =
-        MeasureLimits(0.0.rotationsPerMinute .. 4_200.0.rotationsPerMinute)
+        MeasureLimits(0.0.rotationsPerMinute .. 3_850.0.rotationsPerMinute)
 
     //
     // HOPPER ONLY
     //
     val HOPPER_VELOCITY_LIMITS: MeasureLimits<AngularVelocityUnit> =
-        MeasureLimits(0.0.rotationsPerMinute .. 4_200.0.rotationsPerMinute)
+        MeasureLimits(0.0.rotationsPerMinute .. 650.0.rotationsPerMinute)
 
     //
     // ELEVATOR ONLY
     //
     val INTAKE_DEPLOY_DISPLACEMENT_LIMITS: MeasureLimits<DistanceUnit> =
-        MeasureLimits(0.0.inches .. 52.0.inches)
+        MeasureLimits(0.0.inches .. 11.8.inches)
 
     //
     // INTAKE ROLLERS ONLY
     //
     val INTAKE_ROLLERS_VELOCITY_LIMITS: MeasureLimits<AngularVelocityUnit> =
-        MeasureLimits(0.0.rotationsPerMinute .. 4_200.0.rotationsPerMinute)
+        MeasureLimits(0.0.rotationsPerMinute .. 3_000.0.rotationsPerMinute)
 }
 
 /** For all known targets of each subsystem */
@@ -110,23 +129,24 @@ object SubsystemsPresetTargets {
     //
     // TOWER ONLY
     //
-    val TOWER_PRESET_RPM: AngularVelocity = 3_200.0.rotationsPerMinute
+    val TOWER_PRESET_RPM: AngularVelocity = 3_600.0.rotationsPerMinute
 
     //
     // HOPPER ONLY
     //
-    val HOPPER_PRESET_RPM: AngularVelocity = 3_200.0.rotationsPerMinute
+    val HOPPER_PRESET_RPM: AngularVelocity = 575.0.rotationsPerMinute
 
     //
     // INTAKE DEPLOY ONLY
     //
     val INTAKE_DEPLOY_HOME_DISPLACEMENT: Distance = 0.0.inches
-    val INTAKE_DEPLOY_IDLE_DISPLACEMENT: Distance = 10.0.inches
+    val INTAKE_DEPLOY_CLUSTERING_DISPLACEMENT: Distance = 3.0.inches
+    val INTAKE_DEPLOY_EXTENDED_DISPLACEMENT: Distance = 11.5.inches
 
     //
     // INTAKE ROLLERS ONLY
     //
-    val INTAKE_ROLLERS_PRESET_RPM: AngularVelocity = 3_200.0.rotationsPerMinute
+    val INTAKE_ROLLERS_PRESET_RPM: AngularVelocity = 2_800.0.rotationsPerMinute
 }
 
 /**
@@ -138,37 +158,37 @@ object SubsystemsTunableTargets {
     // HOOD ONLY
     //
     val HOOD_MANUAL_TARGET_DEGREES: LoggedTunableNumber =
-        LoggedTunableNumber("${ HoodConstants.Telemetry.SUBSYSTEM_TAB }/Manual Target (deg)", 0.0)
+        LoggedTunableNumber("${ HoodConstants.Telemetry.SUBSYSTEM_TAB }/Manual Target (deg)", 20.0)
 
     //
     // FLYWHEEL ONLY
     //
     val FLYWHEEL_MANUAL_RPM: LoggedTunableNumber =
-        LoggedTunableNumber("${ FlywheelConstants.Telemetry.SUBSYSTEM_TAB }/Manual RPMs", 1_800.0)
+        LoggedTunableNumber("${ FlywheelConstants.Telemetry.SUBSYSTEM_TAB }/Manual RPMs", 3_800.0)
 
     //
     // TOWER ONLY
     //
     val TOWER_MANUAL_RPM: LoggedTunableNumber =
-        LoggedTunableNumber("${ TowerConstants.Telemetry.SUBSYSTEM_TAB }/Manual RPMs", 1_800.0)
+        LoggedTunableNumber("${ TowerConstants.Telemetry.SUBSYSTEM_TAB }/Manual RPMs", 3_600.0)
 
     //
     // HOPPER ONLY
     //
     val HOPPER_MANUAL_RPM: LoggedTunableNumber =
-        LoggedTunableNumber("${ HopperConstants.Telemetry.SUBSYSTEM_TAB }/Manual RPMs", 1_800.0)
+        LoggedTunableNumber("${ HopperConstants.Telemetry.SUBSYSTEM_TAB }/Manual RPMs", 575.0)
 
     //
     // INTAKE DEPLOY ONLY
     //
     val INTAKE_DEPLOY_MANUAL_TARGET_INCHES: LoggedTunableNumber =
-        LoggedTunableNumber("${ IntakeDeployConstants.Telemetry.SUBSYSTEM_TAB }/Manual Target (in)", 8.0)
+        LoggedTunableNumber("${ IntakeDeployConstants.Telemetry.SUBSYSTEM_TAB }/Manual Target (in)", 11.5)
 
     //
     // INTAKE ROLLERS ONLY
     //
     val INTAKE_ROLLERS_MANUAL_RPM: LoggedTunableNumber =
-        LoggedTunableNumber("${IntakeRollersConstants.Telemetry.SUBSYSTEM_TAB }/Manual RPMs", 1_800.0)
+        LoggedTunableNumber("${IntakeRollersConstants.Telemetry.SUBSYSTEM_TAB }/Manual RPMs", 2_800.0)
 }
 
  /**
@@ -186,44 +206,44 @@ object SubsystemsControlGains {
      // Hood ONLY
      //
      val HOOD_MOTOR_PRIMARY_GAINS      : TunableControlGains = TunableControlGains(HoodConstants.Telemetry.SUBSYSTEM_PRIMARY_GAINS,
-         kP = 87.5, kI = 0.0, kD = 12.5, kS = 61.0, kV = 0.0, kA = 0.0, kG = 189.0) // Tuned in SIMULATION -> Torque Request
+         kP = 825.0, kI = 0.0, kD = 23.5, kS = 0.0, kV = 0.0, kA = 0.55, kG = 7.5) // TODO() = TRY IN REAL ROBOT
 
     //
     // FLYWHEEL ONLY
     //
      val FLYWHEEL_MOTOR_PRIMARY_GAINS   : TunableControlGains = TunableControlGains(FlywheelConstants.Telemetry.SUBSYSTEM_PRIMARY_GAINS,
-        kP = 10.0, kI = 0.0, kD = 0.0, kS = 0.0, kV = 0.0, kA = 0.0, kG = 0.0) // "Tuned" in SIMULATION -> Torque Request (Probably wrong MOI)
+        kP = 50.0, kI = 0.0, kD = 0.0, kS = 0.0, kV = 0.5, kA = 0.2, kG = 0.0) // TODO() = TRY IN REAL ROBOT
 
      //
      // TOWER ONLY
      //
      val TOWER_MOTOR_PRIMARY_GAINS   : TunableControlGains = TunableControlGains(TowerConstants.Telemetry.SUBSYSTEM_PRIMARY_GAINS,
-         kP = 10.0, kI = 0.0, kD = 0.0, kS = 0.0, kV = 0.0, kA = 0.0, kG = 0.0) // "Tuned" in SIMULATION -> Torque Request (Probably wrong MOI)
+         kP = 35.0, kI = 0.0, kD = 0.0, kS = 0.0, kV = 0.0, kA = 0.0, kG = 0.0) // TODO() = TRY IN REAL ROBOT
 
      //
      // HOPPER ONLY
      //
      val HOPPER_MOTOR_PRIMARY_GAINS   : TunableControlGains = TunableControlGains(HopperConstants.Telemetry.SUBSYSTEM_PRIMARY_GAINS,
-         kP = 10.0, kI = 0.0, kD = 0.0, kS = 0.0, kV = 0.0, kA = 0.0, kG = 0.0) // "Tuned" in SIMULATION -> Torque Request (Probably wrong MOI)
+         kP = 125.0, kI = 0.0, kD = 0.0, kS = 2.5, kV = 0.0, kA = 0.0, kG = 0.0) // TODO() = TRY IN REAL ROBOT
 
      //
      // INTAKE DEPLOY ONLY
      //
      val INTAKE_DEPLOY_MOTOR_PRIMARY_GAINS   : TunableControlGains = TunableControlGains(IntakeDeployConstants.Telemetry.SUBSYSTEM_PRIMARY_GAINS,
-        kP = 450.0, kI = 0.0, kD = 10.0, kS = 0.0, kV = 0.0, kA = 0.75, kG = 6.52) // Tuned in SIMULATION -> Torque Request.
+        kP = 25.0, kI = 0.0, kD = 8.65, kS = 0.0, kV = 0.1, kA = 0.3, kG = 0.0) // TODO() = TRY IN REAL ROBOT
 
      //
      // INTAKE ROLLERS ONLY
      //
      val INTAKE_ROLLERS_MOTOR_PRIMARY_GAINS   : TunableControlGains = TunableControlGains(IntakeRollersConstants.Telemetry.SUBSYSTEM_PRIMARY_GAINS,
-         kP = 10.0, kI = 0.0, kD = 0.0, kS = 0.0, kV = 0.0, kA = 0.0, kG = 0.0) // "Tuned" in SIMULATION -> Torque Request (Probably wrong MOI)
+         kP = 16.5, kI = 0.0, kD = 0.0, kS = 0.0, kV = 0.0, kA = 0.75, kG = 0.0) // TODO() = TRY IN REAL ROBOT
 
      //
      // DRIVE ONLY
      //
      val CHASSIS_AUTONOMOUS_CONTROLLER    : PPHolonomicDriveController = PPHolonomicDriveController(
-         PIDConstants(6.0, 0.0, 0.0),   // Translational PID
-         PIDConstants(10.0, 0.0, 0.0)    // Rotational PID
+         PIDConstants(8.0, 0.0, 1.25),   // Translational PID
+         PIDConstants(12.25, 0.0, 2.25)    // Rotational PID
      ) // Note that this is not live-tunable because PathPlanner creates an immutable PID object with the first configuration.
 
      // Note that these values cannot be accurately tuned in simulation, unlike the autonomous controller.
@@ -245,8 +265,8 @@ object SubsystemsMotionTargets {
     // HOOD ONLY
     //
     val HOOD_PRIMARY_MOTION_TARGETS: AngularMotionTargets =
-        AngularMotionTargets( // From 0 radians to PI/2 radians ~ 1.2 seconds (1 for PI/2, 1 from acc, 1 from jerk)
-            Math.PI.div(2).radiansPerSecond,
+        AngularMotionTargets(
+            30.0.degreesPerSecond,
             0.1.seconds,
             0.1.seconds
         )
@@ -256,7 +276,7 @@ object SubsystemsMotionTargets {
     //
     val FLYWHEEL_MOTION_TARGETS: AngularMotionTargets =
         AngularMotionTargets(
-            4_500.0.rotationsPerMinute,
+            4_200.0.rotationsPerMinute,
             0.1.seconds,
             Seconds.zero(),
         )
@@ -266,7 +286,7 @@ object SubsystemsMotionTargets {
     //
     val TOWER_MOTION_TARGETS: AngularMotionTargets =
         AngularMotionTargets(
-            4_500.0.rotationsPerMinute,
+            3_850.0.rotationsPerMinute,
             0.1.seconds,
             Seconds.zero(),
         )
@@ -276,7 +296,7 @@ object SubsystemsMotionTargets {
     //
     val HOPPER_MOTION_TARGETS: AngularMotionTargets =
         AngularMotionTargets(
-            4_500.0.rotationsPerMinute,
+            650.0.rotationsPerMinute,
             0.1.seconds,
             Seconds.zero(),
         )
@@ -286,16 +306,16 @@ object SubsystemsMotionTargets {
     //
     val INTAKE_DEPLOY_PRIMARY_MOTION_TARGETS: LinearMotionTargets = // Standard motion
         LinearMotionTargets(
-            1.2.metersPerSecond,
+            0.3.metersPerSecond,
             0.1.seconds,
-            0.1.seconds,
+            Seconds.zero(),
         )
 
-    val INTAKE_DEPLOY_SECONDARY_MOTION_TARGETS: LinearMotionTargets = // For manual motion
+    val INTAKE_DEPLOY_SECONDARY_MOTION_TARGETS: LinearMotionTargets = // For cluster motion
         LinearMotionTargets( // Same as Primary for testing, commented values would be for real manually-controlled motion
-            1.2.metersPerSecond, // 0.8
-            0.1.seconds, // 0.8
-            0.1.seconds, // 0.5
+            0.15.metersPerSecond,
+            0.1.seconds,
+            0.1.seconds,
         )
 
     //
@@ -303,7 +323,7 @@ object SubsystemsMotionTargets {
     //
     val INTAKE_ROLLERS_MOTION_TARGETS: AngularMotionTargets =
         AngularMotionTargets(
-            4_500.0.rotationsPerMinute,
+            3_000.0.rotationsPerMinute,
             0.1.seconds,
             Seconds.zero(),
         )

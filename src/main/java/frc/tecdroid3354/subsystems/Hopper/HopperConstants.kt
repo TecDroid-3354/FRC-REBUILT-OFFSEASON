@@ -2,15 +2,19 @@ package frc.tecdroid3354.subsystems.Hopper
 
 import com.ctre.phoenix6.configs.*
 import com.ctre.phoenix6.signals.InvertedValue
-import com.ctre.phoenix6.signals.MotorAlignmentValue
 import com.ctre.phoenix6.signals.NeutralModeValue
 import edu.wpi.first.units.measure.Current
+import edu.wpi.first.units.measure.Mass
 import edu.wpi.first.units.measure.MomentOfInertia
 import frc.tecdroid3354.constants.*
+import frc.tecdroid3354.utils.Sprocket
 import frc.tecdroid3354.utils.amps
 import frc.tecdroid3354.utils.devices.KrakenMotors
+import frc.tecdroid3354.utils.inches
 import frc.tecdroid3354.utils.kilogramSquareMeters
+import frc.tecdroid3354.utils.kilograms
 import frc.tecdroid3354.utils.mechanical.Reduction
+import frc.tecdroid3354.utils.pounds
 import java.util.*
 import kotlin.math.pow
 
@@ -20,8 +24,7 @@ object HopperConstants {
      */
     object Identification {
         const val HOPPER_CANBUS_NAME: String = CanBuses.RIO_CANBUS
-        const val LEAD_MOTOR_ID: Int = 40
-        const val FOLLOWER_MOTOR_ID: Int = 41
+        const val LEAD_MOTOR_ID: Int = 30
     }
 
     /**
@@ -29,14 +32,12 @@ object HopperConstants {
      * In the case of linear subsystems, the sprocket also goes here.
      */
     object Mechanical {
-        val REDUCTION: Reduction = Reduction(1.0)
+        val REDUCTION: Reduction = Reduction(7.35)
 
-        const val NUMBER_OF_MOTORS: Int = 2
+        const val NUMBER_OF_MOTORS: Int = 1
 
-        // From OnShape, accounting for the main roller and subsystem of Tutankabot as of 26/07/2026
-        // Note that simulation will probably reach target slower than our 2026 robot, as that one
-        // had 4 KrakenX60 dedicated to the subsystem, whereas this example assumes only 2.
-        private val MECHANISM_INERTIA: MomentOfInertia = (66.006.times(SimConstants.FREEDOM_UNITS_TO_METRIC_MOI)).kilogramSquareMeters
+        // From OnShape as of 26/08/2026. WHOLE Belts -> 1120.670437,   ONLY pullies -> 0.206119 * 2 = 0.412238
+        private val MECHANISM_INERTIA: MomentOfInertia = (1120.670437.times(SimConstants.FREEDOM_UNITS_TO_METRIC_MOI)).kilogramSquareMeters
 
         // From mechanism perspective
         // Check: https://www.motioncontroltips.com/how-do-gearmotors-impact-reflected-mass-inertia-from-the-load/
@@ -48,6 +49,12 @@ object HopperConstants {
                     .times(NUMBER_OF_MOTORS.toDouble())
                     .times(REDUCTION.getRatio().pow(2))
                 )
+
+        val SPROCKET: Sprocket = Sprocket.fromRadius(0.783.inches)
+        val MIN_MASS: Mass = 3.778.kilograms
+        val MAX_MASS: Mass = MIN_MASS.plus(
+            0.2.kilograms.times(70.0)
+        )
     }
 
     /**
@@ -58,13 +65,11 @@ object HopperConstants {
      * remains mostly untouched unless the Design or Electrical Teams change something.
      */
     object PhoenixMotorConfiguration {
-        val followerMotorAlignment: MotorAlignmentValue = MotorAlignmentValue.Aligned
-
         private val neutralMode: NeutralModeValue = NeutralModeValue.Brake
         private val motorDirection: InvertedValue = InvertedValue.CounterClockwise_Positive
 
-        private val supplyCurrentLimit: Current = 30.0.amps
-        private val statorCurrentLimit: Current = 100.0.amps
+        private val supplyCurrentLimit: Current = 40.0.amps
+        private val statorCurrentLimit: Current = 80.0.amps
 
         val initialMotorsConfiguration: TalonFXConfiguration = KrakenMotors.createTalonFXConfiguration(
             Optional.of<MotorOutputConfigs>(
@@ -92,14 +97,10 @@ object HopperConstants {
     object Telemetry {
         const val SUBSYSTEM_TAB                         : String = "Hopper"
         const val LEAD_MOTOR_INPUTS_TAB                 : String = "${SUBSYSTEM_TAB}/Lead Motor"
-        const val FOLLOWER_MOTOR_INPUTS_TAB             : String = "${SUBSYSTEM_TAB}/Follower Motor"
         const val SUBSYSTEM_PRIMARY_GAINS               : String = "$SUBSYSTEM_TAB Primary Gains"
 
         const val LEAD_MOTOR_CONNECTION_ALERT_TAB       : String =
             "${RobotTelemetry.CONNECTION_ALERTS_TAB}/${Identification.HOPPER_CANBUS_NAME}" +
                     "/${SUBSYSTEM_TAB} Motor id=${Identification.LEAD_MOTOR_ID}"
-        const val FOLLOWER_MOTOR_CONNECTION_ALERT_TAB   : String =
-            "${RobotTelemetry.CONNECTION_ALERTS_TAB}/${Identification.HOPPER_CANBUS_NAME}" +
-                    "/${SUBSYSTEM_TAB} Motor id=${Identification.FOLLOWER_MOTOR_ID}"
     }
 }

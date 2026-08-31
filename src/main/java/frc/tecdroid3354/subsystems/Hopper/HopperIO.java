@@ -58,8 +58,7 @@ public interface HopperIO {
      * Might change depending on the implementation (i.e. simulation does not need to check motors' connectivity).
      * @param inputs The generated {@link HopperIOInputs} object keeping track of everything.
      */
-    void updateHopperInputs(HopperIOInputs inputs,
-                            MotorIO.MotorIOInputs leadMotorInputs, MotorIO.MotorIOInputs followerMotorInputs);
+    void updateHopperInputs(HopperIOInputs inputs, MotorIO.MotorIOInputs leadMotorInputs);
 
     /**
      * Used to update the in-file variable containing the manual target velocity. This resets with every code reload.
@@ -129,8 +128,7 @@ public interface HopperIO {
     class DummyHopperIO implements HopperIO {
 
         @Override
-        public void updateHopperInputs(HopperIOInputs inputs,
-                                       MotorIO.MotorIOInputs leadMotorInputs, MotorIO.MotorIOInputs followerMotorInputs) {
+        public void updateHopperInputs(HopperIOInputs inputs, MotorIO.MotorIOInputs leadMotorInputs) {
 
         }
 

@@ -11,6 +11,7 @@ import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.MotorAlignmentValue
 import com.ctre.phoenix6.signals.NeutralModeValue
 import edu.wpi.first.units.measure.Current
+import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.MomentOfInertia
 import frc.tecdroid3354.constants.CanBuses
 import frc.tecdroid3354.constants.RobotTelemetry
@@ -19,6 +20,7 @@ import frc.tecdroid3354.constants.SubsystemsControlGains
 import frc.tecdroid3354.constants.SubsystemsMotionTargets
 import frc.tecdroid3354.utils.amps
 import frc.tecdroid3354.utils.devices.KrakenMotors
+import frc.tecdroid3354.utils.inches
 import frc.tecdroid3354.utils.kilogramSquareMeters
 import frc.tecdroid3354.utils.mechanical.Reduction
 import java.util.Optional
@@ -31,7 +33,9 @@ object FlywheelConstants {
     object Identification {
         const val FLYWHEEL_CANBUS_NAME: String = CanBuses.RIO_CANBUS
         const val LEAD_MOTOR_ID: Int = 40
-        const val FOLLOWER_MOTOR_ID: Int = 41
+        const val FOLLOWER_LEFT_ID: Int = 41
+        const val FOLLOWER_RIGHT_ONE_ID: Int = 42
+        const val FOLLOWER_RIGHT_TWO_ID: Int = 43
     }
 
     /**
@@ -39,14 +43,15 @@ object FlywheelConstants {
      * In the case of linear subsystems, the sprocket also goes here.
      */
     object Mechanical {
-        val REDUCTION: Reduction = Reduction(1.0)
+        val REDUCTION: Reduction = Reduction(1.4) // Motor -> Flywheel (0.56), Motor -> Roller (1.4)
+        val ROLLER_DIAMETER: Distance = 3.0.inches
 
-        const val NUMBER_OF_MOTORS: Int = 2
+        const val ESTIMATED_ROLLER_EFFICIENCY: Double = 0.85
 
-        // From OnShape, accounting for the main roller and flywheel of Tutankabot as of 26/07/2026
-        // Note that simulation will probably reach target slower than our 2026 robot, as that one
-        // had 4 KrakenX60 dedicated to the flywheel, whereas this example assumes only 2.
-        private val MECHANISM_INERTIA: MomentOfInertia = (66.006.times(SimConstants.FREEDOM_UNITS_TO_METRIC_MOI)).kilogramSquareMeters
+        const val NUMBER_OF_MOTORS: Int = 4
+
+        // From OnShape, accounting for the main roller and flywheel of Tutankabot as of 26/08/2026
+        private val MECHANISM_INERTIA: MomentOfInertia = (67.794767.times(SimConstants.FREEDOM_UNITS_TO_METRIC_MOI)).kilogramSquareMeters
 
         // From mechanism perspective
         // Check: https://www.motioncontroltips.com/how-do-gearmotors-impact-reflected-mass-inertia-from-the-load/
@@ -62,18 +67,30 @@ object FlywheelConstants {
 
     /**
      * Only in the scenario you use a polynomial to calculate the target flywheel velocity.
-     * In this example we assume two polynomials, one for scoring and another for assist (based off 2026 REBUILT)
+     * In this case, Time of Flight (TOF) polynomials are also included.
+     *
+     * All polynomials were calculated from TecDroid's Trajectory Simulator.
      */
     object PolynomialCoefficients {
-        const val SCORING_X3_COEFF: Double = 0.0
-        const val SCORING_X2_COEFF: Double = 0.0
-        const val SCORING_X1_COEFF: Double = 0.0
-        const val SCORING_X0_COEFF: Double = 0.0
+        const val SCORING_X3_COEFF: Double = 0.269694
+        const val SCORING_X2_COEFF: Double = 34.726522
+        const val SCORING_X1_COEFF: Double = 8.853629
+        const val SCORING_X0_COEFF: Double = 2620.079979
 
-        const val ASSIST_X3_COEFF: Double = 0.0
-        const val ASSIST_X2_COEFF: Double = 0.0
-        const val ASSIST_X1_COEFF: Double = 0.0
-        const val ASSIST_X0_COEFF: Double = 0.0
+        const val TOF_SCORING_X3_COEFF: Double = 0.007334
+        const val TOF_SCORING_X2_COEFF: Double = -0.040652
+        const val TOF_SCORING_X1_COEFF: Double = 0.070029
+        const val TOF_SCORING_X0_COEFF: Double = 0.952781
+
+        const val ASSIST_X3_COEFF: Double = -19.313381
+        const val ASSIST_X2_COEFF: Double = 235.395253
+        const val ASSIST_X1_COEFF: Double = -528.242346
+        const val ASSIST_X0_COEFF: Double = 2424.998710
+
+        const val TOF_ASSIST_X3_COEFF: Double = -0.010581
+        const val TOF_ASSIST_X2_COEFF: Double = 0.133886
+        const val TOF_ASSIST_X1_COEFF: Double = -0.405844
+        const val TOF_ASSIST_X0_COEFF: Double = 1.423260
     }
 
     /**
@@ -84,13 +101,14 @@ object FlywheelConstants {
      * remains mostly untouched unless the Design or Electrical Teams change something.
      */
     object PhoenixMotorConfiguration {
-        val followerMotorAlignment: MotorAlignmentValue = MotorAlignmentValue.Aligned
+        val followerLeftMotorAlignment: MotorAlignmentValue = MotorAlignmentValue.Aligned
+        val followerRightMotorAlignment: MotorAlignmentValue = MotorAlignmentValue.Opposed
 
         private val neutralMode: NeutralModeValue = NeutralModeValue.Coast
         private val motorDirection: InvertedValue = InvertedValue.CounterClockwise_Positive
 
-        private val supplyCurrentLimit: Current = 30.0.amps
-        private val statorCurrentLimit: Current = 100.0.amps
+        private val supplyCurrentLimit: Current = 50.0.amps
+        private val statorCurrentLimit: Current = 120.0.amps
 
         val initialMotorsConfiguration: TalonFXConfiguration = KrakenMotors.createTalonFXConfiguration(
             Optional.of<MotorOutputConfigs>(
@@ -117,8 +135,12 @@ object FlywheelConstants {
      */
     object Telemetry {
         const val SUBSYSTEM_TAB                         : String = "Flywheel"
+
         const val LEAD_MOTOR_INPUTS_TAB                 : String = "${SUBSYSTEM_TAB}/Lead Motor"
-        const val FOLLOWER_MOTOR_INPUTS_TAB             : String = "${SUBSYSTEM_TAB}/Follower Motor"
+        const val FOLLOWER_LEFT_MOTOR_INPUTS_TAB        : String = "${SUBSYSTEM_TAB}/Follower Left"
+        const val FOLLOWER_RIGHT_MOTOR_ONE_INPUTS_TAB   : String = "${SUBSYSTEM_TAB}/Follower Right One"
+        const val FOLLOWER_RIGHT_MOTOR_TWO_INPUTS_TAB   : String = "${SUBSYSTEM_TAB}/Follower Right Two"
+
         const val SUBSYSTEM_PRIMARY_GAINS               : String = "$SUBSYSTEM_TAB Primary Gains"
 
         const val LEAD_MOTOR_CONNECTION_ALERT_TAB       : String =
@@ -126,6 +148,6 @@ object FlywheelConstants {
                     "/${SUBSYSTEM_TAB} Motor id=${Identification.LEAD_MOTOR_ID}"
         const val FOLLOWER_MOTOR_CONNECTION_ALERT_TAB   : String =
             "${RobotTelemetry.CONNECTION_ALERTS_TAB}/${Identification.FLYWHEEL_CANBUS_NAME}" +
-                    "/${SUBSYSTEM_TAB} Motor id=${Identification.FOLLOWER_MOTOR_ID}"
+                    "/${SUBSYSTEM_TAB} Motor id=${Identification.FOLLOWER_RIGHT_ONE_ID}"
     }
 }

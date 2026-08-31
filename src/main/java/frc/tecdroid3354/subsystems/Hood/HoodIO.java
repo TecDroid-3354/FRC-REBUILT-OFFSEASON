@@ -56,8 +56,7 @@ public interface HoodIO {
      * Might change depending on the implementation (i.e. simulation does not need to check motors' connectivity).
      * @param inputs The generated {@link HoodIOInputs} object keeping track of everything.
      */
-    void updateHoodInputs(HoodIOInputs inputs,
-                          MotorIO.MotorIOInputs leadMotorInputs, MotorIO.MotorIOInputs followerMotorInputs);
+    void updateHoodInputs(HoodIOInputs inputs, MotorIO.MotorIOInputs leadMotorInputs);
 
     /**
      * Used to update the in-file variable containing the manual target position. This resets with every code reload.
@@ -126,8 +125,7 @@ public interface HoodIO {
     class DummyHoodIO implements HoodIO {
 
         @Override
-        public void updateHoodInputs(HoodIOInputs inputs,
-                                     MotorIO.MotorIOInputs leadMotorInputs, MotorIO.MotorIOInputs followerMotorInputs) {
+        public void updateHoodInputs(HoodIOInputs inputs, MotorIO.MotorIOInputs leadMotorInputs) {
 
         }
 

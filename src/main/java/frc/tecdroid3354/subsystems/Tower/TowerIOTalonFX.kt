@@ -10,6 +10,7 @@ import frc.tecdroid3354.constants.SubsystemsMovementLimits
 import frc.tecdroid3354.constants.SubsystemsPresetTargets
 import frc.tecdroid3354.utils.devices.OpTalonFX
 import frc.tecdroid3354.utils.interfaces.MotorIO
+import frc.tecdroid3354.utils.rotationsPerMinute
 
 /**
  * Hardware layer for TalonFX motor controllers. Only file where [com.ctre.phoenix6.hardware.TalonFX]
@@ -97,6 +98,7 @@ class TowerIOTalonFX: TowerIO {
 
     override fun stopTower(): Runnable {
         return {
+            towerVelocityTarget.mut_replace(0.0.rotationsPerMinute)
             leadMotorController.stopMotor()
         }
     }

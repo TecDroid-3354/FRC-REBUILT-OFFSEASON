@@ -56,8 +56,7 @@ public interface IntakeDeployIO {
      * Might change depending on the implementation (i.e. simulation does not need to check motors' connectivity).
      * @param inputs The generated {@link IntakeDeployIOInputsAutoLogged} object keeping track of everything.
      */
-    void updateIntakeDeployInputs(IntakeDeployIOInputs inputs,
-                                  MotorIO.MotorIOInputs leadMotorInputs, MotorIO.MotorIOInputs followerMotorInputs);
+    void updateIntakeDeployInputs(IntakeDeployIOInputs inputs, MotorIO.MotorIOInputs leadMotorInputs);
 
     /**
      * Used to update the in-file variable containing the manual target displacement. This resets with every code reload.
@@ -119,8 +118,7 @@ public interface IntakeDeployIO {
     class DummyIntakeDeployIO implements IntakeDeployIO {
 
         @Override
-        public void updateIntakeDeployInputs(IntakeDeployIOInputs inputs,
-                                             MotorIO.MotorIOInputs leadMotorInputs, MotorIO.MotorIOInputs followerMotorInputs) {
+        public void updateIntakeDeployInputs(IntakeDeployIOInputs inputs, MotorIO.MotorIOInputs leadMotorInputs) {
 
         }
 

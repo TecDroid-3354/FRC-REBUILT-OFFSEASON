@@ -33,19 +33,18 @@ object IntakeDeployConstants {
      * All constants for hardware identification
      */
     object Identification {
-        const val INTAKE_DEPLOY_CANBUS_NAME: String = CanBuses.CANIVORE_CANBUS
-        const val LEAD_MOTOR_ID = 30
-        const val FOLLOWER_MOTOR_ID = 31
+        const val INTAKE_DEPLOY_CANBUS_NAME: String = CanBuses.RIO_CANBUS
+        const val LEAD_MOTOR_ID = 23
     }
     /**
      * All constants that have physical contact with the subsystem
      * All values are placeholders and must be tuned for your specific robot.
      */
     object Mechanical {
-        val REDUCTION                   : Reduction = Reduction(8.9285)                    // Gear ratio motor - subsystem
-        const val NUMBER_OF_MOTORS      : Int = 2
-        val SPROCKET                    : Sprocket = Sprocket.fromRadius((1.0 + 1.0 / 8.0).inches)    // Rotational -> Linear Motion
-        val MASS                        : Mass = 8.0.kilograms                          // Simulation purposes
+        val REDUCTION                   : Reduction = Reduction(15.0)                    // Gear ratio motor - subsystem
+        const val NUMBER_OF_MOTORS      : Int = 1
+        val SPROCKET                    : Sprocket = Sprocket.fromRadius((1.5).inches)    // Rotational -> Linear Motion
+        val MASS                        : Mass = 6.4.kilograms                          // Simulation purposes
     }
 
     /**
@@ -89,14 +88,11 @@ object IntakeDeployConstants {
     object Telemetry {
         const val SUBSYSTEM_TAB                         : String = "Intake Deploy"
         const val LEAD_MOTOR_INPUTS_TAB                 : String = "${SUBSYSTEM_TAB}/Lead Motor"
-        const val FOLLOWER_MOTOR_INPUTS_TAB             : String = "${SUBSYSTEM_TAB}/Follower Motor"
         const val SUBSYSTEM_PRIMARY_GAINS               : String = "$SUBSYSTEM_TAB Primary Gains"
+
         const val LEAD_MOTOR_CONNECTION_ALERT_TAB       : String =
             "${RobotTelemetry.CONNECTION_ALERTS_TAB}/${Identification.INTAKE_DEPLOY_CANBUS_NAME}" +
                     "/${SUBSYSTEM_TAB} Motor id=${Identification.LEAD_MOTOR_ID}"
-        const val FOLLOWER_MOTOR_CONNECTION_ALERT_TAB   : String =
-            "${RobotTelemetry.CONNECTION_ALERTS_TAB}/${Identification.INTAKE_DEPLOY_CANBUS_NAME}" +
-                    "/${SUBSYSTEM_TAB} Motor id=${Identification.FOLLOWER_MOTOR_ID}"
 
         const val SUBSYSTEM_VISUALIZATION_2D_TAB        : String =
             "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB}/${SUBSYSTEM_TAB}"

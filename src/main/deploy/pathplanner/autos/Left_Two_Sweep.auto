@@ -5,9 +5,35 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Left_Trench_To_Neutral_1"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Left_Trench_To_Neutral_1"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.25
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Enable_Intake"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         },
         {
@@ -17,9 +43,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Disable_Intake"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Left_Bump_To_Score"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score"
           }
         },
         {
@@ -29,9 +67,35 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Left_Trench_To_Neutral_2"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Left_Trench_To_Neutral_2"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.25
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Enable_Intake"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         },
         {
@@ -41,9 +105,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Disable_Intake"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Left_Bump_To_Score"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score"
           }
         }
       ]
