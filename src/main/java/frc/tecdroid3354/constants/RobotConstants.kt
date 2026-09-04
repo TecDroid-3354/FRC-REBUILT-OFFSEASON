@@ -111,32 +111,5 @@ object SimConstants {
 object RobotTelemetry {
     const val CONNECTION_ALERTS_TAB             : String = "Connection Alerts" // Usage: thisTab/Canbus/subsystemName + motor id
     const val ROBOT_MODE_TAB                    : String = "RobotMode"
-    const val SUBSYSTEM_VISUALIZATION_2D_TAB    : String = "Subsystems Mechanism2d"
-    const val SUBSYSTEM_VISUALIZATION_3D_TAB    : String = "Subsystems Pose3d"
-}
-
-/**
- * For all 2D / 3D robot visualization constants, which will then assemble all subsystems inside [frc.tecdroid3354.RobotVisualizer]
- */
-object RobotVisualization {
-    const val MECHANISMS_ORIGIN_2D_NAME                         : String = "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB} Origin"
-    const val MECHANISMS_INTAKE_GUIDING_RAIL_2D_NAME            : String = "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB} Guiding Rail"
-    const val MECHANISMS_INTAKE_DISPLACEMENT_LIGAMENT_2D_NAME   : String = "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB} Displacement Ligament"
-    const val MECHANISMS_INTAKE_END_EFFECTOR_2D_NAME            : String = "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB} Carriage"
-
-    val CANVAS_WIDTH                                        : Distance = 5.0.meters
-    val CANVAS_HEIGHT                                       : Distance = 3.0.meters
-    val CANVAS_COLOR                                        : Color8Bit = Color8Bit(Color.kDarkGray)
-
-    val INTAKE_GUIDING_RAIL_WIDTH                           : Double = 6.0 // Who knows the unit of this
-    val GUIDING_RAIL_COLOR                                  : Color8Bit = Color8Bit(Color.kDarkViolet)
-
-    val INTAKE_DISPLACEMENT_LIGAMENT_WIDTH                     : Double = 4.0
-    val INTAKE_DISPLACEMENT_LIGAMENT_INITIAL_ANGLE             : Angle = 0.0.degrees // Relative to guiding rail
-    val INTAKE_DISPLACEMENT_LIGAMENT_COLOR                     : Color8Bit = Color8Bit(Color.kBlack)
-
-    val INTAKE_END_EFFECTOR_WIDTH                              : Double = 6.0
-    val INTAKE_END_EFFECTOR_HEIGHT                             : Distance = 0.05.meters
-    val INTAKE_END_EFFECTOR_RELATIVE_ANGLE                     : Angle = 0.0.degrees // Relative to displacement ligament
-    val INTAKE_END_EFFECTOR_COLOR                              : Color8Bit = Color8Bit(Color.kGold)
+    const val SUBSYSTEM_VISUALIZATION_3D_TAB    : String = "Mechanisms3D"
 }

@@ -44,6 +44,8 @@ import frc.tecdroid3354.utils.toAngle
 import frc.tecdroid3354.utils.toRotation2d
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
 import org.littletonrobotics.junction.Logger
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import java.util.Optional
 import java.util.function.Supplier
 import kotlin.math.atan2
@@ -61,6 +63,8 @@ class Superstructure(private val controller: CommandPS5Controller,
                      private val fieldToAssistTarget: Supplier<Translation2d>): SubsystemBase("Superstructure") {
     private val isSim: Boolean = RobotConstants.ROBOT_MODE == RobotMode.SIM // For shorter robot mode checking
     private var simFuelCount: Int = 0
+    // Used to log the distance to scoring and assist targets without showing 17 or so significant figures.
+    private val decimalFormaterThreePlaces: DecimalFormat = DecimalFormat("#.###") // #s after dot = number of decimals
 
     private val distanceToScoringTarget: Supplier<Distance> = {
         hypot(fieldToScoringTarget.get().measureX.minus(if (isSim) simDrive.simulatedDriveTrainPose.measureX else drive.pose.measureX).meters,
@@ -101,13 +105,17 @@ class Superstructure(private val controller: CommandPS5Controller,
         fieldToAssistTarget.get()
     ) }
 
+    init {
+        decimalFormaterThreePlaces.roundingMode = RoundingMode.HALF_UP
+    }
+
     override fun periodic() {
         Logger.recordOutput("FUELS_SIM/Held_Count", simFuelCount)
         Logger.recordOutput("FUELS_SIM/Blue_HUB_Score", FuelSim.Hub.BLUE_HUB.score)
         Logger.recordOutput("FUELS_SIM/Red_HUB_Score", FuelSim.Hub.RED_HUB.score)
 
-        Logger.recordOutput("Odometry/DistanceToHub", distanceToScoringTarget.get())
-        Logger.recordOutput("Odometry/DistanceToAssist", distanceToAssistTarget.get())
+        Logger.recordOutput("Odometry/DistanceToHub (m)", decimalFormaterThreePlaces.format(distanceToScoringTarget.get().meters))
+        Logger.recordOutput("Odometry/DistanceToAssist (m)", decimalFormaterThreePlaces.format(distanceToAssistTarget.get().meters))
     }
 
     // --------------- ----- -------- --------------- //
@@ -597,5 +605,25 @@ class Superstructure(private val controller: CommandPS5Controller,
     /** Stops the intake rollers */
     fun stopIntakeRollers(): Command {
         return intakeRollers.stopIntakeRollers().InstantCommand(intakeRollers)
+    }
+
+    // --------------- ----- - ----- -------- --------------- //
+    // --------------- COAST & BRAKE COMMANDS --------------- //
+    // --------------- ----- - ----- -------- --------------- //
+
+    /** Coasts [hood] and [intakeDeploy] */
+    fun coastSubsystems(): Command {
+        return ParallelCommandGroup(
+                hood.coastHood(),
+                intakeDeploy.coastIntakeDeployMotors(),
+            )
+    }
+
+    /** Brakes [hood] and [intakeDeploy] */
+    fun brakeSubsystems(): Command {
+        return ParallelCommandGroup(
+            hood.brakeHood(),
+            intakeDeploy.brakeIntakeDeployMotors(),
+        )
     }
 }

@@ -19,9 +19,9 @@ object IntakeRollersConstants {
      * Contains the ID Of any hardware related to the subsystem and the CANBUS it is on
      */
     object Identification {
-        const val INTAKE_ROLLERS_CANBUS_NAME: String = CanBuses.RIO_CANBUS
-        const val LEAD_MOTOR_ID: Int = 22
-        const val FOLLOWER_MOTOR_ID: Int = 21
+        const val INTAKE_ROLLERS_CANBUS_NAME: String = CanBuses.CANIVORE_CANBUS
+        const val LEAD_MOTOR_ID: Int = 21
+        const val FOLLOWER_MOTOR_ID: Int = 22
     }
 
     /**
@@ -56,7 +56,7 @@ object IntakeRollersConstants {
      * remains mostly untouched unless the Design or Electrical Teams change something.
      */
     object PhoenixMotorConfiguration {
-        val followerMotorAlignment: MotorAlignmentValue = MotorAlignmentValue.Aligned
+        val followerMotorAlignment: MotorAlignmentValue = MotorAlignmentValue.Opposed
 
         private val neutralMode: NeutralModeValue = NeutralModeValue.Coast
         private val motorDirection: InvertedValue = InvertedValue.CounterClockwise_Positive

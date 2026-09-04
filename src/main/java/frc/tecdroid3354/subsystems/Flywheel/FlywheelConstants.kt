@@ -105,7 +105,7 @@ object FlywheelConstants {
         val followerRightMotorAlignment: MotorAlignmentValue = MotorAlignmentValue.Opposed
 
         private val neutralMode: NeutralModeValue = NeutralModeValue.Coast
-        private val motorDirection: InvertedValue = InvertedValue.CounterClockwise_Positive
+        private val motorDirection: InvertedValue = InvertedValue.Clockwise_Positive
 
         private val supplyCurrentLimit: Current = 50.0.amps
         private val statorCurrentLimit: Current = 120.0.amps

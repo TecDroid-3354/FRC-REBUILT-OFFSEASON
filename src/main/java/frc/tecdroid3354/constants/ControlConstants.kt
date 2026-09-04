@@ -230,7 +230,7 @@ object SubsystemsControlGains {
      // INTAKE DEPLOY ONLY
      //
      val INTAKE_DEPLOY_MOTOR_PRIMARY_GAINS   : TunableControlGains = TunableControlGains(IntakeDeployConstants.Telemetry.SUBSYSTEM_PRIMARY_GAINS,
-        kP = 25.0, kI = 0.0, kD = 8.65, kS = 0.0, kV = 0.1, kA = 0.3, kG = 0.0) // TODO() = TRY IN REAL ROBOT
+        kP = 25.0, kI = 0.0, kD = 8.65, kS = 0.0, kV = 0.0, kA = 0.3, kG = 0.0) // TODO() = TRY IN REAL ROBOT
 
      //
      // INTAKE ROLLERS ONLY
@@ -315,7 +315,7 @@ object SubsystemsMotionTargets {
         LinearMotionTargets( // Same as Primary for testing, commented values would be for real manually-controlled motion
             0.15.metersPerSecond,
             0.1.seconds,
-            0.1.seconds,
+            0.0.seconds,
         )
 
     //

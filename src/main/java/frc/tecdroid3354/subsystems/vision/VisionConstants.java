@@ -34,13 +34,13 @@ public class VisionConstants {
     // x: LL Forward
     // y: LL Right
     // z: LL Up
-    public static Transform3d robotToLeftCamera = new Transform3d(-0.041275, -0.322263, 0.157163,
-            new Rotation3d(Math.toRadians(0.0), Math.toRadians(17.0), Math.toRadians(90.0)));
+    public static Transform3d robotToLeftCamera = new Transform3d(0.0349, -0.3019, 0.4866,
+            new Rotation3d(Math.toRadians(180), Math.toRadians(5.0), Math.toRadians(90.0)));
 
-    public static Transform3d robotToRightCamera = new Transform3d(-0.041275, 0.322263, 0.157163,
-            new Rotation3d(Math.toRadians(0.0), Math.toRadians(17.0), -Math.toRadians(90.0)));
+    public static Transform3d robotToRightCamera = new Transform3d(0.0349, 0.3019, 0.4866,
+            new Rotation3d(Math.toRadians(180), Math.toRadians(5.0), -Math.toRadians(90.0)));
 
-    public static Transform3d robotToBackCamera = new Transform3d(-0.3175, 0.0, 0.4572,
+    public static Transform3d robotToBackCamera = new Transform3d(-0.3088, 0.0, 0.4540,
             new Rotation3d(Math.toRadians(0.0), Math.toRadians(20.0), Math.toRadians(180.0)));
 
     // Basic filtering thresholds

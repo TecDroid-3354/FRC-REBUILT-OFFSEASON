@@ -65,7 +65,7 @@ object HopperConstants {
      * remains mostly untouched unless the Design or Electrical Teams change something.
      */
     object PhoenixMotorConfiguration {
-        private val neutralMode: NeutralModeValue = NeutralModeValue.Brake
+        private val neutralMode: NeutralModeValue = NeutralModeValue.Coast
         private val motorDirection: InvertedValue = InvertedValue.CounterClockwise_Positive
 
         private val supplyCurrentLimit: Current = 40.0.amps

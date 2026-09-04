@@ -220,6 +220,14 @@ object RobotContainer
         driverController.povLeft() // Launches FUEL. SIMULATION ONLY.
             .onTrue(superstructure.launchSimFuel())
 
+        driverController.povUp() // Coasts hood and deploy regardless of being disabled
+            .onTrue(superstructure.coastSubsystems().ignoringDisable(true))
+
+        driverController.povDown() // Brakes hood and deploy regardless of being disabled
+            .onTrue(superstructure.brakeSubsystems().ignoringDisable(true))
+
+
+
     }
 
     /** Returns the selected command in [autoChooser] */
@@ -299,7 +307,17 @@ object RobotContainer
     private fun initializeSubsystems() {
         when(RobotConstants.ROBOT_MODE) {
 
-            RobotMode.REAL -> {
+            RobotMode.REAL -> { // Sim objects won't do anything
+                mapleSimDrive = SwerveDriveSimulation(
+                    Drive.getMapleSimConfig(),
+                    Pose2d(3.0.meters, 3.0.meters, Rotation2d())
+                )
+                simField.addDriveTrainSimulation(mapleSimDrive)
+
+                fuelSim = FuelSim("FUELS_SIM")
+
+                bumpSim = RobotBumpSim(Drive.getModuleTranslations())
+
                 drive = Drive(
                     GyroIOPigeon2(),
                     ModuleIOTalonFX(SwerveTunerConstants.FrontLeft), ModuleIOTalonFX(SwerveTunerConstants.FrontRight),
@@ -357,7 +375,17 @@ object RobotContainer
                 intakeRollersSubsystem = IntakeRollersSubsystem(IntakeRollersIOSim())
             }
 
-            RobotMode.REPLAY -> {
+            RobotMode.REPLAY -> { // Sim objects won't do anything
+                mapleSimDrive = SwerveDriveSimulation(
+                    Drive.getMapleSimConfig(),
+                    Pose2d(3.0.meters, 3.0.meters, Rotation2d())
+                )
+                simField.addDriveTrainSimulation(mapleSimDrive)
+
+                fuelSim = FuelSim("FUELS_SIM")
+
+                bumpSim = RobotBumpSim(Drive.getModuleTranslations())
+
                 drive = Drive(
                     object : GyroIO {},
                     object : ModuleIO {}, object : ModuleIO {}, object : ModuleIO {}, object : ModuleIO {},

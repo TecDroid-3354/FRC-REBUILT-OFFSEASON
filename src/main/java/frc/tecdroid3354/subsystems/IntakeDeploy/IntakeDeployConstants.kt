@@ -33,7 +33,7 @@ object IntakeDeployConstants {
      * All constants for hardware identification
      */
     object Identification {
-        const val INTAKE_DEPLOY_CANBUS_NAME: String = CanBuses.RIO_CANBUS
+        const val INTAKE_DEPLOY_CANBUS_NAME: String = CanBuses.CANIVORE_CANBUS
         const val LEAD_MOTOR_ID = 23
     }
     /**
@@ -41,7 +41,7 @@ object IntakeDeployConstants {
      * All values are placeholders and must be tuned for your specific robot.
      */
     object Mechanical {
-        val REDUCTION                   : Reduction = Reduction(15.0)                    // Gear ratio motor - subsystem
+        val REDUCTION                   : Reduction = Reduction(10.889)                    // Gear ratio motor - subsystem
         const val NUMBER_OF_MOTORS      : Int = 1
         val SPROCKET                    : Sprocket = Sprocket.fromRadius((1.5).inches)    // Rotational -> Linear Motion
         val MASS                        : Mass = 6.4.kilograms                          // Simulation purposes
@@ -54,9 +54,7 @@ object IntakeDeployConstants {
      * In case you subsystem motors use RevLib or other API, it must be specified in the object name.
      */
     object PhoenixMotorConfiguration {
-        val followerMotorAlignment: MotorAlignmentValue = MotorAlignmentValue.Aligned
-
-        private val neutralMode: NeutralModeValue = NeutralModeValue.Brake
+        private val neutralMode: NeutralModeValue = NeutralModeValue.Coast
         private val motorDirection: InvertedValue = InvertedValue.CounterClockwise_Positive
 
         private val supplyCurrentLimit: Current = 30.0.amps
@@ -93,10 +91,5 @@ object IntakeDeployConstants {
         const val LEAD_MOTOR_CONNECTION_ALERT_TAB       : String =
             "${RobotTelemetry.CONNECTION_ALERTS_TAB}/${Identification.INTAKE_DEPLOY_CANBUS_NAME}" +
                     "/${SUBSYSTEM_TAB} Motor id=${Identification.LEAD_MOTOR_ID}"
-
-        const val SUBSYSTEM_VISUALIZATION_2D_TAB        : String =
-            "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_2D_TAB}/${SUBSYSTEM_TAB}"
-        const val SUBSYSTEM_VISUALIZATION_3D_TAB        : String =
-            "${RobotTelemetry.SUBSYSTEM_VISUALIZATION_3D_TAB}/${SUBSYSTEM_TAB}"
     }
 }

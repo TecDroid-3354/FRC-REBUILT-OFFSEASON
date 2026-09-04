@@ -59,7 +59,7 @@ object TowerConstants {
         val followerMotorAlignment: MotorAlignmentValue = MotorAlignmentValue.Aligned
 
         private val neutralMode: NeutralModeValue = NeutralModeValue.Coast
-        private val motorDirection: InvertedValue = InvertedValue.CounterClockwise_Positive
+        private val motorDirection: InvertedValue = InvertedValue.Clockwise_Positive
 
         private val supplyCurrentLimit: Current = 60.0.amps
         private val statorCurrentLimit: Current = 100.0.amps

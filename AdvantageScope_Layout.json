@@ -1,0 +1,1427 @@
+{
+  "hubs": [
+    {
+      "x": -8,
+      "y": -8,
+      "width": 1722,
+      "height": 1034,
+      "state": {
+        "sidebar": {
+          "width": 269,
+          "expanded": [
+            "/swerve/advantagescope",
+            "/SmartDashboard/Field",
+            "/swerve",
+            "/SmartDashboard/field",
+            "/AdvantageKit",
+            "/AdvantageKit/RealOutputs",
+            "/AdvantageKit/RealOutputs/Vision/AprilTags",
+            "/AdvantageKit/RealOutputs/Vision/AprilTags/Filtering",
+            "/AdvantageKit/RealOutputs/SwerveStates/Measured/0",
+            "/AdvantageKit/RealOutputs/SwerveStates/Measured/0/angle",
+            "/AdvantageKit/Drive/Module0/TurnAbsolutePosition",
+            "/Robot",
+            "/Robot/SwerveDrivetrain/Sim",
+            "/Robot/SwerveDrivetrain/Sim/GroundTruthPose",
+            "/Robot/SwerveTeleopControlCommand",
+            "/Robot/SwerveTeleopControlCommand/CommandedSpeeds",
+            "/Robot/SwerveDrivetrain",
+            "/Robot/SwerveDrivetrain/State",
+            "/Robot/SwerveDrivetrain/State/ModuleStates",
+            "/SmartDashboard/simulation field",
+            "/AdvantageKit/RealOutputs/Shooter",
+            "/Pose",
+            "/AdvantageKit/RealOutputs/Vision/MeasurementErrors",
+            "/AdvantageKit/RealOutputs/Vision/AprilTags/Filtering/ValidPoseEstimationsMultiTags/0",
+            "/AdvantageKit/RealOutputs/Vision/AprilTags/Filtering/ValidPoseEstimationsMultiTags/0/rotation",
+            "/AdvantageKit/RealOutputs/Vision/AprilTags/Filtering/ValidPoseEstimationsMultiTags/0/rotation/q",
+            "/AdvantageKit/RealOutputs/Vision/AprilTags/Filtering/ValidPoseEstimationsSingleTags/0",
+            "/AdvantageKit/RealOutputs/Vision/AprilTags/Filtering/ValidPoseEstimationsSingleTags/0/rotation",
+            "/AdvantageKit/RealOutputs/Vision/AprilTags/Filtering/ValidPoseEstimationsSingleTags/0/rotation/q",
+            "/AdvantageKit/RealOutputs/Vision/AprilTags/Filtering/ValidPoseEstimationsSingleTags/1",
+            "/AdvantageKit/RealOutputs/Vision/AprilTags/MeasurementErrors",
+            "/AdvantageKit/RealOutputs/Vision/AprilTags/Results",
+            "/AdvantageKit/RealOutputs/Vision/AprilTags/Filtering/rotation estimations",
+            "/SmartDashboard/SwerveDrive",
+            "/AdvantageKit/RealOutputs/CTREMotor",
+            "/AdvantageKit/RealOutputs/CTREMotor/1",
+            "/AdvantageKit/RealOutputs/SwerveStates/Measured/1",
+            "/AdvantageKit/RealOutputs/SwerveStates/Measured/1/angle",
+            "/AdvantageKit/RealOutputs/SwerveStates/Measured/2",
+            "/AdvantageKit/RealOutputs/SwerveStates/Measured/2/angle",
+            "/AdvantageKit/RealOutputs/SwerveStates/Measured/3",
+            "/AdvantageKit/RealOutputs/SwerveStates/Measured/3/angle",
+            "/AdvantageKit/RealOutputs/CTREMotor/3",
+            "/AdvantageKit/RealOutputs/Odometry/Robot",
+            "/AdvantageKit/RealOutputs/Subsystems Mechanism2d/Subsystems Mechanism2d Origin",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/RobotPoses/0",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/RobotPoses/0/translation",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/RobotPosesAccepted/2/translation",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/RobotPosesAccepted/1/translation",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/RobotPosesAccepted/0/translation",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/TagPoses/0",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/TagPoses/0/translation",
+            "/AdvantageKit/RealOutputs/SwerveStates/Setpoints/0",
+            "/AdvantageKit/RealOutputs/SwerveStates/SetpointsOptimized/0",
+            "/AdvantageKit/RealOutputs/FieldSimulation/RobotPosition",
+            "/AdvantageKit/RealOutputs/FieldSimulation/RobotPosition/0",
+            "/AdvantageKit/RealOutputs/FieldSimulation/RobotPosition/0/translation",
+            "/PathPlanner/currentPose",
+            "/PathPlanner/currentPose/translation",
+            "/AdvantageKit/RealOutputs/SwerveStates/SetpointsOptimized/1",
+            "/AdvantageKit/RealOutputs/SwerveStates/SetpointsOptimized/1/angle",
+            "/AdvantageKit/RealOutputs/SwerveStates/Setpoints",
+            "/AdvantageKit/RealOutputs/SwerveStates/Setpoints/1",
+            "/AdvantageKit/RealOutputs/SwerveStates/Setpoints/1/angle",
+            "/AdvantageKit/RealOutputs/SwerveStates/Setpoints/2",
+            "/AdvantageKit/RealOutputs/SwerveStates/Setpoints/2/angle",
+            "/AdvantageKit/RealOutputs/SwerveStates/Setpoints/3",
+            "/AdvantageKit/RealOutputs/SwerveStates/Setpoints/3/angle",
+            "/AdvantageKit/RealOutputs/SwerveStates/SetpointsOptimized/0/angle",
+            "/AdvantageKit/RealOutputs/SwerveStates/SetpointsOptimized/2",
+            "/AdvantageKit/RealOutputs/SwerveStates/SetpointsOptimized/2/angle",
+            "/AdvantageKit/RealOutputs/SwerveStates/SetpointsOptimized/3",
+            "/AdvantageKit/RealOutputs/SwerveStates/SetpointsOptimized/3/angle",
+            "/AdvantageKit/RealOutputs/Vision/Summary/RobotPosesAccepted/5/rotation",
+            "/AdvantageKit/RealOutputs/Vision/Summary/RobotPosesAccepted/5/rotation/q",
+            "/AdvantageKit/RealOutputs/Odometry/TrajectorySetpoint/rotation",
+            "/AdvantageKit/RealOutputs/SwerveStates/Setpoints/0/angle",
+            "/SmartDashboard/VisionSystemSim-main/Sim Field",
+            "/AdvantageKit/RealOutputs/Field/Boundaries",
+            "/AdvantageKit/RealOutputs/Field/Boundaries/{Blue_Tower}/states",
+            "/AdvantageKit/RealOutputs/Field/Boundaries/{Blue_Tower}/states/0/pose",
+            "/AdvantageKit/RealOutputs/Field/Boundaries/{Blue_Tower}/states/0/pose/translation",
+            "/AdvantageKit/RealOutputs/Field/Boundaries/Blue_Tower/states",
+            "/AdvantageKit/RealOutputs/Vision/Camera1",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/TagPoses",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/TagPoses/2/translation",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/RobotPosesAccepted/2",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/RobotPosesAccepted/2/translation",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/RobotPosesRejected/1",
+            "/AdvantageKit/RealOutputs/Vision/Camera2",
+            "/AdvantageKit/RealOutputs/Vision/Camera2/TagPoses",
+            "/AdvantageKit/RealOutputs/Vision/Summary/TagPoses",
+            "/AdvantageKit/RealOutputs/Vision/Summary",
+            "/AdvantageKit/RealOutputs/Vision/Camera0",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/RobotPosesAccepted",
+            "/AdvantageKit/RealOutputs/Vision/Camera0/RobotPoses",
+            "/AdvantageKit/RealOutputs/Vision/Camera2/RobotPoses",
+            "/AdvantageKit/RealOutputs/Vision/Camera2/RobotPosesAccepted",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/RobotPoses",
+            "/AdvantageKit/RealOutputs/Vision/Camera1/RobotPosesAccepted",
+            "/AdvantageKit/Drive",
+            "/AdvantageKit/Elevator",
+            "/AdvantageKit/Elevator/Lead Motor",
+            "/AdvantageKit/Flywheel/Lead Motor",
+            "/AdvantageKit/Tower/Lead Motor",
+            "/AdvantageKit/Hood/Lead Motor",
+            "/AdvantageKit/Hopper/Lead Motor",
+            "/AdvantageKit/Intake Rollers/Lead Motor",
+            "/AdvantageKit/Intake Deploy/Lead Motor",
+            "/FUELS_SIM/Fuels/425",
+            "/AdvantageKit/RealOutputs/FieldSimulation/RobotPosition2d/0",
+            "/AdvantageKit/RealOutputs/FieldSimulation/RobotPosition2d/0/translation",
+            "/AdvantageKit/RealOutputs/FieldSimulation/RobotPosition3d/0",
+            "/AdvantageKit/RealOutputs/FieldSimulation/RobotPosition3d/0/translation",
+            "/AdvantageKit/RealOutputs/Odometry/TrajectorySetpoint/translation",
+            "/AdvantageKit/Intake Rollers",
+            "/FUELS_SIM",
+            "/AdvantageKit/RealOutputs/FUELS_SIM",
+            "/AdvantageKit/Intake Deploy",
+            "/AdvantageKit/RealOutputs/Odometry",
+            "/AdvantageKit/DriverStation",
+            "/AdvantageKit/SystemStats",
+            "/AdvantageKit/Flywheel"
+          ]
+        },
+        "tabs": {
+          "selected": 2,
+          "tabs": [
+            {
+              "type": 0,
+              "title": "",
+              "controller": null,
+              "controllerUUID": "yq3yn60elpo6599mgcl2zblor1vbvqkd",
+              "renderer": "",
+              "controlsHeight": 0
+            },
+            {
+              "type": 2,
+              "title": "2D Field",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "trajectory",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Field/Boundaries/Blue_Tower",
+                    "logType": "Trajectory",
+                    "visible": true,
+                    "options": {
+                      "color": "#ff00ff",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "trajectory",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Field/Boundaries/Red_Tower",
+                    "logType": "Trajectory",
+                    "visible": true,
+                    "options": {
+                      "color": "#ff00ff",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "field": "FRC:2026 Field",
+                "orientation": 0,
+                "size": "large"
+              },
+              "controllerUUID": "y48jm5788cvsrwut4e7pvkm1tavch6bp",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 5,
+              "title": "Console",
+              "controller": "NT:/AdvantageKit/RealOutputs/Console",
+              "controllerUUID": "pu4kavitbe0lphonsaruj0p48803ebpv",
+              "renderer": {
+                "highlight": true
+              },
+              "controlsHeight": 0
+            },
+            {
+              "type": 3,
+              "title": "3D Sim Field",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "ghost",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Vision/Camera0/RobotPoses",
+                    "logType": "Pose3d[]",
+                    "visible": false,
+                    "options": {
+                      "model": "2026 KitBot",
+                      "color": "#00ff00"
+                    }
+                  },
+                  {
+                    "type": "robot",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/FieldSimulation/RobotPosition3d",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "model": "Tutankabot"
+                    }
+                  },
+                  {
+                    "type": "mechanism",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Subsystems Mechanism2d",
+                    "logType": "Mechanism2d",
+                    "visible": false,
+                    "options": {
+                      "plane": "xz"
+                    }
+                  },
+                  {
+                    "type": "vision",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Vector_Speeds/Radial",
+                    "logType": "Translation3d[]",
+                    "visible": false,
+                    "options": {
+                      "color": "#ff00ff",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "vision",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Vector_Speeds/Tangential",
+                    "logType": "Translation3d[]",
+                    "visible": false,
+                    "options": {
+                      "color": "#ff8c00",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "trajectory",
+                    "logKey": "NT:/PathPlanner/activePath",
+                    "logType": "Pose2d[]",
+                    "visible": true,
+                    "options": {
+                      "color": "#00ff00",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "trajectory",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Field/Boundaries/Blue_Tower",
+                    "logType": "Trajectory",
+                    "visible": true,
+                    "options": {
+                      "color": "#ff00ff",
+                      "size": "bold"
+                    }
+                  },
+                  {
+                    "type": "trajectory",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Field/Boundaries/Red_Tower",
+                    "logType": "Trajectory",
+                    "visible": true,
+                    "options": {
+                      "color": "#ff00ff",
+                      "size": "bold"
+                    }
+                  },
+                  {
+                    "type": "cone",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Vision/Summary/TagPoses",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "color": "#00ff00",
+                      "position": "back"
+                    }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "NT:FUELS_SIM/Fuels",
+                    "logType": "Translation3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Fuel"
+                    }
+                  }
+                ],
+                "game": "FRC:2026 Field"
+              },
+              "controllerUUID": "9p30xnq3grwk3msk2y4y54whg8n1qz7x",
+              "renderer": {
+                "cameraIndex": -1,
+                "orbitFov": 50,
+                "cameraPosition": [
+                  -4.4373655540362575,
+                  10.815884927896837,
+                  6.6557360361137174
+                ],
+                "cameraTarget": [
+                  -3.6275335358213434,
+                  2.7888109692120397,
+                  1.7387116410998869
+                ]
+              },
+              "controlsHeight": 184
+            },
+            {
+              "type": 1,
+              "title": "Hood",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Tower/Lead Motor/ClosedLoopReference",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Tower/Lead Motor/CurrentPosition",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Hood/HoodActualPosition",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Hood/HoodTargetPosition",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#80588e",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Hood/Lead Motor/SupplyCurrent",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Hood/Lead Motor/TorqueCurrent",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#c0b487",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Enabled",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32"
+                    }
+                  },
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Autonomous",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#3b875a"
+                    }
+                  }
+                ],
+                "leftLockedRange": [
+                  -4.5,
+                  35
+                ],
+                "rightLockedRange": [
+                  -4.5,
+                  150
+                ],
+                "leftUnitConversion": {
+                  "autoTarget": null,
+                  "preset": {
+                    "type": "angle",
+                    "factor": 1,
+                    "from": "radians",
+                    "to": "degrees"
+                  }
+                },
+                "rightUnitConversion": {
+                  "autoTarget": "amps",
+                  "preset": null
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "9k0yznfyw9cnr2ol4x6ctjvljybfxgoy",
+              "renderer": null,
+              "controlsHeight": 278
+            },
+            {
+              "type": 1,
+              "title": "Flywheel",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Flywheel/Lead Motor/CurrentVelocity",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#80588e",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Flywheel/Lead Motor/ClosedLoopReference",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Flywheel/FlywheelTargetVelocity",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Flywheel/FlywheelActualVelocity",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Flywheel/Lead Motor/SupplyCurrent",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Flywheel/Lead Motor/TorqueCurrent",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#c0b487",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Enabled",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32"
+                    }
+                  },
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Autonomous",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#3b875a"
+                    }
+                  }
+                ],
+                "leftLockedRange": [
+                  -6200,
+                  6200
+                ],
+                "rightLockedRange": [
+                  -4.5,
+                  150
+                ],
+                "leftUnitConversion": {
+                  "autoTarget": null,
+                  "preset": {
+                    "type": "angular velocity",
+                    "factor": 1,
+                    "from": "radians/second",
+                    "to": "rotations/minute"
+                  }
+                },
+                "rightUnitConversion": {
+                  "autoTarget": "amps",
+                  "preset": null
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "txoc0v9qxesdt7mfbcjll82lgv426utg",
+              "renderer": null,
+              "controlsHeight": 240
+            },
+            {
+              "type": 1,
+              "title": "Tower",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Tower/TowerActualVelocity",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Tower/TowerTargetVelocity",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Tower/Lead Motor/ClosedLoopReference",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Tower/Lead Motor/CurrentVelocity",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#80588e",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Tower/Lead Motor/SupplyCurrent",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Tower/Lead Motor/TorqueCurrent",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#c0b487",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Enabled",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32"
+                    }
+                  },
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Autonomous",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#3b875a"
+                    }
+                  }
+                ],
+                "leftLockedRange": [
+                  -6200,
+                  6200
+                ],
+                "rightLockedRange": [
+                  -4.5,
+                  150
+                ],
+                "leftUnitConversion": {
+                  "autoTarget": null,
+                  "preset": {
+                    "type": "angular velocity",
+                    "factor": 1,
+                    "from": "radians/second",
+                    "to": "rotations/minute"
+                  }
+                },
+                "rightUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "0j77kxlusk8ubdwqt4ud5xyctlilmzjx",
+              "renderer": null,
+              "controlsHeight": 271
+            },
+            {
+              "type": 1,
+              "title": "Hopper",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Hopper/HopperActualVelocity",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Hopper/HopperTargetVelocity",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Hopper/Lead Motor/ClosedLoopReference",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Hopper/Lead Motor/CurrentVelocity",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#80588e",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Hopper/Lead Motor/SupplyCurrent",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Hopper/Lead Motor/TorqueCurrent",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#3b875a",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Enabled",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32"
+                    }
+                  },
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Autonomous",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#3b875a"
+                    }
+                  }
+                ],
+                "leftLockedRange": [
+                  -6200,
+                  6200
+                ],
+                "rightLockedRange": [
+                  -4.5,
+                  150
+                ],
+                "leftUnitConversion": {
+                  "autoTarget": null,
+                  "preset": {
+                    "type": "angular velocity",
+                    "factor": 1,
+                    "from": "radians/second",
+                    "to": "rotations/minute"
+                  }
+                },
+                "rightUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "i04ka4medfj43irgqi66yo34anrxgoks",
+              "renderer": null,
+              "controlsHeight": 265
+            },
+            {
+              "type": 1,
+              "title": "IntakeDeploy (Subsystem)",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Intake Deploy/IntakeDeployDisplacement",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Intake Deploy/IntakeDeployTargetDisplacement",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [],
+                "discreteSources": [
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Enabled",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32"
+                    }
+                  },
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Autonomous",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#3b875a"
+                    }
+                  }
+                ],
+                "leftLockedRange": [
+                  -1,
+                  14
+                ],
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "autoTarget": null,
+                  "preset": {
+                    "type": "length",
+                    "factor": 1,
+                    "from": "meters",
+                    "to": "inches"
+                  }
+                },
+                "rightUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "3kfk7nzxuoktmv3kcporuceb6nvn856i",
+              "renderer": null,
+              "controlsHeight": 265
+            },
+            {
+              "type": 1,
+              "title": "IntakeDeploy (Motors)",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Intake Deploy/Lead Motor/ClosedLoopReferenceSlope",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Intake Deploy/Lead Motor/CurrentVelocity",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Intake Deploy/Lead Motor/SupplyCurrent",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Intake Deploy/Lead Motor/TorqueCurrent",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#80588e",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Enabled",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32"
+                    }
+                  },
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Autonomous",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#3b875a"
+                    }
+                  }
+                ],
+                "leftLockedRange": [
+                  -6200,
+                  6200
+                ],
+                "rightLockedRange": [
+                  -4.5,
+                  150
+                ],
+                "leftUnitConversion": {
+                  "autoTarget": null,
+                  "preset": {
+                    "type": "angular velocity",
+                    "factor": 1,
+                    "from": "radians/second",
+                    "to": "rotations/minute"
+                  }
+                },
+                "rightUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "7tqmorw1zd3uwsff9zjlj1giq3lrjiet",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "IntakeRollers",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Intake Rollers/IntakeRollersActualVelocity",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Intake Rollers/IntakeRollersTargetVelocity",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Intake Rollers/Lead Motor/ClosedLoopReference",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Intake Rollers/Lead Motor/CurrentVelocity",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#80588e",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Intake Rollers/Lead Motor/SupplyCurrent",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Intake Rollers/Lead Motor/TorqueCurrent",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#c0b487",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Enabled",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32"
+                    }
+                  },
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Autonomous",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#3b875a"
+                    }
+                  }
+                ],
+                "leftLockedRange": [
+                  -6200,
+                  6200
+                ],
+                "rightLockedRange": [
+                  -4.5,
+                  150
+                ],
+                "leftUnitConversion": {
+                  "autoTarget": null,
+                  "preset": {
+                    "type": "angular velocity",
+                    "factor": 1,
+                    "from": "radians/second",
+                    "to": "rotations/minute"
+                  }
+                },
+                "rightUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "m7bg9aroxjtfv38rupleemujdjoqbptn",
+              "renderer": null,
+              "controlsHeight": 275
+            },
+            {
+              "type": 1,
+              "title": "Module0 Speeds",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/Drive/Module0/DriveVelocityRadPerSec",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/SwerveStates/SetpointsOptimized/0/speed",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Enabled",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32"
+                    }
+                  },
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Autonomous",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#3b875a"
+                    }
+                  }
+                ],
+                "leftLockedRange": [
+                  -800,
+                  800
+                ],
+                "rightLockedRange": [
+                  -5.6,
+                  5.6
+                ],
+                "leftUnitConversion": {
+                  "autoTarget": null,
+                  "preset": {
+                    "type": "angular velocity",
+                    "factor": 1,
+                    "from": "radians/second",
+                    "to": "rotations/minute"
+                  }
+                },
+                "rightUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "fsm7onb6va37u1xyjy26jku6xx9mm0ql",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 9,
+              "title": "Swerve",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "states",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/SwerveStates/Measured",
+                    "logType": "SwerveModuleState[]",
+                    "visible": true,
+                    "options": {
+                      "color": "#ff0000",
+                      "arrangement": "0,1,2,3"
+                    }
+                  },
+                  {
+                    "type": "states",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/SwerveStates/Setpoints",
+                    "logType": "SwerveModuleState[]",
+                    "visible": true,
+                    "options": {
+                      "color": "#0000ff",
+                      "arrangement": "0,1,2,3"
+                    }
+                  },
+                  {
+                    "type": "rotation",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Odometry/Robot/rotation",
+                    "logType": "Rotation2d",
+                    "visible": true,
+                    "options": {}
+                  }
+                ],
+                "maxSpeed": 5.45,
+                "sizeX": 0.67,
+                "sizeY": 0.67,
+                "orientation": 1
+              },
+              "controllerUUID": "cmc14v22quwz2mrzq00id113vvoyy7id",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 8,
+              "title": "Joysticks",
+              "controller": [
+                "PS4 Controller",
+                "None",
+                "None",
+                "None",
+                "None",
+                "None"
+              ],
+              "controllerUUID": "1mu7lxp5m9rejv61d0z96e8ltd6p7xmi",
+              "renderer": null,
+              "controlsHeight": 85
+            },
+            {
+              "type": 1,
+              "title": "LL Left Viewed Tags",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Vision/Camera0/TagPoses/length",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Vision/Camera0/RobotPoses/length",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Vision/Camera0/RobotPosesAccepted/length",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Enabled",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32"
+                    }
+                  },
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Autonomous",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#3b875a"
+                    }
+                  }
+                ],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "rightUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "3qqtrkz6pgvq2z5r0lkqtznspie0tetl",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "LL Right Viewed Tags",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Vision/Camera1/TagPoses/length",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Vision/Camera1/RobotPoses/length",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Vision/Camera1/RobotPosesAccepted/length",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#80588e",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Enabled",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32"
+                    }
+                  },
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Autonomous",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#3b875a"
+                    }
+                  }
+                ],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "rightUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "xgsat1gah1zdbnnens48auva8rql7nxp",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "LL Back Viewed Tags",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Vision/Camera2/TagPoses/length",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Vision/Camera2/RobotPoses/length",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Vision/Camera2/RobotPosesAccepted/length",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Enabled",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32"
+                    }
+                  },
+                  {
+                    "type": "graph",
+                    "logKey": "NT:/AdvantageKit/DriverStation/Autonomous",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#3b875a"
+                    }
+                  }
+                ],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "rightUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "t3bap7p2six4x9amlb1013mrftegvuwb",
+              "renderer": null,
+              "controlsHeight": 200
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "satellites": [],
+  "version": "26.0.0"
+}

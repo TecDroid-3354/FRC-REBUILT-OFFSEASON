@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.tecdroid3354.constants.SubsystemsControlGains
 import frc.tecdroid3354.constants.SubsystemsPresetTargets
 import frc.tecdroid3354.constants.SubsystemsTunableTargets
+import frc.tecdroid3354.utils.InstantCommand
 import frc.tecdroid3354.utils.degrees
 import frc.tecdroid3354.utils.interfaces.MotorIOInputsAutoLogged
 import frc.tecdroid3354.utils.meters
@@ -77,12 +78,12 @@ class HoodSubsystem(private val io: HoodIO): SubsystemBase(HoodConstants.Telemet
 
     fun getHoodPosition(): Angle = inputs.hoodActualPosition
 
-    fun coastHood(): Runnable {
-        return io.coastHoodMotors()
+    fun coastHood(): Command {
+        return io.coastHoodMotors().InstantCommand(this)
     }
 
-    fun brakeHood(): Runnable {
-        return io.brakeHoodMotors()
+    fun brakeHood(): Command {
+        return io.brakeHoodMotors().InstantCommand(this)
     }
 
     /**
