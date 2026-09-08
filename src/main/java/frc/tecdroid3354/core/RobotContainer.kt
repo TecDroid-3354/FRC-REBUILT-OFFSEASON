@@ -201,6 +201,10 @@ object RobotContainer
             .whileTrue(superstructure.setIntakeTeleopControl())
             .onFalse(superstructure.stopIntake())
 
+        driverController.L1()
+            .whileTrue(superstructure.clusterIntakeDeploy())
+            .onFalse(superstructure.stopIntake())
+
         driverController.square() // Shooter (Hood + Flywheel) manual control
             .whileTrue(superstructure.setShooterManualControl())
             .onFalse(superstructure.stopShooting())
@@ -213,9 +217,9 @@ object RobotContainer
             .whileTrue(superstructure.setIntakeManualControl())
             .onFalse(superstructure.stopIntake())
 
-        driverController.L1() // Shooter (Hood + Flywheel) calculated scoring targets
-            .whileTrue(superstructure.setShooterScoring())
-            .onFalse(superstructure.stopShooting())
+//        driverController.L1() // Shooter (Hood + Flywheel) calculated scoring targets
+//            .whileTrue(superstructure.setShooterScoring())
+//            .onFalse(superstructure.stopShooting())
 
         driverController.povLeft() // Launches FUEL. SIMULATION ONLY.
             .onTrue(superstructure.launchSimFuel())

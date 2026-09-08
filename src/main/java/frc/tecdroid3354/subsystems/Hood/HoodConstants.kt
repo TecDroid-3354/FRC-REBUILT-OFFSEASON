@@ -37,7 +37,7 @@ object HoodConstants {
      * Only for gear ratio ([Reduction]). In the case of linear subsystems, the sprocket also goes here.
      */
     object Mechanical {
-        val REDUCTION: Reduction = Reduction((60.0 / 10.0) * (37.0 / 21.0))
+        val REDUCTION: Reduction = Reduction((142.0 / 13.0) * (60.0 / 9.0) * (37.0 / 22.0))
 
         const val NUMBER_OF_MOTORS: Int = 1
 
@@ -83,7 +83,7 @@ object HoodConstants {
      */
     object PhoenixMotorConfiguration {
         private val neutralMode: NeutralModeValue = NeutralModeValue.Brake
-        private val motorDirection: InvertedValue = InvertedValue.CounterClockwise_Positive
+        private val motorDirection: InvertedValue = InvertedValue.Clockwise_Positive
 
         private val supplyCurrentLimit: Current = 30.0.amps
         private val statorCurrentLimit: Current = 80.0.amps

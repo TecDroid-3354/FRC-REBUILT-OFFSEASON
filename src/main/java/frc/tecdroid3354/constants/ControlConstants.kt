@@ -140,8 +140,8 @@ object SubsystemsPresetTargets {
     // INTAKE DEPLOY ONLY
     //
     val INTAKE_DEPLOY_HOME_DISPLACEMENT: Distance = 0.0.inches
-    val INTAKE_DEPLOY_CLUSTERING_DISPLACEMENT: Distance = 3.0.inches
-    val INTAKE_DEPLOY_EXTENDED_DISPLACEMENT: Distance = 11.5.inches
+    val INTAKE_DEPLOY_CLUSTERING_DISPLACEMENT: Distance = 5.45.inches
+    val INTAKE_DEPLOY_EXTENDED_DISPLACEMENT: Distance = 11.8.inches
 
     //
     // INTAKE ROLLERS ONLY
@@ -182,7 +182,7 @@ object SubsystemsTunableTargets {
     // INTAKE DEPLOY ONLY
     //
     val INTAKE_DEPLOY_MANUAL_TARGET_INCHES: LoggedTunableNumber =
-        LoggedTunableNumber("${ IntakeDeployConstants.Telemetry.SUBSYSTEM_TAB }/Manual Target (in)", 11.5)
+        LoggedTunableNumber("${ IntakeDeployConstants.Telemetry.SUBSYSTEM_TAB }/Manual Target (in)", 11.8)
 
     //
     // INTAKE ROLLERS ONLY
@@ -206,37 +206,37 @@ object SubsystemsControlGains {
      // Hood ONLY
      //
      val HOOD_MOTOR_PRIMARY_GAINS      : TunableControlGains = TunableControlGains(HoodConstants.Telemetry.SUBSYSTEM_PRIMARY_GAINS,
-         kP = 825.0, kI = 0.0, kD = 23.5, kS = 0.0, kV = 0.0, kA = 0.55, kG = 7.5) // TODO() = TRY IN REAL ROBOT
+         kP = 36.5, kI = 0.0, kD = 3.0, kS = 0.0, kV = 0.0, kA = 0.0, kG = 0.35) // TUNED
 
     //
     // FLYWHEEL ONLY
     //
      val FLYWHEEL_MOTOR_PRIMARY_GAINS   : TunableControlGains = TunableControlGains(FlywheelConstants.Telemetry.SUBSYSTEM_PRIMARY_GAINS,
-        kP = 50.0, kI = 0.0, kD = 0.0, kS = 0.0, kV = 0.5, kA = 0.2, kG = 0.0) // TODO() = TRY IN REAL ROBOT
+        kP = 8.25, kI = 0.0, kD = 0.0, kS = 0.0, kV = 0.3, kA = 0.0, kG = 0.0) // TODO() = TRY WITH FUELS
 
      //
      // TOWER ONLY
      //
      val TOWER_MOTOR_PRIMARY_GAINS   : TunableControlGains = TunableControlGains(TowerConstants.Telemetry.SUBSYSTEM_PRIMARY_GAINS,
-         kP = 35.0, kI = 0.0, kD = 0.0, kS = 0.0, kV = 0.0, kA = 0.0, kG = 0.0) // TODO() = TRY IN REAL ROBOT
+         kP = 10.0, kI = 0.0, kD = 0.0, kS = 0.0, kV = 0.0, kA = 0.0, kG = 0.0) // TUNED
 
      //
      // HOPPER ONLY
      //
      val HOPPER_MOTOR_PRIMARY_GAINS   : TunableControlGains = TunableControlGains(HopperConstants.Telemetry.SUBSYSTEM_PRIMARY_GAINS,
-         kP = 125.0, kI = 0.0, kD = 0.0, kS = 2.5, kV = 0.0, kA = 0.0, kG = 0.0) // TODO() = TRY IN REAL ROBOT
+         kP = 7.35, kI = 0.0, kD = 0.0, kS = 0.0, kV = 0.0, kA = 0.0, kG = 0.0) // TUNED
 
      //
      // INTAKE DEPLOY ONLY
      //
      val INTAKE_DEPLOY_MOTOR_PRIMARY_GAINS   : TunableControlGains = TunableControlGains(IntakeDeployConstants.Telemetry.SUBSYSTEM_PRIMARY_GAINS,
-        kP = 25.0, kI = 0.0, kD = 8.65, kS = 0.0, kV = 0.0, kA = 0.3, kG = 0.0) // TODO() = TRY IN REAL ROBOT
+        kP = 16.75, kI = 0.0, kD = 0.0, kS = 0.0, kV = 0.0, kA = 0.0, kG = 0.0) // SEMI - TUNED
 
      //
      // INTAKE ROLLERS ONLY
      //
      val INTAKE_ROLLERS_MOTOR_PRIMARY_GAINS   : TunableControlGains = TunableControlGains(IntakeRollersConstants.Telemetry.SUBSYSTEM_PRIMARY_GAINS,
-         kP = 16.5, kI = 0.0, kD = 0.0, kS = 0.0, kV = 0.0, kA = 0.75, kG = 0.0) // TODO() = TRY IN REAL ROBOT
+         kP = 25.0, kI = 0.0, kD = 0.0, kS = 0.65, kV = 1.0, kA = 0.0, kG = 0.0) // TUNED
 
      //
      // DRIVE ONLY
@@ -266,9 +266,9 @@ object SubsystemsMotionTargets {
     //
     val HOOD_PRIMARY_MOTION_TARGETS: AngularMotionTargets =
         AngularMotionTargets(
-            30.0.degreesPerSecond,
-            0.1.seconds,
-            0.1.seconds
+            100.0.degreesPerSecond,
+            0.05.seconds,
+            0.0.seconds
         )
 
     //
@@ -306,16 +306,16 @@ object SubsystemsMotionTargets {
     //
     val INTAKE_DEPLOY_PRIMARY_MOTION_TARGETS: LinearMotionTargets = // Standard motion
         LinearMotionTargets(
-            0.3.metersPerSecond,
-            0.1.seconds,
+            0.75.metersPerSecond,
+            0.075.seconds,
             Seconds.zero(),
         )
 
     val INTAKE_DEPLOY_SECONDARY_MOTION_TARGETS: LinearMotionTargets = // For cluster motion
         LinearMotionTargets( // Same as Primary for testing, commented values would be for real manually-controlled motion
-            0.15.metersPerSecond,
-            0.1.seconds,
-            0.0.seconds,
+            0.75.metersPerSecond,
+            0.35.seconds,
+            0.15.seconds,
         )
 
     //

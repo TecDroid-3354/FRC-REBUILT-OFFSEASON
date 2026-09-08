@@ -1,6 +1,7 @@
 package frc.tecdroid3354.core
 
 
+import com.ctre.phoenix6.SignalLogger
 import com.pathplanner.lib.commands.FollowPathCommand
 import com.pathplanner.lib.commands.PathfindingCommand
 import edu.wpi.first.net.WebServer
@@ -58,7 +59,7 @@ object Robot : LoggedRobot() {
         // Optionally switch the thread to high priority to improve loop
         // timing (see the template project documentation for details)
         // TODO(1): Comment this line if loop cycle is NOT significantly less than 20ms
-        Threads.setCurrentThreadPriority(true, 99);
+        //Threads.setCurrentThreadPriority(true, 99);
 
         // Runs the Scheduler. This is responsible for polling buttons, adding
         // newly-scheduled commands, running already-scheduled commands, removing
@@ -73,7 +74,7 @@ object Robot : LoggedRobot() {
 
         // Return to non-RT thread priority (do not modify the first argument)
         // TODO(2): Same as TODO(1)
-        Threads.setCurrentThreadPriority(false, 10);
+        //Threads.setCurrentThreadPriority(false, 10);
     }
 
     /** This function is called once when the robot is disabled.  */
@@ -172,8 +173,9 @@ object Robot : LoggedRobot() {
             }
         }
 
-        // Start AdvantageKit logger
+        // Start AdvantageKit & Phoenix6 loggers
         Logger.start()
+        //SignalLogger.start()
 
         // Due to Kotlin's lazy loading of objects, this needs to be referenced here for Boundary objects to call
         // their init {} block, which logs the boundary box. This line does nothing else than loading the object into memory.
