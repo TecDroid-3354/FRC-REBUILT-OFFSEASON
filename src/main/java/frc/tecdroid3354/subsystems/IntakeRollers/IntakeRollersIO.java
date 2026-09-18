@@ -87,12 +87,12 @@ public interface IntakeRollersIO {
 
     /**
      * Only if applicable.
-     * <p>Sets the subsystem to the preset velocity stored in constants.</p>
+     * <p>Sets the subsystem to the given velocity.</p>
      * <p>This does not change live, only in-code.</p>
      * <p>Make sure to update your subsystem target velocity variable for telemetry</p>
      * @return A {@link Runnable} setting the subsystem preset target velocity
      */
-    Runnable enableIntakeRollersPresetVelocity();
+    Runnable enableIntakeRollersVelocity(AngularVelocity targetVelocity);
 
     /**
      * Disables the subsystem motors.
@@ -150,7 +150,7 @@ public interface IntakeRollersIO {
         }
 
         @Override
-        public Runnable enableIntakeRollersPresetVelocity() {
+        public Runnable enableIntakeRollersVelocity(AngularVelocity targetVelocity) {
             return null;
         }
 

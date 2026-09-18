@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.tecdroid3354.constants.RobotConstants;
 import frc.tecdroid3354.subsystems.drive.Drive;
+import frc.tecdroid3354.utils.controlProfiles.TunablePIDController;
 import org.littletonrobotics.junction.Logger;
 
 import java.text.DecimalFormat;
@@ -46,14 +47,13 @@ import static java.lang.Math.atan2;
 
 public class DriveCommands {
     private static final double DEADBAND = 0.1;
-    private static final double ANGLE_KP = 5.0;
-    private static final double ANGLE_KD = 0.4;
-    private static final double ANGLE_MAX_VELOCITY = 8.0;
-    private static final double ANGLE_MAX_ACCELERATION = 20.0;
     private static final double FF_START_DELAY = 2.0; // Secs
     private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
     private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
     private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
+
+    public static final TunablePIDController angleController = new TunablePIDController(
+            "Drive/Robot Heading PID", 3.5, 0.0, 0.35);
 
     public static final MutAngle lastDriveAngle = Degrees.mutable(0.0);
 
@@ -214,15 +214,12 @@ public class DriveCommands {
      */
     public static Command joystickDriveAtAngle(
             Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier, Supplier<Rotation2d> rotationSupplier) {
-
-        // Create PID controller
-        ProfiledPIDController angleController = new ProfiledPIDController(
-                ANGLE_KP, 0.0, ANGLE_KD, new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
+        // Configure the PID continuous input at start
         angleController.enableContinuousInput(-Math.PI, Math.PI);
-
         // Construct command
         return Commands.run(
                         () -> {
+                            angleController.update(); // Refresh PID gains
                             lastDriveAngle.mut_replace(Radians.of(rotationSupplier.get().getRadians()));
                             // Get linear velocity
                             Translation2d linearVelocity =
@@ -249,7 +246,7 @@ public class DriveCommands {
                         drive)
 
                 // Reset PID controller when command starts
-                .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
+                .beforeStarting(angleController::reset);
     }
 
     // --------------- ---------------- -------- --------------- //

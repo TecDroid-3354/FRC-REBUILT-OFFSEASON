@@ -1,6 +1,8 @@
 package frc.tecdroid3354.constants
 
+import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Rotation3d
+import edu.wpi.first.math.geometry.Transform2d
 import edu.wpi.first.math.geometry.Transform3d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.units.measure.Angle
@@ -30,6 +32,7 @@ enum class RobotMode {
 
 object RobotConstants {
     val ROBOT_MODE                      : RobotMode = if (RobotBase.isReal()) RobotMode.REAL else RobotMode.SIM
+    val IS_ROBOT_SIM                    : Boolean = ROBOT_MODE == RobotMode.SIM
     val LOOP_TIME                       : Time = 20.0.milliseconds
     val IS_RED_ALLIANCE                 : BooleanSupplier =
         { DriverStation.getAlliance().isPresent && DriverStation.getAlliance().get() == DriverStation.Alliance.Red }
@@ -81,6 +84,7 @@ object RobotDimensions {
 object RobotTransformations {
     val ROBOT_TO_SHOOTER = Transform3d((-6.1311).inches, 0.0.inches, 20.6417.inches, // Previously, (x,y) inverted
         Rotation3d(0.0.degrees, 0.0.degrees, 180.0.degrees))
+    val ROBOT_TO_SHOOTER_2D = Transform2d((-6.1311).inches, 0.0.inches, Rotation2d.kPi)
 
     val ROBOT_TO_INTAKE = Transform3d((-22.9982).inches, 0.0.inches, 6.7805.inches,
         Rotation3d(0.0.degrees, 0.0.degrees, 0.0.degrees))

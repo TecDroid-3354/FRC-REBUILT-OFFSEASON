@@ -223,6 +223,8 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
             poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
         }
 
+        Logger.recordOutput("SwerveStates/Measured", getModuleStates());
+
         // Update gyro alert
         gyroDisconnectedAlert.set(!gyroInputs.connected && RobotConstants.INSTANCE.getROBOT_MODE() != RobotMode.SIM);
 
@@ -374,7 +376,6 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     }
 
     /** Returns the current odometry pose. */
-    @AutoLogOutput(key = "Odometry/Robot")
     public Pose2d getPose() {
         return poseEstimator.getEstimatedPosition();
     }

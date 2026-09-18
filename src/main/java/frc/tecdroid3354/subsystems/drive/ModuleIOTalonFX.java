@@ -61,14 +61,14 @@ public class ModuleIOTalonFX implements ModuleIO {
     // Voltage control requests -> Changed Closed-Loop request for turn motor to use MotionMagic Expo
     // TODO() = Implement Motion Magic Configs for drive motor
     private final VoltageOut voltageRequest = new VoltageOut(0);
-    private final MotionMagicExpoVoltage positionVoltageRequest = new MotionMagicExpoVoltage(0.0);
+    private final PositionVoltage positionVoltageRequest = new PositionVoltage(0.0);
     private final VelocityVoltage velocityVoltageRequest = new VelocityVoltage(0.0);
 
     // Torque-current control requests -> Changed Closed-Loop request for turn motor to use MotionMagic Expo
     // TODO() = Implement Motion Magic configs for drive motor
     private final TorqueCurrentFOC torqueCurrentRequest = new TorqueCurrentFOC(0);
-    private final MotionMagicExpoTorqueCurrentFOC positionTorqueCurrentRequest = new MotionMagicExpoTorqueCurrentFOC(0.0);
-    private final VelocityTorqueCurrentFOC velocityTorqueCurrentRequest = new VelocityTorqueCurrentFOC(0.0);
+    private final MotionMagicTorqueCurrentFOC positionTorqueCurrentRequest = new MotionMagicTorqueCurrentFOC(0.0);
+    private final MotionMagicVelocityTorqueCurrentFOC velocityTorqueCurrentRequest = new MotionMagicVelocityTorqueCurrentFOC(0.0);
 
     // Timestamp inputs from Phoenix thread
     private final Queue<Double> timestampQueue;
@@ -105,7 +105,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         cancoder = new CANcoder(constants.EncoderId, canBus);
 
         // Configure drive motor
-        driveConfig = constants.DriveMotorInitialConfigs;
+        driveConfig = new TalonFXConfiguration();
         driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         driveConfig.Slot0 = constants.DriveMotorGains;
         driveConfig.Feedback.SensorToMechanismRatio = constants.DriveMotorGearRatio;

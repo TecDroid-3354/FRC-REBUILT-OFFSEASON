@@ -61,8 +61,8 @@ object IntakeRollersConstants {
         private val neutralMode: NeutralModeValue = NeutralModeValue.Coast
         private val motorDirection: InvertedValue = InvertedValue.CounterClockwise_Positive
 
-        private val supplyCurrentLimit: Current = 30.0.amps
-        private val statorCurrentLimit: Current = 100.0.amps
+        private val supplyCurrentLimit: Current = 35.0.amps
+        private val statorCurrentLimit: Current = 60.0.amps
 
         val initialMotorsConfiguration: TalonFXConfiguration = KrakenMotors.createTalonFXConfiguration(
             Optional.of<MotorOutputConfigs>(

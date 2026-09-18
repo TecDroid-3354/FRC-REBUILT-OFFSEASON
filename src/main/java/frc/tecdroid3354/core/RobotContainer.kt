@@ -70,18 +70,22 @@ import java.util.Optional
 object RobotContainer
 {
     private val driverController = CommandPS5Controller(RobotConstants.MAIN_CONTROLLER_PORT)
-    // ALL interactions (with maple sim drive exception) with subsystems will be done through this object.
-    private val superstructure: Superstructure
 
-    private val autoChooser: LoggedDashboardChooser<Command>
-
-    private lateinit var drive                  : Drive
-    private lateinit var mapleSimDrive          : SwerveDriveSimulation
-    private lateinit var bumpSim                : RobotBumpSim
-    private lateinit var fuelSim                : FuelSim
+    // SIM INITIALIZATION ONLY
+    private val mapleSimDrive   : SwerveDriveSimulation? = if (RobotConstants.IS_ROBOT_SIM) SwerveDriveSimulation(
+        Drive.getMapleSimConfig(), Pose2d(3.0.meters, 3.0.meters, Rotation2d())) else null
+    private val bumpSim         : RobotBumpSim? = if (RobotConstants.IS_ROBOT_SIM) RobotBumpSim(Drive.getModuleTranslations()) else null
+    private val fuelSim         : FuelSim? =  if (RobotConstants.IS_ROBOT_SIM) FuelSim("FUELS_SIM") else null
     // The 'false' parameter prevents field bumps from being treated as obstacles (for RobotBumpSim to work)
-    val simField                                : SimulatedArena = Arena2026Rebuilt(false)
+    val simField                : SimulatedArena? = if (RobotConstants.IS_ROBOT_SIM) Arena2026Rebuilt(false) else null
 
+    // ALL interactions (with maple sim drive exception) with subsystems will be done through this object.
+    private val superstructure  : Superstructure
+
+    private val autoChooser     : LoggedDashboardChooser<Command>
+
+    // SUBSYSTEMS DECLARATION ONLY
+    private lateinit var drive                  : Drive
     private lateinit var vision                 : Vision
 
     private lateinit var hoodSubsystem          : HoodSubsystem
@@ -97,6 +101,7 @@ object RobotContainer
     init
     {
         initializeSubsystems() // This method MUST be the first one called, otherwise you'll be accessing null objects
+        configureSimObjects()
 
         superstructure = Superstructure( // Constructs the superstructure with initialized subsystems
             driverController,
@@ -114,8 +119,6 @@ object RobotContainer
                     TargetTranslations.UPPER_BLUE_ASSIST else TargetTranslations.BOTTOM_BLUE_ASSIST
             } }
         )
-
-        configureFuelSim()
 
         registerNamedCommandsInit() // Must be called before autoChooser binds the autonomous routines
 
@@ -197,12 +200,12 @@ object RobotContainer
             ) { superstructure.getIsDriveAtNeutralZone() }) // If this is true, launches to assist, if not launches to score.
             .onFalse(superstructure.stopShootingSequenceIncludingDeploy())
 
-        driverController.R1()
+        driverController.R1() // Enables intake
             .whileTrue(superstructure.setIntakeTeleopControl())
             .onFalse(superstructure.stopIntake())
 
-        driverController.L1()
-            .whileTrue(superstructure.clusterIntakeDeploy())
+        driverController.L1() // Enables outtake in case of intake jam
+            .whileTrue(superstructure.setOuttakeTeleopControl())
             .onFalse(superstructure.stopIntake())
 
         driverController.square() // Shooter (Hood + Flywheel) manual control
@@ -217,12 +220,12 @@ object RobotContainer
             .whileTrue(superstructure.setIntakeManualControl())
             .onFalse(superstructure.stopIntake())
 
-//        driverController.L1() // Shooter (Hood + Flywheel) calculated scoring targets
-//            .whileTrue(superstructure.setShooterScoring())
-//            .onFalse(superstructure.stopShooting())
-
         driverController.povLeft() // Launches FUEL. SIMULATION ONLY.
             .onTrue(superstructure.launchSimFuel())
+
+        driverController.povRight() // Clusters Intake. Rollers are activated too.
+            .whileTrue(superstructure.clusterIntakeDeploy().alongWith(superstructure.enableIntakeRollersPreset()))
+            .onFalse(superstructure.stopIntake())
 
         driverController.povUp() // Coasts hood and deploy regardless of being disabled
             .onTrue(superstructure.coastSubsystems().ignoringDisable(true))
@@ -243,13 +246,16 @@ object RobotContainer
     // --------------- SIMULATION SPECIFIC --------------- //
     // --------------- ---------- -------- --------------- //
 
-    /** Additional configuration (robot and intake) of [fuelSim]. It also starts the simulation. */
-    private fun configureFuelSim() {
-        fuelSim.registerRobot( // Registers the dimensions and speeds of the robot for accurate simulation
+    /** Additional configuration of all sim objects. It also starts the simulation. */
+    private fun configureSimObjects() {
+        if (RobotConstants.IS_ROBOT_SIM.not()) return // Make sure is sim before configuring anything
+        simField!!.addDriveTrainSimulation(mapleSimDrive)
+
+        fuelSim!!.registerRobot( // Registers the dimensions and speeds of the robot for accurate simulation
             RobotDimensions.ROBOT_WIDTH,
             RobotDimensions.ROBOT_LENGTH,
             RobotDimensions.BUMPERS_HEIGHT,
-            { mapleSimDrive.simulatedDriveTrainPose },
+            { mapleSimDrive?.simulatedDriveTrainPose },
             { drive.fieldRelativeChassisSpeeds }
         )
         fuelSim.registerIntake( // Registers the robot intake for accurate interaction
@@ -267,10 +273,10 @@ object RobotContainer
 
     /** Resets simulation odometry and field */
     fun resetSimulation() {
-        if (RobotConstants.ROBOT_MODE != RobotMode.SIM) return
+        if (RobotConstants.IS_ROBOT_SIM.not()) return
 
         superstructure.resetOdometryPose(Pose2d(3.0, 3.0, Rotation2d()))
-        fuelSim.clearFuel()
+        fuelSim!!.clearFuel()
         fuelSim.spawnStartingFuel()
 
         FuelSim.Hub.BLUE_HUB.resetScore()
@@ -279,15 +285,15 @@ object RobotContainer
 
     /** Updates [simField] and [mapleSimDrive], taking [bumpSim] into account. Poses logged with [Logger] */
     fun updateSimulation() {
-        if (RobotConstants.ROBOT_MODE != RobotMode.SIM) return
-        simField.simulationPeriodic() // Must be called first
-        fuelSim.updateSim() // Updates FUEL simulation
+        if (RobotConstants.IS_ROBOT_SIM.not()) return
+        simField!!.simulationPeriodic() // Must be called first
+        fuelSim!!.updateSim() // Updates FUEL simulation
 
         // Physics update accounting for bump (must call after maple sim updates)
-        val robotPose2d = mapleSimDrive.simulatedDriveTrainPose
+        val robotPose2d = mapleSimDrive!!.simulatedDriveTrainPose
         val fieldRelativeSpeeds = mapleSimDrive.driveTrainSimulatedChassisSpeedsFieldRelative
 
-        val robotPose3d = bumpSim.update(robotPose2d, fieldRelativeSpeeds, 5)
+        val robotPose3d = bumpSim!!.update(robotPose2d, fieldRelativeSpeeds, 5)
 
         // Only override maple sim pose if over bump
         if (bumpSim.isOnRamp) {
@@ -311,17 +317,7 @@ object RobotContainer
     private fun initializeSubsystems() {
         when(RobotConstants.ROBOT_MODE) {
 
-            RobotMode.REAL -> { // Sim objects won't do anything
-                mapleSimDrive = SwerveDriveSimulation(
-                    Drive.getMapleSimConfig(),
-                    Pose2d(3.0.meters, 3.0.meters, Rotation2d())
-                )
-                simField.addDriveTrainSimulation(mapleSimDrive)
-
-                fuelSim = FuelSim("FUELS_SIM")
-
-                bumpSim = RobotBumpSim(Drive.getModuleTranslations())
-
+            RobotMode.REAL -> {
                 drive = Drive(
                     GyroIOPigeon2(),
                     ModuleIOTalonFX(SwerveTunerConstants.FrontLeft), ModuleIOTalonFX(SwerveTunerConstants.FrontRight),
@@ -344,20 +340,9 @@ object RobotContainer
             }
 
             RobotMode.SIM -> {
-                // Drive-specific and extra simulation objects (maple-sim, simField, fuelSim and bumpSim)
-                mapleSimDrive = SwerveDriveSimulation(
-                    Drive.getMapleSimConfig(),
-                    Pose2d(3.0.meters, 3.0.meters, Rotation2d())
-                )
-                simField.addDriveTrainSimulation(mapleSimDrive)
-
-                fuelSim = FuelSim("FUELS_SIM")
-
-                bumpSim = RobotBumpSim(Drive.getModuleTranslations())
-
                 // Normal Simulation Layer of all subsystems.
                 drive = Drive(
-                    GyroIOSim(mapleSimDrive.gyroSimulation),
+                    GyroIOSim(mapleSimDrive!!.gyroSimulation),
                     ModuleIOSim(mapleSimDrive.modules[0]), ModuleIOSim(mapleSimDrive.modules[1]),
                     ModuleIOSim(mapleSimDrive.modules[2]), ModuleIOSim(mapleSimDrive.modules[3]),
                     mapleSimDrive::setSimulationWorldPose
@@ -379,17 +364,7 @@ object RobotContainer
                 intakeRollersSubsystem = IntakeRollersSubsystem(IntakeRollersIOSim())
             }
 
-            RobotMode.REPLAY -> { // Sim objects won't do anything
-                mapleSimDrive = SwerveDriveSimulation(
-                    Drive.getMapleSimConfig(),
-                    Pose2d(3.0.meters, 3.0.meters, Rotation2d())
-                )
-                simField.addDriveTrainSimulation(mapleSimDrive)
-
-                fuelSim = FuelSim("FUELS_SIM")
-
-                bumpSim = RobotBumpSim(Drive.getModuleTranslations())
-
+            RobotMode.REPLAY -> {
                 drive = Drive(
                     object : GyroIO {},
                     object : ModuleIO {}, object : ModuleIO {}, object : ModuleIO {}, object : ModuleIO {},

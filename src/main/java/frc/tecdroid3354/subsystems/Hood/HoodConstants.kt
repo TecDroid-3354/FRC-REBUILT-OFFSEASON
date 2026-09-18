@@ -8,7 +8,6 @@ import com.ctre.phoenix6.configs.Slot1Configs
 import com.ctre.phoenix6.configs.Slot2Configs
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.signals.InvertedValue
-import com.ctre.phoenix6.signals.MotorAlignmentValue
 import com.ctre.phoenix6.signals.NeutralModeValue
 import edu.wpi.first.units.measure.Current
 import edu.wpi.first.units.measure.MomentOfInertia
@@ -18,6 +17,7 @@ import frc.tecdroid3354.constants.SimConstants
 import frc.tecdroid3354.constants.SubsystemsControlGains
 import frc.tecdroid3354.constants.SubsystemsMotionTargets
 import frc.tecdroid3354.utils.amps
+import frc.tecdroid3354.utils.controlProfiles.Polynomials
 import frc.tecdroid3354.utils.devices.KrakenMotors
 import frc.tecdroid3354.utils.kilogramSquareMeters
 import frc.tecdroid3354.utils.mechanical.Reduction
@@ -62,16 +62,13 @@ object HoodConstants {
      *
      * All polynomials were calculated from TecDroid's Trajectory Simulator.
      */
-    object PolynomialCoefficients {
-        const val SCORING_X3_COEFF: Double = -0.257860
-        const val SCORING_X2_COEFF: Double = 0.823323
-        const val SCORING_X1_COEFF: Double = 8.641864
-        const val SCORING_X0_COEFF: Double = 0.238287
+    object StoredPolynomials {
+        val SCORING_POLYNOMIAL           : Result<Polynomials> = Polynomials.of(degree = 3,
+            0.320746, -3.270862, 17.103497, -7.186713
+        )
 
-        const val ASSIST_X3_COEFF: Double = 0.632129
-        const val ASSIST_X2_COEFF: Double = -8.336842
-        const val ASSIST_X1_COEFF: Double = 35.949862
-        const val ASSIST_X0_COEFF: Double = -20.551522
+        val ASSIST_POLYNOMIAL            : Result<Polynomials> = Polynomials.of(degree = 3,
+            0.130994, -3.213622, 24.175404, -29.079567)
     }
 
     /**
@@ -85,8 +82,8 @@ object HoodConstants {
         private val neutralMode: NeutralModeValue = NeutralModeValue.Brake
         private val motorDirection: InvertedValue = InvertedValue.Clockwise_Positive
 
-        private val supplyCurrentLimit: Current = 30.0.amps
-        private val statorCurrentLimit: Current = 80.0.amps
+        private val supplyCurrentLimit: Current = 20.0.amps
+        private val statorCurrentLimit: Current = 50.0.amps
 
         val initialMotorsConfiguration: TalonFXConfiguration = KrakenMotors.createTalonFXConfiguration(
             Optional.of<MotorOutputConfigs>(

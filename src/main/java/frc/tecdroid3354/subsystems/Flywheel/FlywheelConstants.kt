@@ -19,6 +19,7 @@ import frc.tecdroid3354.constants.SimConstants
 import frc.tecdroid3354.constants.SubsystemsControlGains
 import frc.tecdroid3354.constants.SubsystemsMotionTargets
 import frc.tecdroid3354.utils.amps
+import frc.tecdroid3354.utils.controlProfiles.Polynomials
 import frc.tecdroid3354.utils.devices.KrakenMotors
 import frc.tecdroid3354.utils.inches
 import frc.tecdroid3354.utils.kilogramSquareMeters
@@ -46,7 +47,7 @@ object FlywheelConstants {
         val REDUCTION: Reduction = Reduction(1.4) // Motor -> Flywheel (0.56), Motor -> Roller (1.4)
         val ROLLER_DIAMETER: Distance = 3.0.inches
 
-        const val ESTIMATED_ROLLER_EFFICIENCY: Double = 0.85
+        const val ESTIMATED_ROLLER_EFFICIENCY: Double = 0.95
 
         const val NUMBER_OF_MOTORS: Int = 4
 
@@ -71,26 +72,22 @@ object FlywheelConstants {
      *
      * All polynomials were calculated from TecDroid's Trajectory Simulator.
      */
-    object PolynomialCoefficients {
-        const val SCORING_X3_COEFF: Double = 0.269694
-        const val SCORING_X2_COEFF: Double = 34.726522
-        const val SCORING_X1_COEFF: Double = 8.853629
-        const val SCORING_X0_COEFF: Double = 2620.079979
+    object StoredPolynomials {
+        val SCORING_POLYNOMIAL          : Result<Polynomials> = Polynomials.of(degree = 3,
+            -5.034965, 58.088578, -35.163170, 1675.821678
+        )
 
-        const val TOF_SCORING_X3_COEFF: Double = 0.007334
-        const val TOF_SCORING_X2_COEFF: Double = -0.040652
-        const val TOF_SCORING_X1_COEFF: Double = 0.070029
-        const val TOF_SCORING_X0_COEFF: Double = 0.952781
+        val TOF_SCORING_POLYNOMIAL      : Result<Polynomials> = Polynomials.of(degree = 3,
+            -0.006887, 0.058667, -0.109770, 0.986263
+        )
 
-        const val ASSIST_X3_COEFF: Double = -19.313381
-        const val ASSIST_X2_COEFF: Double = 235.395253
-        const val ASSIST_X1_COEFF: Double = -528.242346
-        const val ASSIST_X0_COEFF: Double = 2424.998710
+        val ASSIST_POLYNOMIAL           : Result<Polynomials> = Polynomials.of(degree = 3,
+            -7.631235, 137.810114, -594.245958, 2571.936791
+        )
 
-        const val TOF_ASSIST_X3_COEFF: Double = -0.010581
-        const val TOF_ASSIST_X2_COEFF: Double = 0.133886
-        const val TOF_ASSIST_X1_COEFF: Double = -0.405844
-        const val TOF_ASSIST_X0_COEFF: Double = 1.423260
+        val TOF_ASSIST_POLYNOMIAL       : Result<Polynomials> = Polynomials.of(degree = 3,
+            -0.003982, 0.084914, -0.454582, 2.013256
+        )
     }
 
     /**
@@ -107,8 +104,8 @@ object FlywheelConstants {
         private val neutralMode: NeutralModeValue = NeutralModeValue.Coast
         private val motorDirection: InvertedValue = InvertedValue.Clockwise_Positive
 
-        private val supplyCurrentLimit: Current = 50.0.amps
-        private val statorCurrentLimit: Current = 120.0.amps
+        private val supplyCurrentLimit: Current = 35.0.amps
+        private val statorCurrentLimit: Current = 50.0.amps
 
         val initialMotorsConfiguration: TalonFXConfiguration = KrakenMotors.createTalonFXConfiguration(
             Optional.of<MotorOutputConfigs>(

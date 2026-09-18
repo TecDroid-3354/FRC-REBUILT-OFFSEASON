@@ -86,13 +86,13 @@ class IntakeRollersIOTalonFX: IntakeRollersIO {
         }
     }
 
-    override fun enableIntakeRollersPresetVelocity(): Runnable {
+    override fun enableIntakeRollersVelocity(targetVelocity: AngularVelocity): Runnable {
         return {
-            intakeRollersVelocityTarget.mut_replace(SubsystemsPresetTargets.INTAKE_ROLLERS_PRESET_RPM) // Update target velocity
+            intakeRollersVelocityTarget.mut_replace(targetVelocity) // Update target velocity
 
             leadMotorController.angularSubsystemVelocityRequest(
                 SubsystemsControlRequests.INTAKE_ROLLERS_CONTROL_TYPE,
-                SubsystemsPresetTargets.INTAKE_ROLLERS_PRESET_RPM,
+                targetVelocity,
                 SubsystemsMovementLimits.INTAKE_ROLLERS_VELOCITY_LIMITS,
                 IntakeRollersConstants.Mechanical.REDUCTION
             )

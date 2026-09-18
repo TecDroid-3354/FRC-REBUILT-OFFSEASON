@@ -1,13 +1,18 @@
 package frc.tecdroid3354.systems
 
 import edu.wpi.first.math.MathUtil
+import edu.wpi.first.math.filter.LinearFilter
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
+import edu.wpi.first.units.Units.Meters
+import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.LinearVelocity
+import edu.wpi.first.units.measure.MutDistance
+import edu.wpi.first.units.measure.MutLinearVelocity
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.InstantCommand
@@ -21,7 +26,6 @@ import frc.tecdroid3354.commands.DriveCommands
 import frc.tecdroid3354.constants.DriveMultipliers
 import frc.tecdroid3354.constants.FieldConstants.FieldDimensions
 import frc.tecdroid3354.constants.RobotConstants
-import frc.tecdroid3354.constants.RobotMode
 import frc.tecdroid3354.constants.RobotTransformations
 import frc.tecdroid3354.constants.SubsystemTolerances
 import frc.tecdroid3354.subsystems.Flywheel.FlywheelConstants
@@ -39,6 +43,7 @@ import frc.tecdroid3354.utils.meters
 import frc.tecdroid3354.utils.metersPerSecond
 import frc.tecdroid3354.utils.radians
 import frc.tecdroid3354.utils.radiansPerSecond
+import frc.tecdroid3354.utils.seconds
 import frc.tecdroid3354.utils.simulation.FuelSim
 import frc.tecdroid3354.utils.toAngle
 import frc.tecdroid3354.utils.toRotation2d
@@ -54,68 +59,153 @@ import kotlin.math.hypot
 /** Inside this class, construct all control methods at robot-level (and any relevant auxiliary methods).
  * When using States, this file is responsible to control the logic flow */
 class Superstructure(private val controller: CommandPS5Controller,
-                     private val simDrive: SwerveDriveSimulation, private val drive: Drive,
+                     private val simDrive: SwerveDriveSimulation?, private val drive: Drive,
                      private val hood: HoodSubsystem, private val flywheel: FlywheelSubsystem,
                      private val tower: TowerSubsystem, private val hopper: HopperSubsystem,
                      private val intakeDeploy: IntakeDeploySubsystem, private val intakeRollers: IntakeRollersSubsystem,
-                     private val fuelSim: FuelSim, private val vision: Vision,
+                     private val fuelSim: FuelSim?, private val vision: Vision,
                      private val fieldToScoringTarget: Supplier<Translation2d>,
-                     private val fieldToAssistTarget: Supplier<Translation2d>): SubsystemBase("Superstructure") {
-    private val isSim: Boolean = RobotConstants.ROBOT_MODE == RobotMode.SIM // For shorter robot mode checking
-    private var simFuelCount: Int = 0
+                     private val fieldToAssistTarget: Supplier<Translation2d>
+): SubsystemBase("Superstructure") {
+    private var simFuelCount: Int = 0 // For simulation only, has no effect in a real robot.
     // Used to log the distance to scoring and assist targets without showing 17 or so significant figures.
     private val decimalFormaterThreePlaces: DecimalFormat = DecimalFormat("#.###") // #s after dot = number of decimals
 
-    private val distanceToScoringTarget: Supplier<Distance> = {
-        hypot(fieldToScoringTarget.get().measureX.minus(if (isSim) simDrive.simulatedDriveTrainPose.measureX else drive.pose.measureX).meters,
-            fieldToScoringTarget.get().measureY.minus(if (isSim) simDrive.simulatedDriveTrainPose.measureY else drive.pose.measureY).meters)
-            .meters
-    }
-    private val distanceToAssistTarget: Supplier<Distance> = {
-        hypot(fieldToAssistTarget.get().measureX.minus(if (isSim) simDrive.simulatedDriveTrainPose.measureX else drive.pose.measureX).meters,
-            fieldToAssistTarget.get().measureY.minus(if (isSim) simDrive.simulatedDriveTrainPose.measureY else drive.pose.measureY).meters)
-            .meters
+    private val robotToShooterPose: Supplier<Pose2d> = {
+        if (RobotConstants.IS_ROBOT_SIM)
+            simDrive!!.simulatedDriveTrainPose.transformBy(
+                RobotTransformations.ROBOT_TO_SHOOTER_2D)
+        else
+            drive.pose.transformBy(RobotTransformations.ROBOT_TO_SHOOTER_2D)
     }
     // To calculate radial and tangential velocities
     private val fieldRelativeSpeeds: Supplier<ChassisSpeeds> = { drive.fieldRelativeChassisSpeeds }
+
+    // --------------- --------- - ---------- ------- --------------- //
+    // --------------- DISTANCES & VELOCITIES FILTERS --------------- //
+    // --------------- --------- - ---------- ------- --------------- //
+    private val distanceToScoreFilter           : LinearFilter = LinearFilter.singlePoleIIR(
+        SubsystemTolerances.DISTANCE_TIME_FILTER.seconds, RobotConstants.LOOP_TIME.seconds)
+    private val distanceToAssistFilter          : LinearFilter = LinearFilter.singlePoleIIR(
+        SubsystemTolerances.DISTANCE_TIME_FILTER.seconds, RobotConstants.LOOP_TIME.seconds)
+
+    private val radialScoreVelocityFilter       : LinearFilter = LinearFilter.singlePoleIIR(
+        SubsystemTolerances.VELOCITY_TIME_FILTER.seconds, RobotConstants.LOOP_TIME.seconds)
+    private val tangentialScoreVelocityFilter   : LinearFilter = LinearFilter.singlePoleIIR(
+        SubsystemTolerances.VELOCITY_TIME_FILTER.seconds, RobotConstants.LOOP_TIME.seconds)
+
+    private val radialAssistVelocityFilter       : LinearFilter = LinearFilter.singlePoleIIR(
+        SubsystemTolerances.VELOCITY_TIME_FILTER.seconds, RobotConstants.LOOP_TIME.seconds)
+    private val tangentialAssistVelocityFilter   : LinearFilter = LinearFilter.singlePoleIIR(
+        SubsystemTolerances.VELOCITY_TIME_FILTER.seconds, RobotConstants.LOOP_TIME.seconds)
+
+    // --------------- ------- --- ------ --------- --------------- //
+    // --------------- SCORING AND ASSIST DISTANCES --------------- //
+    // --------------- ------- --- ------ --------- --------------- //
+
+    private val rawDistanceToScoringTarget: MutDistance = Meters.mutable(0.0)
+    private val rawDistanceToAssistTarget: MutDistance = Meters.mutable(0.0)
+
+    private val filteredDistanceToScoringTarget: MutDistance = Meters.mutable(0.0)
+    private val filteredDistanceToAssistTarget: MutDistance = Meters.mutable(0.0)
 
     // --------------- ------ - ---------- ---------- -- ------- ------ --------------- //
     // --------------- RADIAL & TANGENTIAL VELOCITIES TO SCORING TARGET --------------- //
     // --------------- ------ - ---------- ---------- -- ------- ------ --------------- //
 
-    private val radialVelocityToScore: Supplier<LinearVelocity> = { DriveCommands.getRobotRadialVelocity(
-        fieldRelativeSpeeds.get(), drive.pose,
-        fieldToScoringTarget.get()
-    ) }
-    private val tangentialVelocityToScore: Supplier<LinearVelocity> = { DriveCommands.getRobotTangentialVelocity(
-        fieldRelativeSpeeds.get(), drive.pose,
-        fieldToScoringTarget.get()
-    ) }
+    private val rawRadialVelocityToScore: MutLinearVelocity = MetersPerSecond.mutable(0.0)
+    private val rawTangentialVelocityToScore: MutLinearVelocity = MetersPerSecond.mutable(0.0)
+
+    private val filteredRadialVelocityToScore: MutLinearVelocity = MetersPerSecond.mutable(0.0)
+    private val filteredTangentialVelocityToScore: MutLinearVelocity = MetersPerSecond.mutable(0.0)
 
     // --------------- ------ - ---------- ---------- -- ------ ------ --------------- //
     // --------------- RADIAL & TANGENTIAL VELOCITIES TO ASSIST TARGET --------------- //
     // --------------- ------ - ---------- ---------- -- ------ ------ --------------- //
 
-    private val radialVelocityToAssist: Supplier<LinearVelocity> = { DriveCommands.getRobotRadialVelocity(
-        fieldRelativeSpeeds.get(), drive.pose,
-        fieldToAssistTarget.get()
-    ) }
-    private val tangentialVelocityToAssist: Supplier<LinearVelocity> = { DriveCommands.getRobotTangentialVelocity(
-        fieldRelativeSpeeds.get(), drive.pose,
-        fieldToAssistTarget.get()
-    ) }
+    private val rawRadialVelocityToAssist: MutLinearVelocity = MetersPerSecond.mutable(0.0)
+    private val rawTangentialVelocityToAssist: MutLinearVelocity = MetersPerSecond.mutable(0.0)
+
+    private val filteredRadialVelocityToAssist: MutLinearVelocity = MetersPerSecond.mutable(0.0)
+    private val filteredTangentialVelocityToAssist: MutLinearVelocity = MetersPerSecond.mutable(0.0)
 
     init {
         decimalFormaterThreePlaces.roundingMode = RoundingMode.HALF_UP
     }
 
     override fun periodic() {
+        // <----- --- - -------- --------- -----> //
+        // <----- RAW & FILTERED DISTANCES -----> //
+        // <----- --- - -------- --------- -----> //
+
+        rawDistanceToScoringTarget.mut_replace(hypot(
+            fieldToScoringTarget.get().measureX.minus(robotToShooterPose.get().measureX).meters,
+            fieldToScoringTarget.get().measureY.minus(robotToShooterPose.get().measureY).meters
+        ).meters)
+        rawDistanceToAssistTarget.mut_replace(hypot(
+            fieldToAssistTarget.get().measureX.minus(robotToShooterPose.get().measureX).meters,
+            fieldToAssistTarget.get().measureY.minus(robotToShooterPose.get().measureY).meters
+        ).meters)
+
+        filteredDistanceToScoringTarget.mut_replace(distanceToScoreFilter.calculate(rawDistanceToScoringTarget.meters), Meters)
+        filteredDistanceToAssistTarget.mut_replace(distanceToAssistFilter.calculate(rawDistanceToAssistTarget.meters), Meters)
+
+        // <----- --- - -------- ---------- -----> //
+        // <----- RAW & FILTERED VELOCITIES -----> //
+        // <----- --- - -------- ---------- -----> //
+
+        rawRadialVelocityToScore.mut_replace(
+            DriveCommands.getRobotRadialVelocity(
+                fieldRelativeSpeeds.get(), drive.pose,
+                fieldToScoringTarget.get()))
+        rawRadialVelocityToAssist.mut_replace(
+            DriveCommands.getRobotRadialVelocity(
+                fieldRelativeSpeeds.get(), drive.pose,
+                fieldToAssistTarget.get()))
+
+        rawTangentialVelocityToScore.mut_replace(
+            DriveCommands.getRobotTangentialVelocity(
+                fieldRelativeSpeeds.get(), drive.pose,
+                fieldToScoringTarget.get()))
+        rawTangentialVelocityToAssist.mut_replace(
+            DriveCommands.getRobotTangentialVelocity(
+                fieldRelativeSpeeds.get(), drive.pose,
+                fieldToAssistTarget.get()))
+
+        filteredRadialVelocityToScore.mut_replace(radialScoreVelocityFilter.calculate(rawRadialVelocityToScore.metersPerSecond), MetersPerSecond)
+        filteredRadialVelocityToAssist.mut_replace(radialAssistVelocityFilter.calculate(rawRadialVelocityToAssist.metersPerSecond), MetersPerSecond)
+
+        filteredTangentialVelocityToScore.mut_replace(tangentialScoreVelocityFilter.calculate(rawTangentialVelocityToScore.metersPerSecond), MetersPerSecond)
+        filteredTangentialVelocityToAssist.mut_replace(tangentialAssistVelocityFilter.calculate(rawTangentialVelocityToAssist.metersPerSecond), MetersPerSecond)
+
+        // <----- --------- -----> //
+        // <----- TELEMETRY -----> //
+        // <----- --------- -----> //
+
         Logger.recordOutput("FUELS_SIM/Held_Count", simFuelCount)
         Logger.recordOutput("FUELS_SIM/Blue_HUB_Score", FuelSim.Hub.BLUE_HUB.score)
         Logger.recordOutput("FUELS_SIM/Red_HUB_Score", FuelSim.Hub.RED_HUB.score)
 
-        Logger.recordOutput("Odometry/DistanceToHub (m)", decimalFormaterThreePlaces.format(distanceToScoringTarget.get().meters))
-        Logger.recordOutput("Odometry/DistanceToAssist (m)", decimalFormaterThreePlaces.format(distanceToAssistTarget.get().meters))
+        Logger.recordOutput("Odometry/DistanceToHub (m)", decimalFormaterThreePlaces.format(filteredDistanceToScoringTarget.meters))
+        Logger.recordOutput("Odometry/DistanceToAssist (m)", decimalFormaterThreePlaces.format(filteredDistanceToAssistTarget.meters))
+
+        Logger.recordOutput("Odometry/Target Heading", DriveCommands.lastDriveAngle)
+
+        Logger.recordOutput("Odometry/RobotPose", drive.pose)
+    }
+
+    // --------------- ------ ------- --------------- //
+    // --------------- FILTER METHODS --------------- //
+    // --------------- ------ ------- --------------- //
+
+    /** Resets every distance and velocity filter so that their history doesn't affect new readings */
+    private fun resetNoiseFilters() {
+        distanceToScoreFilter.reset()
+        distanceToAssistFilter.reset()
+        radialScoreVelocityFilter.reset()
+        tangentialScoreVelocityFilter.reset()
+        radialAssistVelocityFilter.reset()
+        tangentialAssistVelocityFilter.reset()
     }
 
     // --------------- ----- -------- --------------- //
@@ -124,17 +214,18 @@ class Superstructure(private val controller: CommandPS5Controller,
 
     /** Keeps the reported translation of the odometry, but sets the heading to [headingOffset], or 0 if empty */
     fun resetOdometryHeading(headingOffset: Optional<Rotation2d>): Command {
-        if (RobotConstants.ROBOT_MODE == RobotMode.SIM) {
-            return InstantCommand( {drive.resetOdometry(
-                Pose2d(simDrive.simulatedDriveTrainPose.translation, headingOffset.orElse(Rotation2d())))}
-            )
+        if (RobotConstants.IS_ROBOT_SIM) {
+            return InstantCommand({ drive.resetOdometry(
+                Pose2d(simDrive!!.simulatedDriveTrainPose.translation, headingOffset.orElse(Rotation2d()))) })
+                .beforeStarting(::resetNoiseFilters)
         }
         return InstantCommand({ drive.resetOdometry(Pose2d(drive.pose.translation, headingOffset.orElse(Rotation2d()))) })
+            .beforeStarting(::resetNoiseFilters)
     }
 
     /** Overrides the current odometry to [pose] */
     fun resetOdometryPose(pose: Pose2d): Command {
-        return InstantCommand({ drive.resetOdometry(pose) })
+        return InstantCommand({ drive.resetOdometry(pose) }).beforeStarting(::resetNoiseFilters)
     }
 
     /** Gives full control of translation and rotation to the driver, with field-oriented rotation */
@@ -189,7 +280,7 @@ class Superstructure(private val controller: CommandPS5Controller,
                 Optional.of(RobotTransformations.ROBOT_TO_SHOOTER.rotation.measureZ.toRotation2d()), true)
                 .minus( // Account for tangential velocity
                     getShooterYawCorrection(
-                        getVirtualDistance(distanceToScoringTarget, false),
+                        getVirtualDistance(filteredDistanceToScoringTarget, false),
                         false
                     ).toRotation2d()
                 ).toAngle() },
@@ -206,7 +297,7 @@ class Superstructure(private val controller: CommandPS5Controller,
                 Optional.of(RobotTransformations.ROBOT_TO_SHOOTER.rotation.measureZ.toRotation2d()), true)
                 .minus( // Account for tangential velocity
                     getShooterYawCorrection(
-                        getVirtualDistance(distanceToAssistTarget, true),
+                        getVirtualDistance(filteredDistanceToAssistTarget, true),
                         true
                     ).toRotation2d()
                 ).toAngle() },
@@ -235,10 +326,10 @@ class Superstructure(private val controller: CommandPS5Controller,
     fun setScoringSequence(): Command {
         return ParallelCommandGroup(
             setShooterScoring(),
-            WaitUntilCommand({ flywheel.getIsAtTarget() })
+            WaitCommand(SubsystemTolerances.TIME_BEFORE_SCORE_SHOOTING) // TODO() CHANGE TO POLYNOMIAL?
                 .andThen(setIndexerPreset())
-                .andThen(WaitCommand(SubsystemTolerances.INTAKE_TIME_TOLERANCE_BEFORE_CLUSTER))
-                .andThen(clusterIntakeDeploy()),
+                .andThen(WaitCommand(SubsystemTolerances.INTAKE_TIME_TOLERANCE_BEFORE_CLUSTER_SCORE))
+                .andThen(setClusterTeleopControl()),
             launchSimFuel() // Has inside condition of being SIM. Won't do anything in a real robot
         )
     }
@@ -249,10 +340,10 @@ class Superstructure(private val controller: CommandPS5Controller,
     fun setAssistSequence(): Command {
         return ParallelCommandGroup(
             setShooterAssist(),
-            WaitUntilCommand({ flywheel.getIsAtTarget() })
+            WaitCommand(SubsystemTolerances.TIME_BEFORE_ASSIST_SHOOTING) // TODO() CHANGE TO POLYNOMIAL?
                 .andThen(setIndexerPreset())
-                .andThen(WaitCommand(SubsystemTolerances.INTAKE_TIME_TOLERANCE_BEFORE_CLUSTER))
-                .andThen(clusterIntakeDeploy()),
+                .andThen(WaitCommand(SubsystemTolerances.INTAKE_TIME_TOLERANCE_BEFORE_CLUSTER_ASSIST))
+                .andThen(setClusterTeleopControl()),
             launchSimFuel() // Has inside condition of being SIM. Won't do anything in a real robot
         )
     }
@@ -279,22 +370,17 @@ class Superstructure(private val controller: CommandPS5Controller,
     // --------------- SHOOTER COMMANDS --------------- //
     // --------------- ------- -------- --------------- //
 
-    /** Uses the TOF polynomials and the robot [radialVelocityToScore] or [radialVelocityToAssist],
+    /** Uses the TOF polynomials and the robot [filteredRadialVelocityToScore] or [filteredRadialVelocityToAssist],
      * all depending on whether [isAssist] */
-    private fun getVirtualDistance(flywheelDistanceToTarget: Supplier<Distance>, isAssist: Boolean): Distance {
-        var virtualDistance: Distance = flywheelDistanceToTarget.get()
+    private fun getVirtualDistance(flywheelDistanceToTarget: Distance, isAssist: Boolean): Distance {
+        var virtualDistance: Distance = flywheelDistanceToTarget
+
+        val currentRadialVelocity: LinearVelocity = if (isAssist) filteredRadialVelocityToAssist else filteredRadialVelocityToScore
 
         for (cycle in 1 .. 3) {
-            virtualDistance = flywheelDistanceToTarget.get()
-                .minus(
-                    if (isAssist) {
-                        radialVelocityToAssist.get().times(
-                            flywheel.getCalculatedAssistTimeOfFlight(virtualDistance))
-                    } else {
-                        radialVelocityToScore.get().times(
-                            flywheel.getCalculatedScoringTimeOfFlight(virtualDistance))
-                    }
-                )
+            val tof = if (isAssist) flywheel.getCalculatedAssistTimeOfFlight(virtualDistance)
+                        else flywheel.getCalculatedScoringTimeOfFlight(virtualDistance)
+            virtualDistance = flywheelDistanceToTarget.minus(currentRadialVelocity.times(tof))
         }
 
         return virtualDistance
@@ -309,7 +395,7 @@ class Superstructure(private val controller: CommandPS5Controller,
         val projectileVelocity: LinearVelocity = flywheelVirtualDistanceToTarget
             .div(if (isAssist) flywheel.getCalculatedAssistTimeOfFlight(flywheelVirtualDistanceToTarget)
                     else flywheel.getCalculatedScoringTimeOfFlight(flywheelVirtualDistanceToTarget))
-        val tangentialVelocity: LinearVelocity = if (isAssist) tangentialVelocityToAssist.get() else tangentialVelocityToScore.get()
+        val tangentialVelocity: LinearVelocity = if (isAssist) filteredTangentialVelocityToAssist else filteredTangentialVelocityToScore
 
         return atan2(tangentialVelocity.metersPerSecond, projectileVelocity.metersPerSecond).radians
     }
@@ -325,16 +411,16 @@ class Superstructure(private val controller: CommandPS5Controller,
     /** Enables [flywheel] and [hood] with their calculated scoring targets*/
     fun setShooterScoring(): Command {
         return ParallelCommandGroup(
-            setFlywheelScoringTarget { getVirtualDistance(distanceToScoringTarget, false) },
-            setHoodScoringTarget { getVirtualDistance(distanceToScoringTarget, false) },
+            setFlywheelScoringTarget { getVirtualDistance(filteredDistanceToScoringTarget, false) },
+            setHoodScoringTarget { getVirtualDistance(filteredDistanceToScoringTarget, false) },
         )
     }
 
     /** Enables [flywheel] and [hood] with their calculated assist targets*/
     fun setShooterAssist(): Command {
         return ParallelCommandGroup(
-            setFlywheelAssistTarget { getVirtualDistance(distanceToAssistTarget, true) },
-            setHoodAssistTarget { getVirtualDistance(distanceToAssistTarget, true) },
+            setFlywheelAssistTarget { getVirtualDistance(filteredDistanceToAssistTarget, true) },
+            setHoodAssistTarget { getVirtualDistance(filteredDistanceToAssistTarget, true) },
         )
     }
 
@@ -394,6 +480,22 @@ class Superstructure(private val controller: CommandPS5Controller,
         )
     }
 
+    /** Backward teleop control in case FUELS get jammed in the [intakeRollers]. It deploys the intake and enables outtake.  */
+    fun setOuttakeTeleopControl(): Command {
+        return SequentialCommandGroup(
+            extendIntakeDeploy(),
+            enableOuttakeRollersPreset()
+        )
+    }
+
+    /** For shooting sequences. Enables [intakeRollers] and clusters [intakeDeploy]. */
+    fun setClusterTeleopControl(): Command {
+        return SequentialCommandGroup(
+            enableIntakeRollersPreset(),
+            clusterIntakeDeploy()
+        )
+    }
+
     /** Stops the [intakeRollers]. [intakeDeploy] is called to fully extend, in case it was clustered. */
     fun stopIntake(): Command {
         return SequentialCommandGroup(
@@ -443,13 +545,13 @@ class Superstructure(private val controller: CommandPS5Controller,
      * Verification checks for having available FUEL in hopper and flywheel being at target are included.
      * This will do nothing in a real robot. */
     fun launchSimFuel(): Command {
-        if (isSim.not()) return Commands.none()
+        if (RobotConstants.IS_ROBOT_SIM.not()) return Commands.none()
 
         return SequentialCommandGroup(
             WaitUntilCommand({ (simFuelCount > 0) and flywheel.getIsAtTarget() }), // Continuously checks if it can shoot
             InstantCommand({ // Decreases fuel count and launches one fuel
                 decreaseHopperFuelCount(1)
-                fuelSim.launchFuel(
+                fuelSim!!.launchFuel(
                     getFuelSimLaunchVelocity(),
                     90.0.degrees.minus(hood.getHoodPosition()),
                     0.0.degrees, // This is for turrets. Robot rotation and shooter transformations are inside FuelSim.java
@@ -595,6 +697,11 @@ class Superstructure(private val controller: CommandPS5Controller,
     /** Enables the preset target of the [intakeRollers] */
     fun enableIntakeRollersPreset(): Command {
         return intakeRollers.enableIntakeRollersPresetVelocity().InstantCommand(intakeRollers)
+    }
+
+    /** Enables the preset target of the [intakeRollers] in opposite direction, to enable outtake in case of jam */
+    fun enableOuttakeRollersPreset(): Command {
+        return intakeRollers.enableOuttakeRollersPresetVelocity().InstantCommand(intakeRollers)
     }
 
     /** Enables the manual target of the [intakeRollers] */

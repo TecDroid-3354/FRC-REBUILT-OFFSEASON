@@ -157,31 +157,20 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
 
     fun getCalculatedScoringTimeOfFlight(flywheelDistanceToTarget: Distance): Time {
         val distanceInMeters = flywheelDistanceToTarget.meters
-        val calculatedTOF =
-            FlywheelConstants.PolynomialCoefficients.TOF_SCORING_X3_COEFF.times(distanceInMeters.pow(3.0)) +
-                    FlywheelConstants.PolynomialCoefficients.TOF_SCORING_X2_COEFF.times(distanceInMeters.pow(2.0)) +
-                    FlywheelConstants.PolynomialCoefficients.TOF_SCORING_X1_COEFF.times(distanceInMeters) +
-                    FlywheelConstants.PolynomialCoefficients.TOF_SCORING_X0_COEFF
+        val calculatedTOF = FlywheelConstants.StoredPolynomials.TOF_SCORING_POLYNOMIAL.getOrThrow().evaluate(distanceInMeters)
 
         return calculatedTOF.seconds
     }
 
     fun getCalculatedAssistTimeOfFlight(flywheelDistanceToTarget: Distance): Time {
         val distanceInMeters = flywheelDistanceToTarget.meters
-        val calculatedTOF =
-            FlywheelConstants.PolynomialCoefficients.TOF_ASSIST_X3_COEFF.times(distanceInMeters.pow(3.0)) +
-                    FlywheelConstants.PolynomialCoefficients.TOF_ASSIST_X2_COEFF.times(distanceInMeters.pow(2.0)) +
-                    FlywheelConstants.PolynomialCoefficients.TOF_ASSIST_X1_COEFF.times(distanceInMeters) +
-                    FlywheelConstants.PolynomialCoefficients.TOF_ASSIST_X0_COEFF
+        val calculatedTOF = FlywheelConstants.StoredPolynomials.TOF_ASSIST_POLYNOMIAL.getOrThrow().evaluate(distanceInMeters)
 
         return calculatedTOF.seconds
     }
 
     /**
-     * Only if applicable. This is implemented here because it does not change between hardware / simulation layers.
-     *
-     *
-     * Uses the stored scoring coefficients in [FlywheelConstants.PolynomialCoefficients] and evaluates
+     * Uses the stored scoring polynomial in [FlywheelConstants.StoredPolynomials] and evaluates
      * with the given flywheel distance to target.
      *
      *
@@ -196,20 +185,13 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
      */
     private fun getCalculatedFlywheelScoringVelocity(flywheelDistanceToTarget: Distance): AngularVelocity {
         val distanceInMeters = flywheelDistanceToTarget.meters
-        val calculatedRPMs =
-            FlywheelConstants.PolynomialCoefficients.SCORING_X3_COEFF.times(distanceInMeters.pow(3.0)) +
-                    FlywheelConstants.PolynomialCoefficients.SCORING_X2_COEFF.times(distanceInMeters.pow(2.0)) +
-                    FlywheelConstants.PolynomialCoefficients.SCORING_X1_COEFF.times(distanceInMeters) +
-                    FlywheelConstants.PolynomialCoefficients.SCORING_X0_COEFF
+        val calculatedRPMs = FlywheelConstants.StoredPolynomials.SCORING_POLYNOMIAL.getOrThrow().evaluate(distanceInMeters)
 
         return calculatedRPMs.rotationsPerMinute
     }
 
     /**
-     * Only if applicable. This is implemented here because it does not change between hardware / simulation layers.
-     *
-     *
-     * Uses the stored assist coefficients in [FlywheelConstants.PolynomialCoefficients] and evaluates
+     * Uses the stored assist polynomial in [FlywheelConstants.StoredPolynomials] and evaluates
      * with the given flywheel distance to target.
      *
      *
@@ -224,11 +206,7 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
      */
     private fun getCalculatedFlywheelAssistVelocity(flywheelDistanceToTarget: Distance): AngularVelocity {
         val distanceInMeters = flywheelDistanceToTarget.meters
-        val calculatedRPMs =
-            FlywheelConstants.PolynomialCoefficients.ASSIST_X3_COEFF.times(distanceInMeters.pow(3.0)) +
-                    FlywheelConstants.PolynomialCoefficients.ASSIST_X2_COEFF.times(distanceInMeters.pow(2.0)) +
-                    FlywheelConstants.PolynomialCoefficients.ASSIST_X1_COEFF.times(distanceInMeters) +
-                    FlywheelConstants.PolynomialCoefficients.ASSIST_X0_COEFF
+        val calculatedRPMs = FlywheelConstants.StoredPolynomials.ASSIST_POLYNOMIAL.getOrThrow().evaluate(distanceInMeters)
 
         return calculatedRPMs.rotationsPerMinute
     }
