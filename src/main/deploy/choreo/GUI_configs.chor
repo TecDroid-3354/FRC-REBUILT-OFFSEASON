@@ -3,7 +3,50 @@
  "version":2,
  "type":"Swerve",
  "variables":{
-  "expressions":{},
+  "expressions":{
+   "MaxAngVel":{
+    "dimension":"AngVel",
+    "var":{
+     "exp":"500 deg / s",
+     "val":8.726646259971648
+    }
+   },
+   "MaxVel":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"5.296 m / s",
+     "val":5.296
+    }
+   },
+   "MinAngVel":{
+    "dimension":"AngVel",
+    "var":{
+     "exp":"300 deg / s",
+     "val":5.235987755982989
+    }
+   },
+   "MinVel":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"3 m / s",
+     "val":3.0
+    }
+   },
+   "TargetAngVel":{
+    "dimension":"AngVel",
+    "var":{
+     "exp":"300 deg / s",
+     "val":5.235987755982989
+    }
+   },
+   "TargetVel":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"3 m / s",
+     "val":3.0
+    }
+   }
+  },
   "poses":{}
  },
  "config":{
@@ -36,8 +79,8 @@
    "val":7.773
   },
   "gearing":{
-   "exp":"6.0269",
-   "val":6.0269
+   "exp":"6.03",
+   "val":6.03
   },
   "radius":{
    "exp":"2 in",

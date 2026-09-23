@@ -134,11 +134,18 @@ object RobotContainer
     private fun registerNamedCommandsInit() {
         NamedCommands.registerCommand("Score", superstructure.setDriveScoreTargetingCommand()
             .alongWith(
-                WaitUntilCommand({ superstructure.getIsDriveAtTarget() })
-                    .andThen(superstructure.setScoringSequence()))
+                WaitUntilCommand { superstructure.getIsDriveAtTarget() })
             .withTimeout(SubsystemTolerances.AUTONOMOUS_SCORING_SEQUENCE_TIME_TOLERANCE))
-        NamedCommands.registerCommand("Enable_Intake", superstructure.setIntakeTeleopControl())
-        NamedCommands.registerCommand("Disable_Intake", superstructure.stopIntake())
+        NamedCommands.registerCommand("Enable_Intake", Commands.none())
+        NamedCommands.registerCommand("Disable_Intake", Commands.none())
+
+//        NamedCommands.registerCommand("Score", superstructure.setDriveScoreTargetingCommand()
+//            .alongWith(
+//                WaitUntilCommand({ superstructure.getIsDriveAtTarget() })
+//                    .andThen(superstructure.setScoringSequence()))
+//            .withTimeout(SubsystemTolerances.AUTONOMOUS_SCORING_SEQUENCE_TIME_TOLERANCE))
+//        NamedCommands.registerCommand("Enable_Intake", superstructure.setIntakeTeleopControl())
+//        NamedCommands.registerCommand("Disable_Intake", superstructure.stopIntake())
     }
 
     /** Configurations that must be applied every time the robot is enabled, regardless of mode / phase */
