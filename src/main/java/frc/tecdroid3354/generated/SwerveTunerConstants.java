@@ -30,7 +30,7 @@ public class SwerveTunerConstants {
      * Used for initial drive configs
      */
     public static final CurrentLimitsConfigs DRIVE_PRIMARY_CURRENT_LIMITS = KrakenMotors.INSTANCE.configureCurrentLimits(
-            Amps.of(40.0), Amps.of(80.0)
+            Amps.of(60.0), Amps.of(80.0)
     );
 
     /**
@@ -44,7 +44,7 @@ public class SwerveTunerConstants {
      * Used for initial steer configs
      */
     public static final CurrentLimitsConfigs STEER_PRIMARY_CURRENT_LIMITS = KrakenMotors.INSTANCE.configureCurrentLimits(
-            Amps.of(20.0), Amps.of(50.0)
+            Amps.of(30.0), Amps.of(60.0)
     );
 
     /**

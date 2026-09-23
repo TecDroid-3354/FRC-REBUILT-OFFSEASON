@@ -41,7 +41,7 @@ object IntakeDeployConstants {
      * All values are placeholders and must be tuned for your specific robot.
      */
     object Mechanical {
-        val REDUCTION                   : Reduction = Reduction(10.889)                    // Gear ratio motor - subsystem
+        val REDUCTION                   : Reduction = Reduction((56.0 / 9.0) * (50.0 / 28.0))                    // Gear ratio motor - subsystem
         const val NUMBER_OF_MOTORS      : Int = 1
         val SPROCKET                    : Sprocket = Sprocket.fromRadius((1.5).inches)    // Rotational -> Linear Motion
         val MASS                        : Mass = 6.4.kilograms                          // Simulation purposes

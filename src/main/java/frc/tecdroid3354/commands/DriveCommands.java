@@ -53,7 +53,7 @@ public class DriveCommands {
     private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
 
     public static final TunablePIDController angleController = new TunablePIDController(
-            "Drive/Robot Heading PID", 3.5, 0.0, 0.35);
+            "Drive/Robot Heading PID", 4.8, 0.0, 0.35);
 
     public static final MutAngle lastDriveAngle = Degrees.mutable(0.0);
 

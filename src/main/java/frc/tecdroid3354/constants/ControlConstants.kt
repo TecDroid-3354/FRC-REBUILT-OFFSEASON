@@ -255,15 +255,15 @@ object SubsystemsControlGains {
      // DRIVE ONLY
      //
      val CHASSIS_AUTONOMOUS_CONTROLLER    : PPHolonomicDriveController = PPHolonomicDriveController(
-         PIDConstants(13.5, 0.0, 1.75),   // Translational PID
-         PIDConstants(18.25, 0.0, 2.25)    // Rotational PID
+         PIDConstants(2.75, 0.0, 0.13),   // Translational PID
+         PIDConstants(4.775, 0.0, 0.35)    // Rotational PID
      ) // Note that this is not live-tunable because PathPlanner creates an immutable PID object with the first configuration.
 
      // Note that these values cannot be accurately tuned in simulation, unlike the autonomous controller.
      val DRIVE_MOTOR_PRIMARY_GAINS        : TunableControlGains = TunableControlGains(SwerveTunerConstants.SUBSYSTEM_DRIVE_PRIMARY_GAINS,
-         kP = 1.45, kI = 0.0, kD = 0.05, kS = 0.1, kV = 0.7, kA = 0.0, kG = 0.0)    // TUNED FOR VOLTAGE
+         kP = 0.5, kI = 0.0, kD = 0.05, kS = 0.1, kV = 0.82, kA = 0.15, kG = 0.0)    // TUNED FOR VOLTAGE
      val STEER_MOTOR_PRIMARY_GAINS        : TunableControlGains = TunableControlGains(SwerveTunerConstants.SUBSYSTEM_STEER_PRIMARY_GAINS,
-         kP = 32.5, kI = 0.0, kD = 0.35, kS = 0.2, kV = 0.0, kA = 0.0, kG = 0.0)   // TUNED FOR VOLTAGE
+         kP = 135.0, kI = 0.0, kD = 2.45, kS = 0.1, kV = 0.0, kA = 0.0, kG = 0.0)   // TUNED FOR VOLTAGE
 }
 
 /**
