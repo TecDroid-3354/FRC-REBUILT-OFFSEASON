@@ -74,11 +74,11 @@ object FlywheelConstants {
      */
     object StoredPolynomials {
         val SCORING_POLYNOMIAL          : Result<Polynomials> = Polynomials.of(degree = 3,
-            -5.034965, 58.088578, -35.163170, 1675.821678
+            -7.397047, 80.652681, -84.339549, 1694.796037
         )
 
         val TOF_SCORING_POLYNOMIAL      : Result<Polynomials> = Polynomials.of(degree = 3,
-            -0.006887, 0.058667, -0.109770, 0.986263
+            -0.009125, 0.072298, -0.112208, 0.941459
         )
 
         val ASSIST_POLYNOMIAL           : Result<Polynomials> = Polynomials.of(degree = 3,

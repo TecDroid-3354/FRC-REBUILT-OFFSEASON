@@ -42,7 +42,7 @@ object DriveMultipliers {
     const val CONTROLLER_PRIMARY_THETA_MULTIPLIER   : Double = 0.6 // Only in case of continuous rotation
 
     // Used for Shoot on the Move
-    const val CONTROLLER_SOTM_LIMIT_MULTIPLIER      : Double = 0.45
+    const val CONTROLLER_SOTM_LIMIT_MULTIPLIER      : Double = 0.35
 }
 
 /**
@@ -71,6 +71,10 @@ object SubsystemTolerances {
 
     val TIME_BEFORE_SCORE_SHOOTING                      : Time = 1.2.seconds
     val TIME_BEFORE_ASSIST_SHOOTING                     : Time = 1.35.seconds
+
+    val TIME_BEFORE_SHOOT_SEQUENCE_AUTO                 : Time = 0.5.seconds
+    val TIME_BEFORE_CANCEL_SHOOT_AUTO                   : Time = 3.25.seconds
+
     val FLYWHEEL_TARGET_TOLERANCE                       : AngularVelocity = 45.0.rotationsPerMinute
     val INTAKE_DEPLOY_TOLERANCE                         : Distance = 0.5.inches
     val INTAKE_TIME_TOLERANCE_BEFORE_CLUSTER_SCORE      : Time = TIME_BEFORE_SCORE_SHOOTING.plus(0.02.seconds)
@@ -153,8 +157,8 @@ object SubsystemsPresetTargets {
     // INTAKE DEPLOY ONLY
     //
     val INTAKE_DEPLOY_HOME_DISPLACEMENT: Distance = 0.0.inches
-    val INTAKE_DEPLOY_CLUSTERING_DISPLACEMENT: Distance = 5.45.inches
-    val INTAKE_DEPLOY_EXTENDED_DISPLACEMENT: Distance = 11.8.inches
+    val INTAKE_DEPLOY_CLUSTERING_DISPLACEMENT: Distance = 5.35.inches
+    val INTAKE_DEPLOY_EXTENDED_DISPLACEMENT: Distance = 11.6.inches
 
     //
     // INTAKE ROLLERS ONLY
@@ -255,13 +259,13 @@ object SubsystemsControlGains {
      // DRIVE ONLY
      //
      val CHASSIS_AUTONOMOUS_CONTROLLER    : PPHolonomicDriveController = PPHolonomicDriveController(
-         PIDConstants(2.75, 0.0, 0.13),   // Translational PID
-         PIDConstants(4.775, 0.0, 0.35)    // Rotational PID
+         PIDConstants(2.75, 0.0, 0.136),   // Translational PID
+         PIDConstants(4.775, 0.0, 0.37)    // Rotational PID
      ) // Note that this is not live-tunable because PathPlanner creates an immutable PID object with the first configuration.
 
      // Note that these values cannot be accurately tuned in simulation, unlike the autonomous controller.
      val DRIVE_MOTOR_PRIMARY_GAINS        : TunableControlGains = TunableControlGains(SwerveTunerConstants.SUBSYSTEM_DRIVE_PRIMARY_GAINS,
-         kP = 0.5, kI = 0.0, kD = 0.05, kS = 0.1, kV = 0.82, kA = 0.15, kG = 0.0)    // TUNED FOR VOLTAGE
+         kP = 0.5, kI = 0.0, kD = 0.06, kS = 0.1, kV = 0.82, kA = 0.18, kG = 0.0)    // TUNED FOR VOLTAGE
      val STEER_MOTOR_PRIMARY_GAINS        : TunableControlGains = TunableControlGains(SwerveTunerConstants.SUBSYSTEM_STEER_PRIMARY_GAINS,
          kP = 135.0, kI = 0.0, kD = 2.45, kS = 0.1, kV = 0.0, kA = 0.0, kG = 0.0)   // TUNED FOR VOLTAGE
 }
@@ -325,10 +329,10 @@ object SubsystemsMotionTargets {
         )
 
     val INTAKE_DEPLOY_SECONDARY_MOTION_TARGETS: LinearMotionTargets = // For cluster motion
-        LinearMotionTargets( // Same as Primary for testing, commented values would be for real manually-controlled motion
-            0.75.metersPerSecond,
-            0.15.seconds,
-            0.02.seconds,
+        LinearMotionTargets(
+            0.05.metersPerSecond,
+            1.2.seconds,
+            0.50.seconds,
         )
 
     //

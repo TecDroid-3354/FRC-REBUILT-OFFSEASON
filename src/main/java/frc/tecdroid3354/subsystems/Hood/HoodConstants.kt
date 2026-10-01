@@ -64,7 +64,7 @@ object HoodConstants {
      */
     object StoredPolynomials {
         val SCORING_POLYNOMIAL           : Result<Polynomials> = Polynomials.of(degree = 3,
-            0.320746, -3.270862, 17.103497, -7.186713
+            0.154157, -1.256876, 9.491531, 1.908159
         )
 
         val ASSIST_POLYNOMIAL            : Result<Polynomials> = Polynomials.of(degree = 3,

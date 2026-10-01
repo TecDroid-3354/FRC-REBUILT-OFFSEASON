@@ -2,10 +2,13 @@ package frc.tecdroid3354.core
 
 import com.pathplanner.lib.auto.AutoBuilder
 import com.pathplanner.lib.auto.NamedCommands
+import com.pathplanner.lib.commands.FollowPathCommand
+import com.pathplanner.lib.controllers.PPHolonomicDriveController
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
+import edu.wpi.first.wpilibj2.command.WaitCommand
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller
 import frc.tecdroid3354.RobotVisualizer
@@ -132,12 +135,16 @@ object RobotContainer
 
     /** For PathPlanner Named Commands. Called during init, **BEFORE** [autoChooser] is initialized */
     private fun registerNamedCommandsInit() {
+        // TODO() = MAKE A TRIGGER FOR PPHolonomicDriveController.overrideRotationFeedback, THEN ENABLE SOTM
         NamedCommands.registerCommand("Score", superstructure.setDriveScoreTargetingCommand()
             .alongWith(
-                WaitUntilCommand { superstructure.getIsDriveAtTarget() })
-            .withTimeout(SubsystemTolerances.AUTONOMOUS_SCORING_SEQUENCE_TIME_TOLERANCE))
-        NamedCommands.registerCommand("Enable_Intake", Commands.none())
-        NamedCommands.registerCommand("Disable_Intake", Commands.none())
+                WaitCommand(SubsystemTolerances.TIME_BEFORE_SHOOT_SEQUENCE_AUTO)
+                    .andThen(superstructure.setScoringSequence())
+            )
+            .withTimeout(SubsystemTolerances.AUTONOMOUS_SCORING_SEQUENCE_TIME_TOLERANCE)
+            .andThen(superstructure.stopShootingSequenceWithoutDeploy()))
+        NamedCommands.registerCommand("Enable_Intake", superstructure.setIntakeTeleopControl())
+        NamedCommands.registerCommand("Disable_Intake", superstructure.stopIntake())
 
 //        NamedCommands.registerCommand("Score", superstructure.setDriveScoreTargetingCommand()
 //            .alongWith(
@@ -178,8 +185,8 @@ object RobotContainer
         // If not configured, the autoChooser may return Null inside getAutonomousCommand()
         autoChooser.addDefaultOption("None", Commands.none())
 
-        autoChooser.addOption("One_Sweep_Test", AutoBuilder.buildAuto("Left_One_Sweep"))
-        autoChooser.addOption("Two_Sweep_Test", AutoBuilder.buildAuto("Left_Two_Sweep"))
+        autoChooser.addOption("Left_Two_Sweep", AutoBuilder.buildAuto("Left_Two_Sweep"))
+        autoChooser.addOption("Right_Two_Sweep", AutoBuilder.buildAuto("Right_Two_Sweep"))
     }
 
     /**
