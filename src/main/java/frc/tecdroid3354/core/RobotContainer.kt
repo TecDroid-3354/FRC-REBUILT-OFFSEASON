@@ -2,14 +2,12 @@ package frc.tecdroid3354.core
 
 import com.pathplanner.lib.auto.AutoBuilder
 import com.pathplanner.lib.auto.NamedCommands
-import com.pathplanner.lib.commands.FollowPathCommand
-import com.pathplanner.lib.controllers.PPHolonomicDriveController
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.WaitCommand
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller
 import frc.tecdroid3354.RobotVisualizer
 import frc.tecdroid3354.commands.DriveCommands
@@ -135,29 +133,21 @@ object RobotContainer
 
     /** For PathPlanner Named Commands. Called during init, **BEFORE** [autoChooser] is initialized */
     private fun registerNamedCommandsInit() {
-        // TODO() = MAKE A TRIGGER FOR PPHolonomicDriveController.overrideRotationFeedback, THEN ENABLE SOTM
-        NamedCommands.registerCommand("Score", superstructure.setDriveScoreTargetingCommand()
+        NamedCommands.registerCommand("Enable_Score", superstructure.overrideDriveAutonomousHeadingCommand()
             .alongWith(
                 WaitCommand(SubsystemTolerances.TIME_BEFORE_SHOOT_SEQUENCE_AUTO)
                     .andThen(superstructure.setScoringSequence())
-            )
-            .withTimeout(SubsystemTolerances.AUTONOMOUS_SCORING_SEQUENCE_TIME_TOLERANCE)
-            .andThen(superstructure.stopShootingSequenceWithoutDeploy()))
+            ).withTimeout(SubsystemTolerances.AUTONOMOUS_SCORING_SEQUENCE_TIME_TOLERANCE))
+        NamedCommands.registerCommand("Disable_Score", superstructure.stopShootingSequenceWithoutDeploy()
+            .andThen(superstructure.clearAutonomousHeadingOverrideCommand()))
         NamedCommands.registerCommand("Enable_Intake", superstructure.setIntakeTeleopControl())
         NamedCommands.registerCommand("Disable_Intake", superstructure.stopIntake())
-
-//        NamedCommands.registerCommand("Score", superstructure.setDriveScoreTargetingCommand()
-//            .alongWith(
-//                WaitUntilCommand({ superstructure.getIsDriveAtTarget() })
-//                    .andThen(superstructure.setScoringSequence()))
-//            .withTimeout(SubsystemTolerances.AUTONOMOUS_SCORING_SEQUENCE_TIME_TOLERANCE))
-//        NamedCommands.registerCommand("Enable_Intake", superstructure.setIntakeTeleopControl())
-//        NamedCommands.registerCommand("Disable_Intake", superstructure.stopIntake())
     }
 
     /** Configurations that must be applied every time the robot is enabled, regardless of mode / phase */
     fun robotEnabledConfig() {
         superstructure.stopShootingSequenceWithoutDeploy()
+        CommandScheduler.getInstance().cancelAll()
     }
 
     /** Configurations that must be applied every time the robot is disabled */

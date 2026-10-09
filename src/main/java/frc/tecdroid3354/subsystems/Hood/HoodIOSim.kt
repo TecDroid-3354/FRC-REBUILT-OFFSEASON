@@ -1,5 +1,6 @@
 package frc.tecdroid3354.subsystems.Hood
 
+import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.MotorAlignmentValue
 import com.ctre.phoenix6.sim.TalonFXSimState
 import edu.wpi.first.math.MathUtil
@@ -7,6 +8,7 @@ import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.math.system.plant.LinearSystemId
 import edu.wpi.first.units.Units.Degrees
 import edu.wpi.first.units.measure.Angle
+import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.MutAngle
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim
 import frc.tecdroid3354.constants.RobotConstants
@@ -46,6 +48,8 @@ class HoodIOSim: HoodIO {
 
     private val leadMotorSim        : TalonFXSimState = leadMotorReal.getMotorInstance().simState
 
+    private val isLeadInverted: Boolean = HoodConstants.PhoenixMotorConfiguration.motorDirection == InvertedValue.Clockwise_Positive
+
     private val hoodTargetPosition: MutAngle = Degrees.mutable(0.0)
     private val hoodManualTargetPosition: MutAngle = Degrees.mutable(0.0)
 
@@ -54,17 +58,21 @@ class HoodIOSim: HoodIO {
         //
         // START PHYSICS UPDATE
         //
-        val appliedVolts = leadMotorSim.motorVoltage
+        val appliedVolts = if (isLeadInverted) -leadMotorSim.motorVoltage else leadMotorSim.motorVoltage
 
         subsystemSim.setInputVoltage(appliedVolts)
         subsystemSim.update(RobotConstants.LOOP_TIME.seconds)
 
+        val simPosition: Angle = if (isLeadInverted) subsystemSim.angleRads.radians.unaryMinus() else subsystemSim.angleRads.radians
+        val simVelocity: AngularVelocity = if (isLeadInverted) subsystemSim.velocityRadPerSec.radiansPerSecond.unaryMinus() else
+            subsystemSim.velocityRadPerSec.radiansPerSecond
+
         val motorPosition = leadMotorReal.getAngularSubsystemToMotorPosition(
-            subsystemSim.angleRads.radians,
+            simPosition,
             HoodConstants.Mechanical.REDUCTION
         )
         val motorVelocity = leadMotorReal.getAngularSubsystemToMotorVelocity(
-            subsystemSim.velocityRadPerSec.radiansPerSecond,
+            simVelocity,
             HoodConstants.Mechanical.REDUCTION
         )
 

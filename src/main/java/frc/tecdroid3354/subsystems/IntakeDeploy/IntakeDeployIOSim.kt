@@ -1,5 +1,6 @@
 package frc.tecdroid3354.subsystems.IntakeDeploy
 
+import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.MotorAlignmentValue
 import com.ctre.phoenix6.sim.TalonFXSimState
 import edu.wpi.first.math.MathUtil
@@ -9,6 +10,7 @@ import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Distance
+import edu.wpi.first.units.measure.LinearVelocity
 import edu.wpi.first.units.measure.MutDistance
 import edu.wpi.first.wpilibj.simulation.ElevatorSim
 import frc.tecdroid3354.constants.RobotConstants
@@ -17,12 +19,15 @@ import frc.tecdroid3354.constants.SubsystemsControlRequests
 import frc.tecdroid3354.constants.SubsystemsMotionTargets
 import frc.tecdroid3354.constants.SubsystemsMovementLimits
 import frc.tecdroid3354.constants.SubsystemsPresetTargets
+import frc.tecdroid3354.subsystems.Hood.HoodConstants
 import frc.tecdroid3354.subsystems.IntakeDeploy.IntakeDeployConstants.Mechanical
 import frc.tecdroid3354.utils.interfaces.MotorIO
 import frc.tecdroid3354.utils.devices.OpTalonFX
 import frc.tecdroid3354.utils.kilograms
 import frc.tecdroid3354.utils.meters
 import frc.tecdroid3354.utils.metersPerSecond
+import frc.tecdroid3354.utils.radians
+import frc.tecdroid3354.utils.radiansPerSecond
 import frc.tecdroid3354.utils.seconds
 import java.util.Optional
 
@@ -64,6 +69,8 @@ class IntakeDeployIOSim: IntakeDeployIO {
     // It is important that the Sim Motors come directly from real motors
     private val leadMotorSim: TalonFXSimState = leadMotorReal.getMotorInstance().simState
 
+    private val isLeadInverted: Boolean = IntakeDeployConstants.PhoenixMotorConfiguration.motorDirection == InvertedValue.Clockwise_Positive
+
     private val intakeDeployTargetDisplacement      : MutDistance = Meters.mutable(0.0)
     private val intakeDeployManualTargetDisplacement: MutDistance = Meters.mutable(0.0)
 
@@ -72,19 +79,23 @@ class IntakeDeployIOSim: IntakeDeployIO {
         // START OF PHYSICS UPDATE
         //
 
-        val appliedVolts = leadMotorSim.motorVoltage // Gotten from the "real" motor calculations
+        val appliedVolts = if (isLeadInverted) -leadMotorSim.motorVoltage else leadMotorSim.motorVoltage // Gotten from the "real" motor calculations
 
         subsystemSim.setInputVoltage(appliedVolts)
         subsystemSim.update(RobotConstants.LOOP_TIME.seconds)
 
+        val simPosition: Distance = if (isLeadInverted) subsystemSim.positionMeters.meters.unaryMinus() else subsystemSim.positionMeters.meters
+        val simVelocity: LinearVelocity = if (isLeadInverted) subsystemSim.velocityMetersPerSecond.metersPerSecond.unaryMinus() else
+            subsystemSim.velocityMetersPerSecond.metersPerSecond
+
         // Real motors are only accessed for their auxiliary mechanism -> motor units here
         val motorPosition: Angle = leadMotorReal.getLinearSubsystemToMotorPosition(
-            subsystemSim.positionMeters.meters,
+            simPosition,
             Mechanical.REDUCTION,
             Mechanical.SPROCKET
         )
         val motorVelocity: AngularVelocity = leadMotorReal.getLinearSubsystemToMotorVelocity(
-            subsystemSim.velocityMetersPerSecond.metersPerSecond,
+            simVelocity,
             Mechanical.REDUCTION,
             Mechanical.SPROCKET
         )

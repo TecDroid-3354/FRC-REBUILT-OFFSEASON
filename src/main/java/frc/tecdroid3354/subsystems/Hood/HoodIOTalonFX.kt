@@ -45,7 +45,7 @@ class HoodIOTalonFX: HoodIO {
                 newMotorsConfig.Slot1 = SubsystemsControlGains.HOOD_MOTOR_PRIMARY_GAINS.updatePhoenixSlot1Configs()
             }
             else -> { // Can assume else {} branch to be 2, but defaults to primary since tertiary are not declared.
-                newMotorsConfig.Slot2 = SubsystemsControlGains.FLYWHEEL_MOTOR_PRIMARY_GAINS.updatePhoenixSlot2Configs()
+                newMotorsConfig.Slot2 = SubsystemsControlGains.HOOD_MOTOR_PRIMARY_GAINS.updatePhoenixSlot2Configs()
             }
         }
 

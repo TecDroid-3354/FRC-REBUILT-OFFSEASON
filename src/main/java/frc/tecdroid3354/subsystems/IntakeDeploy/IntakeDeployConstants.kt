@@ -54,8 +54,8 @@ object IntakeDeployConstants {
      * In case you subsystem motors use RevLib or other API, it must be specified in the object name.
      */
     object PhoenixMotorConfiguration {
+        val motorDirection: InvertedValue = InvertedValue.CounterClockwise_Positive
         private val neutralMode: NeutralModeValue = NeutralModeValue.Coast
-        private val motorDirection: InvertedValue = InvertedValue.CounterClockwise_Positive
 
         private val supplyCurrentLimit: Current = 40.0.amps
         private val statorCurrentLimit: Current = 75.0.amps

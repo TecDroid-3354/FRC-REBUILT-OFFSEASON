@@ -58,8 +58,8 @@ object IntakeRollersConstants {
     object PhoenixMotorConfiguration {
         val followerMotorAlignment: MotorAlignmentValue = MotorAlignmentValue.Opposed
 
+        val motorDirection: InvertedValue = InvertedValue.CounterClockwise_Positive
         private val neutralMode: NeutralModeValue = NeutralModeValue.Coast
-        private val motorDirection: InvertedValue = InvertedValue.CounterClockwise_Positive
 
         private val supplyCurrentLimit: Current = 35.0.amps
         private val statorCurrentLimit: Current = 60.0.amps

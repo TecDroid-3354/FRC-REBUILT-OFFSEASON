@@ -1,5 +1,6 @@
 package frc.tecdroid3354.subsystems.Flywheel
 
+import edu.wpi.first.math.filter.Debouncer
 import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.Time
@@ -7,9 +8,10 @@ import edu.wpi.first.wpilibj.Alert
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.RunCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import frc.tecdroid3354.constants.RobotConstants
 import frc.tecdroid3354.constants.SubsystemTolerances
 import frc.tecdroid3354.constants.SubsystemsControlGains
-import frc.tecdroid3354.constants.SubsystemsTunableTargets
+import frc.tecdroid3354.constants.SubsystemsTunableValues
 import frc.tecdroid3354.utils.InstantCommandIgnoreDisabled
 import frc.tecdroid3354.utils.interfaces.MotorIOInputsAutoLogged
 import frc.tecdroid3354.utils.meters
@@ -18,7 +20,6 @@ import frc.tecdroid3354.utils.seconds
 import org.littletonrobotics.junction.Logger
 import java.util.function.Supplier
 import kotlin.math.abs
-import kotlin.math.pow
 
 class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelConstants.Telemetry.SUBSYSTEM_TAB) {
     // Auto generated file (by @AutoLog annotation in IO Layer)
@@ -27,6 +28,8 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
     private val followerMotorLeftInputs: MotorIOInputsAutoLogged = MotorIOInputsAutoLogged()
     private val followerMotorRightOneInputs: MotorIOInputsAutoLogged = MotorIOInputsAutoLogged()
     private val followerMotorRightTwoInputs: MotorIOInputsAutoLogged = MotorIOInputsAutoLogged()
+
+    private val atTargetDebouncer: Debouncer = Debouncer(0.06, Debouncer.DebounceType.kBoth)
 
 
     /**
@@ -75,9 +78,9 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
         }
 
         // Check if the manual target RPMs were changed live and update the target.
-        if (SubsystemsTunableTargets.FLYWHEEL_MANUAL_RPM.hasChanged(hashCode())) {
+        if (SubsystemsTunableValues.FLYWHEEL_MANUAL_RPM.hasChanged(hashCode())) {
             io.updateFlywheelManualVelocity(
-                SubsystemsTunableTargets.FLYWHEEL_MANUAL_RPM.get().rotationsPerMinute)
+                SubsystemsTunableValues.FLYWHEEL_MANUAL_RPM.get().rotationsPerMinute)
         }
     }
 
@@ -135,10 +138,22 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
         return inputs.flywheelActualVelocity
     }
 
+    /** Returns the flywheel target velocity according to the [inputs] */
+    fun getFlywheelTargetVelocity(): AngularVelocity {
+        return inputs.flywheelTargetVelocity
+    }
+
     /** Returns true when the flywheel is within tolerance for its target */
     fun getIsAtTarget(): Boolean {
-        return abs(inputs.flywheelTargetVelocity.minus(inputs.flywheelActualVelocity).rotationsPerMinute) <
-                SubsystemTolerances.FLYWHEEL_TARGET_TOLERANCE.rotationsPerMinute
+        val currentTarget = getFlywheelTargetVelocity().rotationsPerMinute
+        val currentVelocity = getFlywheelVelocity().rotationsPerMinute
+
+        if (currentTarget < 200.0) return false // The first loop might be currentTarget = 0.0, which triggers true
+        val isWithinTolerance = abs(currentTarget - currentVelocity) <
+                if (RobotConstants.IS_ROBOT_SIM) SubsystemTolerances.FLYWHEEL_SIM_TARGET_TOLERANCE.rotationsPerMinute else
+                    SubsystemTolerances.FLYWHEEL_TARGET_TOLERANCE.rotationsPerMinute
+
+        return atTargetDebouncer.calculate(isWithinTolerance) // Don't let it switch true / false constantly
     }
 
     /**

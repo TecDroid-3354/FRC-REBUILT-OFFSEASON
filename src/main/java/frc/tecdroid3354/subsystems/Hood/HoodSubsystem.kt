@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.tecdroid3354.constants.SubsystemsControlGains
 import frc.tecdroid3354.constants.SubsystemsPresetTargets
-import frc.tecdroid3354.constants.SubsystemsTunableTargets
+import frc.tecdroid3354.constants.SubsystemsTunableValues
 import frc.tecdroid3354.utils.InstantCommand
 import frc.tecdroid3354.utils.degrees
 import frc.tecdroid3354.utils.interfaces.MotorIOInputsAutoLogged
@@ -44,8 +44,8 @@ class HoodSubsystem(private val io: HoodIO): SubsystemBase(HoodConstants.Telemet
             io.updateHoodMotorsControlGains(0) // Updates slot0 because is the primary set
         }
 
-        if (SubsystemsTunableTargets.HOOD_MANUAL_TARGET_DEGREES.hasChanged(hashCode())) {
-            io.updateHoodManualPosition(SubsystemsTunableTargets.HOOD_MANUAL_TARGET_DEGREES.get().degrees)
+        if (SubsystemsTunableValues.HOOD_MANUAL_TARGET_DEGREES.hasChanged(hashCode())) {
+            io.updateHoodManualPosition(SubsystemsTunableValues.HOOD_MANUAL_TARGET_DEGREES.get().degrees)
         }
     }
 

@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.tecdroid3354.constants.SubsystemsControlGains
 import frc.tecdroid3354.constants.SubsystemsPresetTargets
-import frc.tecdroid3354.constants.SubsystemsTunableTargets
+import frc.tecdroid3354.constants.SubsystemsTunableValues
 import frc.tecdroid3354.utils.InstantCommandIgnoreDisabled
 import frc.tecdroid3354.utils.interfaces.MotorIOInputsAutoLogged
 import frc.tecdroid3354.utils.rotationsPerMinute
@@ -60,9 +60,9 @@ class IntakeRollersSubsystem(private val io: IntakeRollersIO) : SubsystemBase(In
         }
 
         // Check if the manual target RPMs were changed live and update the target.
-        if (SubsystemsTunableTargets.INTAKE_ROLLERS_MANUAL_RPM.hasChanged(hashCode())) {
+        if (SubsystemsTunableValues.INTAKE_ROLLERS_MANUAL_RPM.hasChanged(hashCode())) {
             io.updateIntakeRollersManualVelocity(
-                SubsystemsTunableTargets.INTAKE_ROLLERS_MANUAL_RPM.get().rotationsPerMinute)
+                SubsystemsTunableValues.INTAKE_ROLLERS_MANUAL_RPM.get().rotationsPerMinute)
         }
     }
 

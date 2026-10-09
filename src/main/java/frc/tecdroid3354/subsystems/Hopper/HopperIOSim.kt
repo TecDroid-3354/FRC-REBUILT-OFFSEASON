@@ -1,5 +1,6 @@
 package frc.tecdroid3354.subsystems.Hopper
 
+import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.sim.TalonFXSimState
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.system.plant.DCMotor
@@ -12,6 +13,7 @@ import edu.wpi.first.units.measure.MutAngularVelocity
 import edu.wpi.first.wpilibj.simulation.ElevatorSim
 import edu.wpi.first.wpilibj.simulation.FlywheelSim
 import frc.tecdroid3354.constants.*
+import frc.tecdroid3354.subsystems.Flywheel.FlywheelConstants
 import frc.tecdroid3354.utils.devices.OpTalonFX
 import frc.tecdroid3354.utils.interfaces.MotorIO
 import frc.tecdroid3354.utils.kilogramSquareMeters
@@ -37,6 +39,8 @@ class HopperIOSim : HopperIO {
 
     private val leadMotorSim: TalonFXSimState = leadMotorReal.getMotorInstance().simState
 
+    private val isLeadInverted: Boolean = HopperConstants.PhoenixMotorConfiguration.motorDirection == InvertedValue.Clockwise_Positive
+
     /**
      * Note that [hopperVelocityTarget] may contain the same value as [manualHopperVelocityTarget] when
      * [enableHopperManualVelocity] is commanded.
@@ -48,16 +52,19 @@ class HopperIOSim : HopperIO {
         //
         // START PHYSICS UPDATE
         //
-        val appliedVolts = leadMotorSim.motorVoltage
+        val appliedVolts = if (isLeadInverted) -leadMotorSim.motorVoltage else leadMotorSim.motorVoltage
 
         subsystemSim.setInputVoltage(appliedVolts)
         subsystemSim.update(RobotConstants.LOOP_TIME.seconds)
 
+        val simVelocity: AngularVelocity = if (isLeadInverted) subsystemSim.angularVelocity.unaryMinus() else subsystemSim.angularVelocity
+        val simAcceleration: AngularAcceleration = if (isLeadInverted) subsystemSim.angularAcceleration.unaryMinus() else subsystemSim.angularAcceleration
+
         val motorVelocity: AngularVelocity = leadMotorReal.getAngularSubsystemToMotorVelocity(
-            subsystemSim.angularVelocity,
+            simVelocity,
             HopperConstants.Mechanical.REDUCTION)
         val motorAcceleration: AngularAcceleration = leadMotorReal.getAngularSubsystemToMotorAcceleration(
-            subsystemSim.angularAcceleration,
+            simAcceleration,
             HopperConstants.Mechanical.REDUCTION
         )
 

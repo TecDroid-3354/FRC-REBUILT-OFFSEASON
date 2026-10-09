@@ -14,11 +14,9 @@
 package frc.tecdroid3354.commands;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.LinearVelocity;
@@ -52,8 +50,8 @@ public class DriveCommands {
     private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
     private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
 
-    public static final TunablePIDController angleController = new TunablePIDController(
-            "Drive/Robot Heading PID", 4.8, 0.0, 0.40);
+    public static final TunablePIDController CHASSIS_HEADING_CONTROLLER = new TunablePIDController(
+            "Drive/Robot Heading PID", 4.8, 0.0, 0.41);
 
     public static final MutAngle lastDriveAngle = Degrees.mutable(0.0);
 
@@ -215,18 +213,18 @@ public class DriveCommands {
     public static Command joystickDriveAtAngle(
             Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier, Supplier<Rotation2d> rotationSupplier) {
         // Configure the PID continuous input at start
-        angleController.enableContinuousInput(-Math.PI, Math.PI);
+        CHASSIS_HEADING_CONTROLLER.enableContinuousInput(-Math.PI, Math.PI);
         // Construct command
         return Commands.run(
                         () -> {
-                            angleController.update(); // Refresh PID gains
+                            CHASSIS_HEADING_CONTROLLER.update(); // Refresh PID gains
                             lastDriveAngle.mut_replace(Radians.of(rotationSupplier.get().getRadians()));
                             // Get linear velocity
                             Translation2d linearVelocity =
                                     getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
 
                             // Calculate angular speed
-                            double omega = angleController.calculate(
+                            double omega = CHASSIS_HEADING_CONTROLLER.calculate(
                                     drive.getRotation().getRadians(),
                                     rotationSupplier.get().getRadians());
 
@@ -246,7 +244,7 @@ public class DriveCommands {
                         drive)
 
                 // Reset PID controller when command starts
-                .beforeStarting(angleController::reset);
+                .beforeStarting(CHASSIS_HEADING_CONTROLLER::reset);
     }
 
     // --------------- ---------------- -------- --------------- //

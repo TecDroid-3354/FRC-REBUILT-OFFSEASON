@@ -10,6 +10,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.NeutralModeValue
 import edu.wpi.first.units.measure.Current
+import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.MomentOfInertia
 import frc.tecdroid3354.constants.CanBuses
 import frc.tecdroid3354.constants.RobotTelemetry
@@ -19,6 +20,7 @@ import frc.tecdroid3354.constants.SubsystemsMotionTargets
 import frc.tecdroid3354.utils.amps
 import frc.tecdroid3354.utils.controlProfiles.Polynomials
 import frc.tecdroid3354.utils.devices.KrakenMotors
+import frc.tecdroid3354.utils.inches
 import frc.tecdroid3354.utils.kilogramSquareMeters
 import frc.tecdroid3354.utils.mechanical.Reduction
 import java.util.Optional
@@ -38,6 +40,7 @@ object HoodConstants {
      */
     object Mechanical {
         val REDUCTION: Reduction = Reduction((142.0 / 13.0) * (60.0 / 9.0) * (37.0 / 22.0))
+        val ROLLERS_DIAMETER: Distance = 1.5625.inches
 
         const val NUMBER_OF_MOTORS: Int = 1
 
@@ -67,6 +70,10 @@ object HoodConstants {
             0.154157, -1.256876, 9.491531, 1.908159
         )
 
+//        val SCORING_POLYNOMIAL           : Result<Polynomials> = Polynomials.of(degree = 3,
+//            -0.942347, 7.636364, -12.675369, 12.420746
+//        )
+
         val ASSIST_POLYNOMIAL            : Result<Polynomials> = Polynomials.of(degree = 3,
             0.130994, -3.213622, 24.175404, -29.079567)
     }
@@ -79,8 +86,8 @@ object HoodConstants {
      * remains mostly untouched unless the Design or Electrical Teams change something.
      */
     object PhoenixMotorConfiguration {
+        val motorDirection: InvertedValue = InvertedValue.Clockwise_Positive
         private val neutralMode: NeutralModeValue = NeutralModeValue.Brake
-        private val motorDirection: InvertedValue = InvertedValue.Clockwise_Positive
 
         private val supplyCurrentLimit: Current = 20.0.amps
         private val statorCurrentLimit: Current = 50.0.amps

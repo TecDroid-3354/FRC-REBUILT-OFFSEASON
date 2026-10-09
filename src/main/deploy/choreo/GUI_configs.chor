@@ -11,6 +11,13 @@
      "val":8.726646259971648
     }
    },
+   "MaxIntakeVel":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"2.5 m / s",
+     "val":2.5
+    }
+   },
    "MaxVel":{
     "dimension":"LinVel",
     "var":{
@@ -21,15 +28,15 @@
    "MinAngVel":{
     "dimension":"AngVel",
     "var":{
-     "exp":"300 deg / s",
-     "val":5.235987755982989
+     "exp":"100 deg / s",
+     "val":1.7453292519943295
     }
    },
    "MinVel":{
     "dimension":"LinVel",
     "var":{
-     "exp":"3 m / s",
-     "val":3.0
+     "exp":"0.4 m / s",
+     "val":0.4
     }
    },
    "TargetAngVel":{
@@ -42,8 +49,8 @@
    "TargetVel":{
     "dimension":"LinVel",
     "var":{
-     "exp":"3 m / s",
-     "val":3.0
+     "exp":"3.5 m / s",
+     "val":3.5
     }
    }
   },

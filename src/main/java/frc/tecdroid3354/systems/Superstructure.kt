@@ -1,5 +1,6 @@
 package frc.tecdroid3354.systems
 
+import com.pathplanner.lib.controllers.PPHolonomicDriveController
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.filter.LinearFilter
 import edu.wpi.first.math.geometry.Pose2d
@@ -9,6 +10,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.units.measure.Angle
+import edu.wpi.first.units.measure.Current
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.LinearVelocity
 import edu.wpi.first.units.measure.MutDistance
@@ -28,9 +30,11 @@ import frc.tecdroid3354.constants.FieldConstants.FieldDimensions
 import frc.tecdroid3354.constants.RobotConstants
 import frc.tecdroid3354.constants.RobotTransformations
 import frc.tecdroid3354.constants.SubsystemTolerances
+import frc.tecdroid3354.constants.SubsystemsTunableValues
 import frc.tecdroid3354.subsystems.Flywheel.FlywheelConstants
 import frc.tecdroid3354.subsystems.Hood.HoodSubsystem
 import frc.tecdroid3354.subsystems.Flywheel.FlywheelSubsystem
+import frc.tecdroid3354.subsystems.Hood.HoodConstants
 import frc.tecdroid3354.subsystems.Hopper.HopperSubsystem
 import frc.tecdroid3354.subsystems.drive.Drive
 import frc.tecdroid3354.subsystems.IntakeDeploy.IntakeDeploySubsystem
@@ -38,6 +42,7 @@ import frc.tecdroid3354.subsystems.IntakeRollers.IntakeRollersSubsystem
 import frc.tecdroid3354.subsystems.Tower.TowerSubsystem
 import frc.tecdroid3354.subsystems.vision.Vision
 import frc.tecdroid3354.utils.InstantCommand
+import frc.tecdroid3354.utils.amps
 import frc.tecdroid3354.utils.degrees
 import frc.tecdroid3354.utils.meters
 import frc.tecdroid3354.utils.metersPerSecond
@@ -55,6 +60,7 @@ import java.util.Optional
 import java.util.function.Supplier
 import kotlin.math.atan2
 import kotlin.math.hypot
+import kotlin.math.max
 
 /** Inside this class, construct all control methods at robot-level (and any relevant auxiliary methods).
  * When using States, this file is responsible to control the logic flow */
@@ -242,8 +248,8 @@ class Superstructure(private val controller: CommandPS5Controller,
     fun setDriveTeleopCommand(): Command {
         return DriveCommands.joystickDriveAtAngle(
             drive,
-            { MathUtil.applyDeadband(-controller.leftY, 0.05) * DriveMultipliers.CONTROLLER_PRIMARY_Y_MULTIPLIER },
-            { MathUtil.applyDeadband(-controller.leftX, 0.05) * DriveMultipliers.CONTROLLER_PRIMARY_X_MULTIPLIER },
+            { MathUtil.applyDeadband(-controller.leftY, DriveMultipliers.CONTROLLER_DEADBAND) * DriveMultipliers.CONTROLLER_PRIMARY_Y_MULTIPLIER },
+            { MathUtil.applyDeadband(-controller.leftX, DriveMultipliers.CONTROLLER_DEADBAND) * DriveMultipliers.CONTROLLER_PRIMARY_X_MULTIPLIER },
             { DriveCommands.getAngleFromJoystick(controller.rightX, controller.rightY).toRotation2d() },
         )
     }
@@ -252,8 +258,8 @@ class Superstructure(private val controller: CommandPS5Controller,
     fun setDriveTargetingPointCommand(fieldToTarget: Supplier<Translation2d>, speedLimitFactor: Optional<Double>): Command {
         return DriveCommands.joystickDriveAtAngle(
             drive,
-            { MathUtil.applyDeadband(-controller.leftY, 0.05) * speedLimitFactor.orElse(DriveMultipliers.CONTROLLER_PRIMARY_Y_MULTIPLIER) },
-            { MathUtil.applyDeadband(-controller.leftX, 0.05) * speedLimitFactor.orElse(DriveMultipliers.CONTROLLER_PRIMARY_X_MULTIPLIER) },
+            { MathUtil.applyDeadband(-controller.leftY, DriveMultipliers.CONTROLLER_DEADBAND) * speedLimitFactor.orElse(DriveMultipliers.CONTROLLER_PRIMARY_Y_MULTIPLIER) },
+            { MathUtil.applyDeadband(-controller.leftX, DriveMultipliers.CONTROLLER_DEADBAND) * speedLimitFactor.orElse(DriveMultipliers.CONTROLLER_PRIMARY_X_MULTIPLIER) },
             { DriveCommands.getAngleFromRobotToTarget(
                 drive.pose, fieldToTarget.get(),
                 Optional.of(RobotTransformations.ROBOT_TO_SHOOTER.rotation.measureZ.toRotation2d()),
@@ -265,8 +271,8 @@ class Superstructure(private val controller: CommandPS5Controller,
     fun setDriveTargetingHeadingCommand(targetHeading: Supplier<Angle>, speedLimitFactor: Optional<Double>): Command {
         return DriveCommands.joystickDriveAtAngle(
             drive,
-            { MathUtil.applyDeadband(-controller.leftY, 0.05) * speedLimitFactor.orElse(DriveMultipliers.CONTROLLER_PRIMARY_Y_MULTIPLIER) },
-            { MathUtil.applyDeadband(-controller.leftX, 0.05) * speedLimitFactor.orElse(DriveMultipliers.CONTROLLER_PRIMARY_X_MULTIPLIER) },
+            { MathUtil.applyDeadband(-controller.leftY, DriveMultipliers.CONTROLLER_DEADBAND) * speedLimitFactor.orElse(DriveMultipliers.CONTROLLER_PRIMARY_Y_MULTIPLIER) },
+            { MathUtil.applyDeadband(-controller.leftX, DriveMultipliers.CONTROLLER_DEADBAND) * speedLimitFactor.orElse(DriveMultipliers.CONTROLLER_PRIMARY_X_MULTIPLIER) },
             { targetHeading.get().toRotation2d() },
         )
     }
@@ -305,6 +311,37 @@ class Superstructure(private val controller: CommandPS5Controller,
         )
     }
 
+    /** Uses teleop calculation of robot target heading and overrides PathPlanner's feedback to enable SOTM */
+    fun overrideDriveAutonomousHeadingCommand(): Command {
+        return InstantCommand({
+                DriveCommands.CHASSIS_HEADING_CONTROLLER.reset() // Starts with a fresh PID Controller
+                PPHolonomicDriveController.overrideRotationFeedback { // The actual override
+                    val targetHeading = DriveCommands.getAngleFromRobotToTarget( // Static Target Angle
+                        drive.pose,
+                        fieldToScoringTarget.get(),
+                        Optional.of(RobotTransformations.ROBOT_TO_SHOOTER.rotation.measureZ.toRotation2d()),
+                        true
+                    ).minus( // Yaw correction due to tangential velocity
+                        getShooterYawCorrection(
+                            getVirtualDistance(filteredDistanceToScoringTarget, false),
+                            false
+                        ).toRotation2d()
+                    )
+
+                    // Calculate output angular velocity in radians/second
+                    DriveCommands.CHASSIS_HEADING_CONTROLLER.calculate(
+                        drive.pose.rotation.radians,
+                        targetHeading.radians
+                    )
+                }
+            })
+    }
+
+    /** Gives rotation feedback control back to PathPlanner during Autonomous */
+    fun clearAutonomousHeadingOverrideCommand(): Command {
+        return InstantCommand({ PPHolonomicDriveController.clearFeedbackOverrides() })
+    }
+
     /** Checks [DriveCommands.lastDriveAngle] and compares with the current robot heading, accounting for some tolerance. */
     fun getIsDriveAtTarget(): Boolean {
         return DriveCommands.lastDriveAngle.minus(drive.rotation.toAngle()).lte(SubsystemTolerances.DRIVE_HEADING_TOLERANCE)
@@ -326,9 +363,10 @@ class Superstructure(private val controller: CommandPS5Controller,
     fun setScoringSequence(): Command {
         return ParallelCommandGroup(
             setShooterScoring(),
-            WaitCommand(SubsystemTolerances.TIME_BEFORE_SCORE_SHOOTING) // TODO() CHANGE TO POLYNOMIAL?
+            WaitUntilCommand { flywheel.getIsAtTarget() }
+                .withTimeout(SubsystemTolerances.MAX_TIME_BEFORE_SCORE_SHOOTING)
                 .andThen(setIndexerPreset())
-                .andThen(WaitCommand(SubsystemTolerances.INTAKE_TIME_TOLERANCE_BEFORE_CLUSTER_SCORE))
+                .andThen(WaitCommand(SubsystemTolerances.ADDED_TIME_BEFORE_INTAKE_CLUSTER))
                 .andThen(setClusterTeleopControl()),
             launchSimFuel() // Has inside condition of being SIM. Won't do anything in a real robot
         )
@@ -340,9 +378,10 @@ class Superstructure(private val controller: CommandPS5Controller,
     fun setAssistSequence(): Command {
         return ParallelCommandGroup(
             setShooterAssist(),
-            WaitCommand(SubsystemTolerances.TIME_BEFORE_ASSIST_SHOOTING) // TODO() CHANGE TO POLYNOMIAL?
+            WaitUntilCommand { flywheel.getIsAtTarget() }
+                .withTimeout(SubsystemTolerances.MAX_TIME_BEFORE_ASSIST_SHOOTING)
                 .andThen(setIndexerPreset())
-                .andThen(WaitCommand(SubsystemTolerances.INTAKE_TIME_TOLERANCE_BEFORE_CLUSTER_ASSIST))
+                .andThen(WaitCommand(SubsystemTolerances.ADDED_TIME_BEFORE_INTAKE_CLUSTER))
                 .andThen(setClusterTeleopControl()),
             launchSimFuel() // Has inside condition of being SIM. Won't do anything in a real robot
         )
@@ -534,11 +573,24 @@ class Superstructure(private val controller: CommandPS5Controller,
 
     /** Made to match the fuel velocity calculation of the Trajectory Simulation App */
     private fun getFuelSimLaunchVelocity(): LinearVelocity {
-        return flywheel.getFlywheelVelocity().radiansPerSecond
+        val rollerOmega = flywheel.getFlywheelVelocity().radiansPerSecond
             .div(FlywheelConstants.Mechanical.REDUCTION.getRatio())
-            .times(FlywheelConstants.Mechanical.ROLLER_DIAMETER.div(2.0).meters)
-            .times(FlywheelConstants.Mechanical.ESTIMATED_ROLLER_EFFICIENCY)
-            .metersPerSecond
+
+        // Radii in meters
+        val shooterRadiusM = FlywheelConstants.Mechanical.ROLLER_DIAMETER.div(2.0).meters
+        val hoodRadiusM = HoodConstants.Mechanical.ROLLERS_DIAMETER.div(2.0).meters
+
+        // Surface velocities (m/s)
+        val vShooter = rollerOmega * shooterRadiusM
+        val vHood = rollerOmega * hoodRadiusM
+
+        // Weighting based on mainWheelBias = 65% (0.65 shooter, 0.35 hood)
+        val shooterWeight = FlywheelConstants.Mechanical.MAIN_ROLLER_BIAS
+        val hoodWeight = 1.0 - shooterWeight
+
+        val weightedSurfaceVelocity = (shooterWeight * vShooter) + (hoodWeight * vHood)
+
+        return (weightedSurfaceVelocity * FlywheelConstants.Mechanical.ESTIMATED_ROLLER_EFFICIENCY).metersPerSecond
     }
 
     /** Launches a FUEL in simulation. Some delay between launches is configured in [SubsystemTolerances].
@@ -553,7 +605,7 @@ class Superstructure(private val controller: CommandPS5Controller,
                 decreaseHopperFuelCount(1)
                 fuelSim!!.launchFuel(
                     getFuelSimLaunchVelocity(),
-                    90.0.degrees.minus(hood.getHoodPosition()),
+                    90.0.degrees.minus(3.82.degrees).minus(hood.getHoodPosition()),
                     0.0.degrees, // This is for turrets. Robot rotation and shooter transformations are inside FuelSim.java
                     RobotTransformations.ROBOT_TO_SHOOTER.measureZ // Starting height
                 )
@@ -612,6 +664,13 @@ class Superstructure(private val controller: CommandPS5Controller,
     // --------------- -------- -------- --------------- //
     // --------------- FLYWHEEL COMMANDS --------------- //
     // --------------- -------- -------- --------------- //
+
+    /** Uses [tower] load current (amount of FUELS coming) to calculate appropriate feedforward to [flywheel] motors */
+    private fun getFlywheelFeedforward(): Current {
+        return SubsystemsTunableValues.FLYWHEEL_LOAD_CONSTANT.get().times(
+            max(tower.getLoadCurrent().amps, SubsystemTolerances.FLYWHEEL_MAX_FEEDFORWARD.amps)
+        ).amps
+    }
 
     /** Calculates target RPMs based on [flywheelDistanceToTarget] and scoring polynomial coefficients */
     fun setFlywheelScoringTarget(flywheelDistanceToTarget: Supplier<Distance>): Command {

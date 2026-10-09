@@ -30,6 +30,7 @@ object TowerConstants {
      */
     object Mechanical {
         val REDUCTION: Reduction = Reduction(1.3)
+        val IDLE_TORQUE_CURRENT : Current = 3.0.amps
 
         const val NUMBER_OF_MOTORS: Int = 2
 
@@ -58,8 +59,8 @@ object TowerConstants {
     object PhoenixMotorConfiguration {
         val followerMotorAlignment: MotorAlignmentValue = MotorAlignmentValue.Aligned
 
+        val motorDirection: InvertedValue = InvertedValue.Clockwise_Positive
         private val neutralMode: NeutralModeValue = NeutralModeValue.Coast
-        private val motorDirection: InvertedValue = InvertedValue.Clockwise_Positive
 
         private val supplyCurrentLimit: Current = 35.0.amps
         private val statorCurrentLimit: Current = 50.0.amps

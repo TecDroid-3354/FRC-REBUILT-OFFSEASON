@@ -55,15 +55,28 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "Score"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Right_Score_1_To_Trench_2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Enable_Score"
+                }
+              }
+            ]
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Right_Score_1_To_Trench_2"
+            "name": "Disable_Score"
           }
         },
         {
@@ -119,7 +132,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Score"
+            "name": "Enable_Score"
           }
         }
       ]

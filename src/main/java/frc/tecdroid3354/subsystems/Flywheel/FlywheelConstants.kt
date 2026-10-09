@@ -47,7 +47,8 @@ object FlywheelConstants {
         val REDUCTION: Reduction = Reduction(1.4) // Motor -> Flywheel (0.56), Motor -> Roller (1.4)
         val ROLLER_DIAMETER: Distance = 3.0.inches
 
-        const val ESTIMATED_ROLLER_EFFICIENCY: Double = 0.95
+        const val ESTIMATED_ROLLER_EFFICIENCY: Double = 1.0 // Simulator not entirely accurate, so we assume this to simplify
+        const val MAIN_ROLLER_BIAS: Double = 0.835 // Used in simulation
 
         const val NUMBER_OF_MOTORS: Int = 4
 
@@ -81,6 +82,14 @@ object FlywheelConstants {
             -0.009125, 0.072298, -0.112208, 0.941459
         )
 
+//        val SCORING_POLYNOMIAL          : Result<Polynomials> = Polynomials.of(degree = 3,
+//            37.420357, -274.592075, 690.971251, 1494.382284
+//        )
+//
+//        val TOF_SCORING_POLYNOMIAL      : Result<Polynomials> = Polynomials.of(degree = 3,
+//            0.036836, -0.289828, 0.700136, 0.707265
+//        )
+
         val ASSIST_POLYNOMIAL           : Result<Polynomials> = Polynomials.of(degree = 3,
             -7.631235, 137.810114, -594.245958, 2571.936791
         )
@@ -101,8 +110,8 @@ object FlywheelConstants {
         val followerLeftMotorAlignment: MotorAlignmentValue = MotorAlignmentValue.Aligned
         val followerRightMotorAlignment: MotorAlignmentValue = MotorAlignmentValue.Opposed
 
+        val motorDirection: InvertedValue = InvertedValue.Clockwise_Positive
         private val neutralMode: NeutralModeValue = NeutralModeValue.Coast
-        private val motorDirection: InvertedValue = InvertedValue.Clockwise_Positive
 
         private val supplyCurrentLimit: Current = 35.0.amps
         private val statorCurrentLimit: Current = 50.0.amps

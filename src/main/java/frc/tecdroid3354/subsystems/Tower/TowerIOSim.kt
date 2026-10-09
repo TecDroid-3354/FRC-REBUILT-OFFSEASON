@@ -1,5 +1,6 @@
 package frc.tecdroid3354.subsystems.Tower
 
+import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.MotorAlignmentValue
 import com.ctre.phoenix6.sim.TalonFXSimState
 import edu.wpi.first.math.MathUtil
@@ -11,6 +12,8 @@ import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.MutAngularVelocity
 import edu.wpi.first.wpilibj.simulation.FlywheelSim
 import frc.tecdroid3354.constants.*
+import frc.tecdroid3354.subsystems.Flywheel.FlywheelConstants
+import frc.tecdroid3354.subsystems.Hopper.HopperConstants
 import frc.tecdroid3354.utils.devices.OpTalonFX
 import frc.tecdroid3354.utils.interfaces.MotorIO
 import frc.tecdroid3354.utils.kilogramSquareMeters
@@ -37,6 +40,8 @@ class TowerIOSim : TowerIO {
     private val leadMotorSim: TalonFXSimState = leadMotorReal.getMotorInstance().simState
     private val followerMotorSim: TalonFXSimState = followerMotorReal.getMotorInstance().simState
 
+    private val isLeadInverted: Boolean = TowerConstants.PhoenixMotorConfiguration.motorDirection == InvertedValue.Clockwise_Positive
+
     private val inverseMotorReading: Boolean = when(TowerConstants.PhoenixMotorConfiguration.followerMotorAlignment) {
         MotorAlignmentValue.Aligned -> false
         MotorAlignmentValue.Opposed -> true
@@ -54,17 +59,20 @@ class TowerIOSim : TowerIO {
         //
         // START PHYSICS UPDATE
         //
-        val appliedVolts = leadMotorSim.motorVoltage
+        val appliedVolts = if (isLeadInverted) -leadMotorSim.motorVoltage else leadMotorSim.motorVoltage
 
         subsystemSim.setInputVoltage(appliedVolts)
         subsystemSim.update(RobotConstants.LOOP_TIME.seconds)
 
+        val simVelocity: AngularVelocity = if (isLeadInverted) subsystemSim.angularVelocity.unaryMinus() else subsystemSim.angularVelocity
+        val simAcceleration: AngularAcceleration = if (isLeadInverted) subsystemSim.angularAcceleration.unaryMinus() else subsystemSim.angularAcceleration
+
         val motorVelocity: AngularVelocity = leadMotorReal.getAngularSubsystemToMotorVelocity(
-            subsystemSim.angularVelocity,
-            TowerConstants.Mechanical.REDUCTION)
+            simVelocity,
+            FlywheelConstants.Mechanical.REDUCTION)
         val motorAcceleration: AngularAcceleration = leadMotorReal.getAngularSubsystemToMotorAcceleration(
-            subsystemSim.angularAcceleration,
-            TowerConstants.Mechanical.REDUCTION
+            simAcceleration,
+            FlywheelConstants.Mechanical.REDUCTION
         )
 
         leadMotorSim.setRotorVelocity(motorVelocity)

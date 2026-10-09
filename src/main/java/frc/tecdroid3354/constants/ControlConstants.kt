@@ -8,6 +8,7 @@ import edu.wpi.first.units.DistanceUnit
 import edu.wpi.first.units.Units.Seconds
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.AngularVelocity
+import edu.wpi.first.units.measure.Current
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.Time
 import frc.tecdroid3354.generated.SwerveTunerConstants
@@ -17,12 +18,12 @@ import frc.tecdroid3354.subsystems.Hopper.HopperConstants
 import frc.tecdroid3354.subsystems.IntakeDeploy.IntakeDeployConstants
 import frc.tecdroid3354.subsystems.IntakeRollers.IntakeRollersConstants
 import frc.tecdroid3354.subsystems.Tower.TowerConstants
+import frc.tecdroid3354.utils.amps
 import frc.tecdroid3354.utils.controlProfiles.AngularMotionTargets
 import frc.tecdroid3354.utils.controlProfiles.LinearMotionTargets
 import frc.tecdroid3354.utils.controlProfiles.LoggedTunableNumber
 import frc.tecdroid3354.utils.controlProfiles.TunableControlGains
 import frc.tecdroid3354.utils.controlProfiles.ControlGains
-import frc.tecdroid3354.utils.controlProfiles.Polynomials
 import frc.tecdroid3354.utils.degrees
 import frc.tecdroid3354.utils.degreesPerSecond
 import frc.tecdroid3354.utils.devices.OpPositionControlRequests
@@ -37,6 +38,7 @@ import frc.tecdroid3354.utils.seconds
 
 /** Meant for the [edu.wpi.first.wpilibj2.command.button.CommandXboxController] of the driver */
 object DriveMultipliers {
+    const val CONTROLLER_DEADBAND                   : Double = 0.1
     const val CONTROLLER_PRIMARY_X_MULTIPLIER       : Double = 0.8
     const val CONTROLLER_PRIMARY_Y_MULTIPLIER       : Double = 0.8
     const val CONTROLLER_PRIMARY_THETA_MULTIPLIER   : Double = 0.6 // Only in case of continuous rotation
@@ -60,29 +62,28 @@ object SubsystemsControlRequests {
 
 /** Stores the tolerance of each subsystem. This also includes tolerances for sequences and simulation. */
 object SubsystemTolerances {
-    /** Calculated from different setpoints and their time to be reached. AdvantageScope graphs were used.
-     * Output is in seconds. Used to vary the time before enabling Hopper and Tower. */
-    val FLYWHEEL_AT_TARGET_POLYNOMIAL                   : Result<Polynomials> = Polynomials.of(degree = 3,
-        0.0, 0.0, 0.0, 0.0
-    )
+    val ADDED_TIME_BEFORE_INTAKE_CLUSTER                : Time = 0.15.seconds
 
     val DISTANCE_TIME_FILTER                            : Time = 0.05.seconds
     val VELOCITY_TIME_FILTER                            : Time = 0.06.seconds
 
-    val TIME_BEFORE_SCORE_SHOOTING                      : Time = 1.2.seconds
-    val TIME_BEFORE_ASSIST_SHOOTING                     : Time = 1.35.seconds
+    val MAX_TIME_BEFORE_SCORE_SHOOTING                  : Time = 0.64.seconds
+    val MAX_TIME_BEFORE_ASSIST_SHOOTING                 : Time = 1.26.seconds
 
     val TIME_BEFORE_SHOOT_SEQUENCE_AUTO                 : Time = 0.5.seconds
     val TIME_BEFORE_CANCEL_SHOOT_AUTO                   : Time = 3.25.seconds
 
+    val FLYWHEEL_MAX_FEEDFORWARD                        : Current = 30.0.amps
+
     val FLYWHEEL_TARGET_TOLERANCE                       : AngularVelocity = 45.0.rotationsPerMinute
+    val FLYWHEEL_SIM_TARGET_TOLERANCE                   : AngularVelocity = 120.0.rotationsPerMinute
+    // Bigger tolerance because is only used to calculate flywheel feedforward
+    val TOWER_TARGET_TOLERANCE                          : AngularVelocity = 500.0.rotationsPerMinute
     val INTAKE_DEPLOY_TOLERANCE                         : Distance = 0.5.inches
-    val INTAKE_TIME_TOLERANCE_BEFORE_CLUSTER_SCORE      : Time = TIME_BEFORE_SCORE_SHOOTING.plus(0.02.seconds)
-    val INTAKE_TIME_TOLERANCE_BEFORE_CLUSTER_ASSIST     : Time = TIME_BEFORE_ASSIST_SHOOTING.plus(0.02.seconds)
 
     val DRIVE_HEADING_TOLERANCE                         : Angle = 2.0.degrees
 
-    val AUTONOMOUS_SCORING_SEQUENCE_TIME_TOLERANCE      : Time = 4.2.seconds
+    val AUTONOMOUS_SCORING_SEQUENCE_TIME_TOLERANCE      : Time = 5.2.seconds
 
     // Throughput of ~ 18 bps, which is a bit less because of loop cycles.
     val SIMULATION_FUEL_LAUNCH_TIMEOUT_TOLERANCE        : Time = 0.0555.seconds
@@ -157,7 +158,7 @@ object SubsystemsPresetTargets {
     // INTAKE DEPLOY ONLY
     //
     val INTAKE_DEPLOY_HOME_DISPLACEMENT: Distance = 0.0.inches
-    val INTAKE_DEPLOY_CLUSTERING_DISPLACEMENT: Distance = 5.35.inches
+    val INTAKE_DEPLOY_CLUSTERING_DISPLACEMENT: Distance = 6.0.inches
     val INTAKE_DEPLOY_EXTENDED_DISPLACEMENT: Distance = 11.6.inches
 
     //
@@ -170,7 +171,7 @@ object SubsystemsPresetTargets {
  * Each subsystem set of [frc.tecdroid3354.utils.controlProfiles.LoggedTunableNumber]. Naming must be as follows:
  * subsystemName_[kP/kI/kD/kF/manualTargetRPMs/manualTargetAngle/...]
  */
-object SubsystemsTunableTargets {
+object SubsystemsTunableValues {
     //
     // HOOD ONLY
     //
@@ -182,6 +183,9 @@ object SubsystemsTunableTargets {
     //
     val FLYWHEEL_MANUAL_RPM: LoggedTunableNumber =
         LoggedTunableNumber("${ FlywheelConstants.Telemetry.SUBSYSTEM_TAB }/Manual RPMs", 3_800.0)
+
+    val FLYWHEEL_LOAD_CONSTANT: LoggedTunableNumber =
+        LoggedTunableNumber("${ FlywheelConstants.Telemetry.SUBSYSTEM_TAB }/K_load", 0.15)
 
     //
     // TOWER ONLY
@@ -247,7 +251,7 @@ object SubsystemsControlGains {
      // INTAKE DEPLOY ONLY
      //
      val INTAKE_DEPLOY_MOTOR_PRIMARY_GAINS   : TunableControlGains = TunableControlGains(IntakeDeployConstants.Telemetry.SUBSYSTEM_PRIMARY_GAINS,
-        kP = 14.75, kI = 0.0, kD = 0.4, kS = 0.0, kV = 0.0, kA = 0.0, kG = 0.0) // SEMI - TUNED
+        kP = 22.5, kI = 0.0, kD = 0.4, kS = 0.0, kV = 0.0, kA = 0.0, kG = 0.0) // SEMI - TUNED
 
      //
      // INTAKE ROLLERS ONLY
@@ -259,8 +263,8 @@ object SubsystemsControlGains {
      // DRIVE ONLY
      //
      val CHASSIS_AUTONOMOUS_CONTROLLER    : PPHolonomicDriveController = PPHolonomicDriveController(
-         PIDConstants(2.75, 0.0, 0.136),   // Translational PID
-         PIDConstants(4.775, 0.0, 0.37)    // Rotational PID
+         PIDConstants(2.745, 0.0, 0.138),   // Translational PID
+         PIDConstants(4.50, 0.0, 0.40)    // Rotational PID
      ) // Note that this is not live-tunable because PathPlanner creates an immutable PID object with the first configuration.
 
      // Note that these values cannot be accurately tuned in simulation, unlike the autonomous controller.
@@ -269,6 +273,7 @@ object SubsystemsControlGains {
      val STEER_MOTOR_PRIMARY_GAINS        : TunableControlGains = TunableControlGains(SwerveTunerConstants.SUBSYSTEM_STEER_PRIMARY_GAINS,
          kP = 135.0, kI = 0.0, kD = 2.45, kS = 0.1, kV = 0.0, kA = 0.0, kG = 0.0)   // TUNED FOR VOLTAGE
 }
+
 
 /**
  * Each subsystem set of [frc.tecdroid3354.utils.controlProfiles.MotionTargets]. Naming must be as follows:
@@ -330,7 +335,7 @@ object SubsystemsMotionTargets {
 
     val INTAKE_DEPLOY_SECONDARY_MOTION_TARGETS: LinearMotionTargets = // For cluster motion
         LinearMotionTargets(
-            0.05.metersPerSecond,
+            0.15.metersPerSecond,
             1.2.seconds,
             0.50.seconds,
         )

@@ -1,18 +1,14 @@
 package frc.tecdroid3354.subsystems.Hopper
 
-import edu.wpi.first.units.measure.AngularVelocity
-import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.wpilibj.Alert
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.tecdroid3354.constants.SubsystemsControlGains
-import frc.tecdroid3354.constants.SubsystemsTunableTargets
+import frc.tecdroid3354.constants.SubsystemsTunableValues
 import frc.tecdroid3354.utils.InstantCommandIgnoreDisabled
 import frc.tecdroid3354.utils.interfaces.MotorIOInputsAutoLogged
-import frc.tecdroid3354.utils.meters
 import frc.tecdroid3354.utils.rotationsPerMinute
 import org.littletonrobotics.junction.Logger
-import kotlin.math.pow
 
 class HopperSubsystem(private val io: HopperIO) : SubsystemBase(HopperConstants.Telemetry.SUBSYSTEM_TAB) {
     // Auto generated file (by @AutoLog annotation in IO Layer)
@@ -58,9 +54,9 @@ class HopperSubsystem(private val io: HopperIO) : SubsystemBase(HopperConstants.
         }
 
         // Check if the manual target RPMs were changed live and update the target.
-        if (SubsystemsTunableTargets.HOPPER_MANUAL_RPM.hasChanged(hashCode())) {
+        if (SubsystemsTunableValues.HOPPER_MANUAL_RPM.hasChanged(hashCode())) {
             io.updateHopperManualVelocity(
-                SubsystemsTunableTargets.HOPPER_MANUAL_RPM.get().rotationsPerMinute)
+                SubsystemsTunableValues.HOPPER_MANUAL_RPM.get().rotationsPerMinute)
         }
     }
 

@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.tecdroid3354.constants.SubsystemTolerances
 import frc.tecdroid3354.constants.SubsystemsControlGains
 import frc.tecdroid3354.constants.SubsystemsPresetTargets
-import frc.tecdroid3354.constants.SubsystemsTunableTargets
+import frc.tecdroid3354.constants.SubsystemsTunableValues
 import frc.tecdroid3354.utils.InstantCommandIgnoreDisabled
 import frc.tecdroid3354.utils.inches
 import frc.tecdroid3354.utils.interfaces.MotorIOInputsAutoLogged
@@ -58,8 +58,8 @@ class IntakeDeploySubsystem(private val io: IntakeDeployIO): SubsystemBase(Intak
             io.updateIntakeDeployMotorsControlGains(0) // Updates slot0 because is the primary set
         }
 
-        if (SubsystemsTunableTargets.INTAKE_DEPLOY_MANUAL_TARGET_INCHES.hasChanged(hashCode())) {
-            io.updateIntakeDeployManualDisplacement(SubsystemsTunableTargets.INTAKE_DEPLOY_MANUAL_TARGET_INCHES.get().inches)
+        if (SubsystemsTunableValues.INTAKE_DEPLOY_MANUAL_TARGET_INCHES.hasChanged(hashCode())) {
+            io.updateIntakeDeployManualDisplacement(SubsystemsTunableValues.INTAKE_DEPLOY_MANUAL_TARGET_INCHES.get().inches)
         }
     }
 

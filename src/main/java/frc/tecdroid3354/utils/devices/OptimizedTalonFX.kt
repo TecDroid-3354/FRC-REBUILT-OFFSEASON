@@ -211,11 +211,12 @@ class OpTalonFX(private val id: Int, private val canBusName: String = "rio"): Mo
         )
     }
 
-    private fun velocityVoltageRequest(velocity: AngularVelocity, slot: Int) {
+    private fun velocityVoltageRequest(velocity: AngularVelocity, slot: Int, feedforward: Double) {
         if (isFollower) { throw COMMAND_TO_FOLLOWER_EXCEPTION }
 
         motor.setControl(motionMagicVelocityVoltageRequest
             .withVelocity(velocity)
+            .withFeedForward(feedforward)
             .withSlot(slot))
     }
 
@@ -225,11 +226,12 @@ class OpTalonFX(private val id: Int, private val canBusName: String = "rio"): Mo
      * based subsystems. This one also requires Phoenix Pro license, make sure your motor has it, or it will throw
      * a sticky fault.
      */
-    private fun velocityTorqueRequest(velocity: AngularVelocity, slot: Int) {
+    private fun velocityTorqueRequest(velocity: AngularVelocity, slot: Int, feedforward: Double) {
         if (isFollower) { throw COMMAND_TO_FOLLOWER_EXCEPTION }
 
         motor.setControl(motionMagicVelocityTorqueRequest
             .withVelocity(velocity)
+            .withFeedForward(feedforward)
             .withSlot(slot)
         )
     }
@@ -277,11 +279,12 @@ class OpTalonFX(private val id: Int, private val canBusName: String = "rio"): Mo
     /**
      * Calls the corresponding method based on [requestType].
      */
-    private fun handleVelocityRequest(requestType: OpVelocityControlRequests, velocity: AngularVelocity, slot: Int) {
+    private fun handleVelocityRequest(requestType: OpVelocityControlRequests, velocity: AngularVelocity, slot: Int,
+                                      feedforward: Double) {
         when (requestType) {
-            OpVelocityControlRequests.VELOCITY_VOLTAGE  -> { velocityVoltageRequest(velocity, slot) }
+            OpVelocityControlRequests.VELOCITY_VOLTAGE  -> { velocityVoltageRequest(velocity, slot, feedforward) }
 
-            OpVelocityControlRequests.VELOCITY_TORQUE   -> { velocityTorqueRequest(velocity, slot) }
+            OpVelocityControlRequests.VELOCITY_TORQUE   -> { velocityTorqueRequest(velocity, slot, feedforward) }
         }
     }
 
@@ -366,11 +369,12 @@ class OpTalonFX(private val id: Int, private val canBusName: String = "rio"): Mo
      * method -> [handleVelocityRequest] for the corresponding control request.
      */
     fun angularSubsystemVelocityRequest(controlType: OpVelocityControlRequests, subsystemVelocity: AngularVelocity,
-                                        limits: MeasureLimits<AngularVelocityUnit>, reduction: Reduction, slot: Int = 0) {
+                                        limits: MeasureLimits<AngularVelocityUnit>, reduction: Reduction, slot: Int = 0,
+                                        feedforward: Double = 0.0) {
         val subsystemClampedVelocity: AngularVelocity = limits.coerceIn(subsystemVelocity) as AngularVelocity
         val motorTransformedVelocity: AngularVelocity = reduction.unapply(subsystemClampedVelocity)
 
-        handleVelocityRequest(controlType, motorTransformedVelocity, slot)
+        handleVelocityRequest(controlType, motorTransformedVelocity, slot, feedforward)
     }
 
     /**

@@ -1,5 +1,6 @@
 package frc.tecdroid3354.subsystems.Flywheel
 
+import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.MotorAlignmentValue
 import com.ctre.phoenix6.sim.TalonFXSimState
 import edu.wpi.first.math.MathUtil
@@ -49,6 +50,7 @@ class FlywheelIOSim : FlywheelIO {
     private val followerMotorRightOneSim: TalonFXSimState = followerMotorRightOneReal.getMotorInstance().simState
     private val followerMotorRightTwoSim: TalonFXSimState = followerMotorRightTwoReal.getMotorInstance().simState
 
+    private val isLeadInverted: Boolean = FlywheelConstants.PhoenixMotorConfiguration.motorDirection == InvertedValue.Clockwise_Positive
     private val inverseMotorLeftReading: Boolean = when(FlywheelConstants.PhoenixMotorConfiguration.followerLeftMotorAlignment) {
         MotorAlignmentValue.Aligned -> false
         MotorAlignmentValue.Opposed -> true
@@ -71,16 +73,19 @@ class FlywheelIOSim : FlywheelIO {
         //
         // START PHYSICS UPDATE
         //
-        val appliedVolts = leadMotorSim.motorVoltage
+        val appliedVolts = if (isLeadInverted) -leadMotorSim.motorVoltage else leadMotorSim.motorVoltage
 
         subsystemSim.setInputVoltage(appliedVolts)
         subsystemSim.update(RobotConstants.LOOP_TIME.seconds)
 
+        val simVelocity: AngularVelocity = if (isLeadInverted) subsystemSim.angularVelocity.unaryMinus() else subsystemSim.angularVelocity
+        val simAcceleration: AngularAcceleration = if (isLeadInverted) subsystemSim.angularAcceleration.unaryMinus() else subsystemSim.angularAcceleration
+
         val motorVelocity: AngularVelocity = leadMotorReal.getAngularSubsystemToMotorVelocity(
-            subsystemSim.angularVelocity,
+            simVelocity,
             FlywheelConstants.Mechanical.REDUCTION)
         val motorAcceleration: AngularAcceleration = leadMotorReal.getAngularSubsystemToMotorAcceleration(
-            subsystemSim.angularAcceleration,
+            simAcceleration,
             FlywheelConstants.Mechanical.REDUCTION
         )
 

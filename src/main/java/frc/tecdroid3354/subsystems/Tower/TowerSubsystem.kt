@@ -1,24 +1,28 @@
 package frc.tecdroid3354.subsystems.Tower
 
-import edu.wpi.first.units.measure.AngularVelocity
-import edu.wpi.first.units.measure.Distance
+import edu.wpi.first.math.filter.Debouncer
+import edu.wpi.first.units.measure.Current
 import edu.wpi.first.wpilibj.Alert
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import frc.tecdroid3354.constants.SubsystemTolerances
 import frc.tecdroid3354.constants.SubsystemsControlGains
-import frc.tecdroid3354.constants.SubsystemsTunableTargets
+import frc.tecdroid3354.constants.SubsystemsPresetTargets
+import frc.tecdroid3354.constants.SubsystemsTunableValues
 import frc.tecdroid3354.utils.InstantCommandIgnoreDisabled
+import frc.tecdroid3354.utils.amps
 import frc.tecdroid3354.utils.interfaces.MotorIOInputsAutoLogged
-import frc.tecdroid3354.utils.meters
 import frc.tecdroid3354.utils.rotationsPerMinute
 import org.littletonrobotics.junction.Logger
-import kotlin.math.pow
+import kotlin.math.abs
 
 class TowerSubsystem(private val io: TowerIO) : SubsystemBase(TowerConstants.Telemetry.SUBSYSTEM_TAB) {
     // Auto generated file (by @AutoLog annotation in IO Layer)
     private val inputs: TowerIOInputsAutoLogged = TowerIOInputsAutoLogged()
     private val leadMotorInputs: MotorIOInputsAutoLogged = MotorIOInputsAutoLogged()
     private val followerMotorInputs: MotorIOInputsAutoLogged = MotorIOInputsAutoLogged()
+
+    private val atTargetDebouncer: Debouncer = Debouncer(0.06, Debouncer.DebounceType.kBoth)
 
     /**
      * START OF CONNECTION ALERT VARIABLES. These alerts are published separately from other inputs.
@@ -63,9 +67,9 @@ class TowerSubsystem(private val io: TowerIO) : SubsystemBase(TowerConstants.Tel
         }
 
         // Check if the manual target RPMs were changed live and update the target.
-        if (SubsystemsTunableTargets.TOWER_MANUAL_RPM.hasChanged(hashCode())) {
+        if (SubsystemsTunableValues.TOWER_MANUAL_RPM.hasChanged(hashCode())) {
             io.updateTowerManualVelocity(
-                SubsystemsTunableTargets.TOWER_MANUAL_RPM.get().rotationsPerMinute)
+                SubsystemsTunableValues.TOWER_MANUAL_RPM.get().rotationsPerMinute)
         }
     }
 
@@ -88,6 +92,23 @@ class TowerSubsystem(private val io: TowerIO) : SubsystemBase(TowerConstants.Tel
      */
     fun stopTower(): Runnable {
         return io.stopTower()
+    }
+
+    /** Compares idle torque current vs actual torque current. The difference is due to FUELS traveling the tower. */
+    fun getLoadCurrent(): Current {
+        if (getIsAtTarget()) return abs(TowerConstants.Mechanical.IDLE_TORQUE_CURRENT
+            .minus(leadMotorInputs.torqueCurrent).amps).amps
+        return 0.0.amps
+    }
+
+    fun getIsAtTarget(): Boolean {
+        val currentTarget = SubsystemsPresetTargets.TOWER_PRESET_RPM.rotationsPerMinute
+        val currentVelocity = inputs.towerActualVelocity.rotationsPerMinute
+
+        if (currentTarget < 200.0) return false // The first loop might be currentTarget = 0.0, which triggers true
+        val isWithinTolerance = abs(currentTarget - currentVelocity) < SubsystemTolerances.TOWER_TARGET_TOLERANCE.rotationsPerMinute
+
+        return atTargetDebouncer.calculate(isWithinTolerance) // Don't let it switch true / false constantly
     }
 
     /**
