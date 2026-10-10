@@ -113,8 +113,8 @@ object FlywheelConstants {
         val motorDirection: InvertedValue = InvertedValue.Clockwise_Positive
         private val neutralMode: NeutralModeValue = NeutralModeValue.Coast
 
-        private val supplyCurrentLimit: Current = 35.0.amps
-        private val statorCurrentLimit: Current = 50.0.amps
+        private val supplyCurrentLimit: Current = 40.0.amps
+        private val statorCurrentLimit: Current = 65.0.amps
 
         val initialMotorsConfiguration: TalonFXConfiguration = KrakenMotors.createTalonFXConfiguration(
             Optional.of<MotorOutputConfigs>(

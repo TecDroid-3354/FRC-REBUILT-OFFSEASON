@@ -37,7 +37,7 @@ public class SwerveTunerConstants {
      * Used for LOWERING the current used for the drive (e.g., need more current for shooting)
      */
     public static final CurrentLimitsConfigs DRIVE_SECONDARY_CURRENT_LIMITS = KrakenMotors.INSTANCE.configureCurrentLimits(
-            Amps.of(30.0), Amps.of(50.0)
+            Amps.of(30.0), Amps.of(35.0)
     );
 
     /**
@@ -51,7 +51,7 @@ public class SwerveTunerConstants {
      * Used for LOWERING the current used for the steer (e.g., need more current for shooting)
      */
     public static final CurrentLimitsConfigs STEER_SECONDARY_CURRENT_LIMITS = KrakenMotors.INSTANCE.configureCurrentLimits(
-            Amps.of(20.0), Amps.of(40.0)
+            Amps.of(20.0), Amps.of(20.0)
     );
 
     /**

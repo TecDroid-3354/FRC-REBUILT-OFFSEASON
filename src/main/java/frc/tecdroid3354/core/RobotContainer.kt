@@ -133,13 +133,19 @@ object RobotContainer
 
     /** For PathPlanner Named Commands. Called during init, **BEFORE** [autoChooser] is initialized */
     private fun registerNamedCommandsInit() {
-        NamedCommands.registerCommand("Enable_Score", superstructure.overrideDriveAutonomousHeadingCommand()
+        NamedCommands.registerCommand("Enable_Score_SOTM", superstructure.overrideDriveAutonomousHeadingCommand()
             .alongWith(
                 WaitCommand(SubsystemTolerances.TIME_BEFORE_SHOOT_SEQUENCE_AUTO)
                     .andThen(superstructure.setScoringSequence())
             ).withTimeout(SubsystemTolerances.AUTONOMOUS_SCORING_SEQUENCE_TIME_TOLERANCE))
-        NamedCommands.registerCommand("Disable_Score", superstructure.stopShootingSequenceWithoutDeploy()
+        NamedCommands.registerCommand("Enable_Score_Static", superstructure.setDriveScoreTargetingCommand()
+            .alongWith(
+                WaitCommand(SubsystemTolerances.TIME_BEFORE_SHOOT_SEQUENCE_AUTO)
+                    .andThen(superstructure.setScoringSequence())
+            ).withTimeout(SubsystemTolerances.AUTONOMOUS_SCORING_SEQUENCE_TIME_TOLERANCE))
+        NamedCommands.registerCommand("Disable_Score_SOTM", superstructure.stopShootingSequenceWithoutDeploy()
             .andThen(superstructure.clearAutonomousHeadingOverrideCommand()))
+        NamedCommands.registerCommand("Disable_Score_Static", superstructure.stopShootingSequenceWithoutDeploy())
         NamedCommands.registerCommand("Enable_Intake", superstructure.setIntakeTeleopControl())
         NamedCommands.registerCommand("Disable_Intake", superstructure.stopIntake())
     }

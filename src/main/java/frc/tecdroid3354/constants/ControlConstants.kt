@@ -38,7 +38,7 @@ import frc.tecdroid3354.utils.seconds
 
 /** Meant for the [edu.wpi.first.wpilibj2.command.button.CommandXboxController] of the driver */
 object DriveMultipliers {
-    const val CONTROLLER_DEADBAND                   : Double = 0.1
+    const val CONTROLLER_DEADBAND                   : Double = 0.15
     const val CONTROLLER_PRIMARY_X_MULTIPLIER       : Double = 0.8
     const val CONTROLLER_PRIMARY_Y_MULTIPLIER       : Double = 0.8
     const val CONTROLLER_PRIMARY_THETA_MULTIPLIER   : Double = 0.6 // Only in case of continuous rotation
@@ -67,11 +67,10 @@ object SubsystemTolerances {
     val DISTANCE_TIME_FILTER                            : Time = 0.05.seconds
     val VELOCITY_TIME_FILTER                            : Time = 0.06.seconds
 
-    val MAX_TIME_BEFORE_SCORE_SHOOTING                  : Time = 0.64.seconds
+    val MAX_TIME_BEFORE_SCORE_SHOOTING                  : Time = 1.0.seconds
     val MAX_TIME_BEFORE_ASSIST_SHOOTING                 : Time = 1.26.seconds
 
-    val TIME_BEFORE_SHOOT_SEQUENCE_AUTO                 : Time = 0.5.seconds
-    val TIME_BEFORE_CANCEL_SHOOT_AUTO                   : Time = 3.25.seconds
+    val TIME_BEFORE_SHOOT_SEQUENCE_AUTO                 : Time = 1.5.seconds
 
     val FLYWHEEL_MAX_FEEDFORWARD                        : Current = 30.0.amps
 
@@ -83,7 +82,7 @@ object SubsystemTolerances {
 
     val DRIVE_HEADING_TOLERANCE                         : Angle = 2.0.degrees
 
-    val AUTONOMOUS_SCORING_SEQUENCE_TIME_TOLERANCE      : Time = 5.2.seconds
+    val AUTONOMOUS_SCORING_SEQUENCE_TIME_TOLERANCE      : Time = 4.0.seconds
 
     // Throughput of ~ 18 bps, which is a bit less because of loop cycles.
     val SIMULATION_FUEL_LAUNCH_TIMEOUT_TOLERANCE        : Time = 0.0555.seconds
@@ -164,7 +163,7 @@ object SubsystemsPresetTargets {
     //
     // INTAKE ROLLERS ONLY
     //
-    val INTAKE_ROLLERS_PRESET_RPM: AngularVelocity = 2_500.0.rotationsPerMinute
+    val INTAKE_ROLLERS_PRESET_RPM: AngularVelocity = 2_750.0.rotationsPerMinute
 }
 
 /**
@@ -263,7 +262,7 @@ object SubsystemsControlGains {
      // DRIVE ONLY
      //
      val CHASSIS_AUTONOMOUS_CONTROLLER    : PPHolonomicDriveController = PPHolonomicDriveController(
-         PIDConstants(2.745, 0.0, 0.138),   // Translational PID
+         PIDConstants(2.74, 0.0, 0.20),   // Translational PID
          PIDConstants(4.50, 0.0, 0.40)    // Rotational PID
      ) // Note that this is not live-tunable because PathPlanner creates an immutable PID object with the first configuration.
 

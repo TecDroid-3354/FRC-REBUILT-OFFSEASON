@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
+import edu.wpi.first.units.AngleUnit
 import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.units.measure.Angle
@@ -31,6 +32,7 @@ import frc.tecdroid3354.constants.RobotConstants
 import frc.tecdroid3354.constants.RobotTransformations
 import frc.tecdroid3354.constants.SubsystemTolerances
 import frc.tecdroid3354.constants.SubsystemsTunableValues
+import frc.tecdroid3354.generated.SwerveTunerConstants
 import frc.tecdroid3354.subsystems.Flywheel.FlywheelConstants
 import frc.tecdroid3354.subsystems.Hood.HoodSubsystem
 import frc.tecdroid3354.subsystems.Flywheel.FlywheelSubsystem
@@ -195,7 +197,7 @@ class Superstructure(private val controller: CommandPS5Controller,
         Logger.recordOutput("Odometry/DistanceToHub (m)", decimalFormaterThreePlaces.format(filteredDistanceToScoringTarget.meters))
         Logger.recordOutput("Odometry/DistanceToAssist (m)", decimalFormaterThreePlaces.format(filteredDistanceToAssistTarget.meters))
 
-        Logger.recordOutput("Odometry/Target Heading", DriveCommands.lastDriveAngle)
+        Logger.recordOutput("Odometry/Target Heading", MathUtil.angleModulus(DriveCommands.lastDriveAngle.radians))
 
         Logger.recordOutput("Odometry/RobotPose", drive.pose)
     }
@@ -362,7 +364,9 @@ class Superstructure(private val controller: CommandPS5Controller,
      * During simulation, FUELS are also launched */
     fun setScoringSequence(): Command {
         return ParallelCommandGroup(
-            setShooterScoring(),
+            InstantCommand({ drive.updateCurrentLimits(
+                SwerveTunerConstants.DRIVE_SECONDARY_CURRENT_LIMITS, SwerveTunerConstants.STEER_SECONDARY_CURRENT_LIMITS) })
+                .andThen(setShooterScoring()),
             WaitUntilCommand { flywheel.getIsAtTarget() }
                 .withTimeout(SubsystemTolerances.MAX_TIME_BEFORE_SCORE_SHOOTING)
                 .andThen(setIndexerPreset())
@@ -377,7 +381,9 @@ class Superstructure(private val controller: CommandPS5Controller,
      * During simulation, FUELS are also launched */
     fun setAssistSequence(): Command {
         return ParallelCommandGroup(
-            setShooterAssist(),
+            InstantCommand({ drive.updateCurrentLimits(
+                SwerveTunerConstants.DRIVE_SECONDARY_CURRENT_LIMITS, SwerveTunerConstants.STEER_SECONDARY_CURRENT_LIMITS) })
+                .andThen(setShooterScoring()),
             WaitUntilCommand { flywheel.getIsAtTarget() }
                 .withTimeout(SubsystemTolerances.MAX_TIME_BEFORE_ASSIST_SHOOTING)
                 .andThen(setIndexerPreset())
@@ -390,6 +396,8 @@ class Superstructure(private val controller: CommandPS5Controller,
     /** Stops all subsystems and extends the [intakeDeploy] */
     fun stopShootingSequenceIncludingDeploy(): Command {
         return SequentialCommandGroup(
+            InstantCommand({ drive.updateCurrentLimits(
+                SwerveTunerConstants.DRIVE_PRIMARY_CURRENT_LIMITS, SwerveTunerConstants.STEER_PRIMARY_CURRENT_LIMITS) }),
             stopIndexer(),
             stopShooting(),
             stopIntake()
@@ -399,6 +407,8 @@ class Superstructure(private val controller: CommandPS5Controller,
     /** Stops all subsystems; [intakeDeploy] is not affected */
     fun stopShootingSequenceWithoutDeploy(): Command {
         return SequentialCommandGroup(
+            InstantCommand({ drive.updateCurrentLimits(
+                SwerveTunerConstants.DRIVE_PRIMARY_CURRENT_LIMITS, SwerveTunerConstants.STEER_PRIMARY_CURRENT_LIMITS) }),
             stopIndexer(),
             stopShooting(),
             stopIntakeRollers()

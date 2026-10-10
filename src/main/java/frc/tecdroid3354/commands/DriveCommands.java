@@ -51,7 +51,7 @@ public class DriveCommands {
     private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
 
     public static final TunablePIDController CHASSIS_HEADING_CONTROLLER = new TunablePIDController(
-            "Drive/Robot Heading PID", 4.8, 0.0, 0.41);
+            "Drive/Robot Heading PID", 4.45, 0.0, 0.42);
 
     public static final MutAngle lastDriveAngle = Degrees.mutable(0.0);
 
@@ -67,6 +67,8 @@ public class DriveCommands {
         double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), DEADBAND);
         Rotation2d linearDirection = new Rotation2d(atan2(y, x));
 
+
+        linearMagnitude = MathUtil.clamp(linearMagnitude, 0.0, 1.0);
         // Square magnitude for more precise control
         linearMagnitude = linearMagnitude * linearMagnitude;
 

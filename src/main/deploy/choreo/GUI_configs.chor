@@ -14,15 +14,15 @@
    "MaxIntakeVel":{
     "dimension":"LinVel",
     "var":{
-     "exp":"2.5 m / s",
-     "val":2.5
+     "exp":"1.2 m / s",
+     "val":1.2
     }
    },
    "MaxVel":{
     "dimension":"LinVel",
     "var":{
-     "exp":"5.296 m / s",
-     "val":5.296
+     "exp":"4 m / s",
+     "val":4.0
     }
    },
    "MinAngVel":{
@@ -35,8 +35,8 @@
    "MinVel":{
     "dimension":"LinVel",
     "var":{
-     "exp":"0.4 m / s",
-     "val":0.4
+     "exp":"0.45 m / s",
+     "val":0.45
     }
    },
    "TargetAngVel":{
@@ -49,8 +49,8 @@
    "TargetVel":{
     "dimension":"LinVel",
     "var":{
-     "exp":"3.5 m / s",
-     "val":3.5
+     "exp":"3.8 m / s",
+     "val":3.8
     }
    }
   },
@@ -86,8 +86,8 @@
    "val":7.773
   },
   "gearing":{
-   "exp":"6.03",
-   "val":6.03
+   "exp":"6.027",
+   "val":6.027
   },
   "radius":{
    "exp":"2 in",
