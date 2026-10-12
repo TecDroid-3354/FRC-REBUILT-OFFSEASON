@@ -21,7 +21,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.25
+                        "waitTime": 0.05
                       }
                     },
                     {
@@ -43,27 +43,34 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Disable_Intake"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "Left_Bump_To_Score"
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "Score"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Left_Score_1_To_Trench_2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Enable_Score_SOTM"
+                }
+              }
+            ]
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Left_Score_1_To_Trench_2"
+            "name": "Disable_Score_SOTM"
           }
         },
         {
@@ -83,7 +90,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.25
+                        "waitTime": 0.75
                       }
                     },
                     {
@@ -105,12 +112,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Disable_Intake"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "Left_Bump_To_Score"
@@ -119,7 +120,26 @@
         {
           "type": "named",
           "data": {
-            "name": "Score"
+            "name": "Enable_Score_Static"
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Disable_Score_Static"
+                }
+              }
+            ]
           }
         }
       ]
