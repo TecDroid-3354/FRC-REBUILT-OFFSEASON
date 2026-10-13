@@ -2,6 +2,7 @@ package frc.tecdroid3354.subsystems.Flywheel;
 
 import edu.wpi.first.units.measure.*;
 import frc.tecdroid3354.utils.interfaces.MotorIO;
+import frc.tecdroid3354.utils.interpolation.InterpolatingDouble;
 import org.littletonrobotics.junction.AutoLog;
 
 import static edu.wpi.first.units.Units.*;
@@ -126,6 +127,8 @@ public interface FlywheelIO {
      * Applies the configuration inside {@link FlywheelConstants.PhoenixMotorConfiguration}. Follower commands are included.
      */
     void initialMotorConfiguration();
+
+
 
     /**
      * **IMPORTANT:** This class is meant to use in REPLAY mode only. It leaves every method empty,

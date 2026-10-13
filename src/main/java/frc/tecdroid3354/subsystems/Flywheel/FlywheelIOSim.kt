@@ -9,6 +9,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId
 import edu.wpi.first.units.Units.DegreesPerSecond
 import edu.wpi.first.units.measure.AngularAcceleration
 import edu.wpi.first.units.measure.AngularVelocity
+import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.MutAngularVelocity
 import edu.wpi.first.wpilibj.simulation.FlywheelSim
 import frc.tecdroid3354.constants.RobotConstants
@@ -18,7 +19,10 @@ import frc.tecdroid3354.constants.SubsystemsMovementLimits
 import frc.tecdroid3354.constants.SubsystemsPresetTargets
 import frc.tecdroid3354.utils.interfaces.MotorIO
 import frc.tecdroid3354.utils.devices.OpTalonFX
+import frc.tecdroid3354.utils.interpolation.InterpolatingDouble
+import frc.tecdroid3354.utils.interpolation.InterpolatingTreeMap
 import frc.tecdroid3354.utils.kilogramSquareMeters
+import frc.tecdroid3354.utils.meters
 import frc.tecdroid3354.utils.rotationsPerMinute
 import frc.tecdroid3354.utils.seconds
 
@@ -59,6 +63,11 @@ class FlywheelIOSim : FlywheelIO {
         MotorAlignmentValue.Aligned -> false
         MotorAlignmentValue.Opposed -> true
     }
+
+    /**
+     * Interpolation variables
+     * */
+
 
     /**
      * Note that [flywheelVelocityTarget] may contain the same value as [manualFlywheelVelocityTarget] when
@@ -204,11 +213,14 @@ class FlywheelIOSim : FlywheelIO {
         }
     }
 
+
+
     override fun initialMotorConfiguration() {
         leadMotorReal.applyConfigAndClearFaults(FlywheelConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
         followerMotorLeftReal.applyConfigAndClearFaults(FlywheelConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
         followerMotorRightOneReal.applyConfigAndClearFaults(FlywheelConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
         followerMotorRightTwoReal.applyConfigAndClearFaults(FlywheelConstants.PhoenixMotorConfiguration.initialMotorsConfiguration)
+
 
         followerMotorLeftReal.follow(
             leadMotorReal.getMotorInstance(),
@@ -221,4 +233,5 @@ class FlywheelIOSim : FlywheelIO {
             leadMotorReal.getMotorInstance(),
             FlywheelConstants.PhoenixMotorConfiguration.followerRightMotorAlignment)
     }
+
 }

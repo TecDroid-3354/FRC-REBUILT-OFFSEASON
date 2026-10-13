@@ -10,6 +10,9 @@ import frc.tecdroid3354.constants.SubsystemsMovementLimits
 import frc.tecdroid3354.constants.SubsystemsPresetTargets
 import frc.tecdroid3354.utils.interfaces.MotorIO
 import frc.tecdroid3354.utils.devices.OpTalonFX
+import frc.tecdroid3354.utils.interpolation.InterpolatingDouble
+import frc.tecdroid3354.utils.interpolation.InterpolatingTreeMap
+import frc.tecdroid3354.utils.meters
 import frc.tecdroid3354.utils.rotationsPerMinute
 
 /**
@@ -39,6 +42,11 @@ class FlywheelIOTalonFX: FlywheelIO {
      */
     private val manualFlywheelVelocityTarget: MutAngularVelocity = DegreesPerSecond.mutable(0.0)
     private val flywheelVelocityTarget: MutAngularVelocity = DegreesPerSecond.mutable(0.0)
+
+    /**
+     * Interpolation Variables
+     * */
+
 
     override fun updateFlywheelInputs(inputs: FlywheelIO.FlywheelIOInputs,
                                       leadMotorInputs: MotorIO.MotorIOInputs, followerMotorLeftInputs: MotorIO.MotorIOInputs,
@@ -161,4 +169,6 @@ class FlywheelIOTalonFX: FlywheelIO {
             leadMotorController.getMotorInstance(),
             FlywheelConstants.PhoenixMotorConfiguration.followerRightMotorAlignment)
     }
+
+
 }

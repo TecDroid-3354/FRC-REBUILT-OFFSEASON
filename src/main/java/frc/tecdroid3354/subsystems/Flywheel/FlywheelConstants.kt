@@ -10,6 +10,8 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.MotorAlignmentValue
 import com.ctre.phoenix6.signals.NeutralModeValue
+import edu.wpi.first.units.Units
+import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Current
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.MomentOfInertia
@@ -24,6 +26,9 @@ import frc.tecdroid3354.utils.devices.KrakenMotors
 import frc.tecdroid3354.utils.inches
 import frc.tecdroid3354.utils.kilogramSquareMeters
 import frc.tecdroid3354.utils.mechanical.Reduction
+import frc.tecdroid3354.utils.meters
+import frc.tecdroid3354.utils.rotationsPerMinute
+import frc.tecdroid3354.utils.rotationsPerSecond
 import java.util.Optional
 import kotlin.math.pow
 
@@ -97,6 +102,48 @@ object FlywheelConstants {
         val TOF_ASSIST_POLYNOMIAL       : Result<Polynomials> = Polynomials.of(degree = 3,
             -0.003982, 0.084914, -0.454582, 2.013256
         )
+    }
+
+    object Interpolation {
+        val scoringInterpolation : Map<Distance, AngularVelocity> =
+            //The angular velocity gets divided by 0 to turn RPM into RPS.
+            mapOf<Distance, AngularVelocity>(
+                0.750.meters to 3000.0.rotationsPerMinute,
+                1.000.meters to 3000.0.rotationsPerMinute,
+                1.250.meters to 3000.0.rotationsPerMinute,
+                1.500.meters to 3000.0.rotationsPerMinute,
+                1.750.meters to 3000.0.rotationsPerMinute,
+                2.000.meters to 3000.0.rotationsPerMinute,
+                2.250.meters to 3000.0.rotationsPerMinute,
+                2.500.meters to 3000.0.rotationsPerMinute,
+                2.750.meters to 3000.0.rotationsPerMinute,
+                3.000.meters to 3000.0.rotationsPerMinute,
+                3.250.meters to 3000.0.rotationsPerMinute,
+                3.500.meters to 3000.0.rotationsPerMinute,
+                3.750.meters to 3000.0.rotationsPerMinute,
+                4.000.meters to 3000.0.rotationsPerMinute,
+                4.250.meters to 3000.0.rotationsPerMinute,
+                4.500.meters to 3000.0.rotationsPerMinute,
+                4.750.meters to 3000.0.rotationsPerMinute,
+                5.000.meters to 3000.0.rotationsPerMinute,
+                5.250.meters to 3000.0.rotationsPerMinute,
+
+            )
+
+            val assistInterpolation : Map<Distance, AngularVelocity> = mapOf(
+                1.500.meters to 300.0.rotationsPerMinute,
+                2.000.meters to 300.0.rotationsPerMinute,
+                2.500.meters to 300.0.rotationsPerMinute,
+                3.000.meters to 300.0.rotationsPerMinute,
+                3.500.meters to 300.0.rotationsPerMinute,
+                4.000.meters to 300.0.rotationsPerMinute,
+                4.500.meters to 300.0.rotationsPerMinute,
+                5.000.meters to 300.0.rotationsPerMinute,
+            )
+
+
+
+
     }
 
     /**

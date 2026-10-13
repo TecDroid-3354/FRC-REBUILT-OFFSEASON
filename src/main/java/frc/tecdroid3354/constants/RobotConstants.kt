@@ -38,6 +38,7 @@ object RobotConstants {
         { DriverStation.getAlliance().isPresent && DriverStation.getAlliance().get() == DriverStation.Alliance.Red }
 
     const val TUNING_MODE               : Boolean = true // Enables live tuning through Elastic.
+    const val USING_INTERPOLATION       : Boolean = true
     const val MAIN_CONTROLLER_PORT      : Int = 0
 }
 

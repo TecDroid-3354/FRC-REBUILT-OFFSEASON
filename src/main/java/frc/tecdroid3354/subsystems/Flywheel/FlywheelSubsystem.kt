@@ -14,6 +14,8 @@ import frc.tecdroid3354.constants.SubsystemsControlGains
 import frc.tecdroid3354.constants.SubsystemsTunableValues
 import frc.tecdroid3354.utils.InstantCommandIgnoreDisabled
 import frc.tecdroid3354.utils.interfaces.MotorIOInputsAutoLogged
+import frc.tecdroid3354.utils.interpolation.InterpolatingDouble
+import frc.tecdroid3354.utils.interpolation.InterpolatingTreeMap
 import frc.tecdroid3354.utils.meters
 import frc.tecdroid3354.utils.rotationsPerMinute
 import frc.tecdroid3354.utils.seconds
@@ -31,6 +33,9 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
 
     private val atTargetDebouncer: Debouncer = Debouncer(0.06, Debouncer.DebounceType.kBoth)
 
+    val scoringInterpolation: InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> = InterpolatingTreeMap()
+    val assistInterpolation: InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> = InterpolatingTreeMap()
+
 
     /**
      * START OF CONNECTION ALERT VARIABLES. These alerts are published separately from other inputs.
@@ -43,6 +48,11 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
     /**
      * END OF CONNECTION ALERT VARIABLES
      */
+    /**
+     * Interpolating Variables
+     * */
+
+
 
     /**
      * Used for all sensors / actuators configuration.
@@ -200,7 +210,11 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
      */
     private fun getCalculatedFlywheelScoringVelocity(flywheelDistanceToTarget: Distance): AngularVelocity {
         val distanceInMeters = flywheelDistanceToTarget.meters
-        val calculatedRPMs = FlywheelConstants.StoredPolynomials.SCORING_POLYNOMIAL.getOrThrow().evaluate(distanceInMeters)
+
+        var calculatedRPMs = when(RobotConstants.USING_INTERPOLATION){
+            true -> scoringInterpolation.getInterpolated(InterpolatingDouble(distanceInMeters)).value
+            false -> FlywheelConstants.StoredPolynomials.SCORING_POLYNOMIAL.getOrThrow().evaluate(distanceInMeters)
+        }
 
         return calculatedRPMs.rotationsPerMinute
     }
@@ -221,8 +235,20 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
      */
     private fun getCalculatedFlywheelAssistVelocity(flywheelDistanceToTarget: Distance): AngularVelocity {
         val distanceInMeters = flywheelDistanceToTarget.meters
-        val calculatedRPMs = FlywheelConstants.StoredPolynomials.ASSIST_POLYNOMIAL.getOrThrow().evaluate(distanceInMeters)
+        var calculatedRPMs = when(RobotConstants.USING_INTERPOLATION){
+            true -> assistInterpolation.getInterpolated(InterpolatingDouble(distanceInMeters)).value
+            false -> FlywheelConstants.StoredPolynomials.ASSIST_POLYNOMIAL.getOrThrow().evaluate(distanceInMeters)
+        }
 
         return calculatedRPMs.rotationsPerMinute
+    }
+
+    private fun configureInterpolation() {
+        for (points in FlywheelConstants.Interpolation.scoringInterpolation ) {
+            scoringInterpolation.put(InterpolatingDouble(points.key.meters), InterpolatingDouble(points.value.rotationsPerMinute))
+        }
+        for (points in FlywheelConstants.Interpolation.assistInterpolation){
+            assistInterpolation.put(InterpolatingDouble(points.key.meters), InterpolatingDouble(points.value.rotationsPerMinute))
+        }
     }
 }
