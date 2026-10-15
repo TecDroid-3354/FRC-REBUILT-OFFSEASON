@@ -6,13 +6,18 @@ import edu.wpi.first.wpilibj.Alert
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.RunCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import frc.tecdroid3354.constants.RobotConstants
 import frc.tecdroid3354.constants.SubsystemsControlGains
 import frc.tecdroid3354.constants.SubsystemsPresetTargets
 import frc.tecdroid3354.constants.SubsystemsTunableValues
+import frc.tecdroid3354.subsystems.Flywheel.FlywheelConstants
 import frc.tecdroid3354.utils.InstantCommand
 import frc.tecdroid3354.utils.degrees
 import frc.tecdroid3354.utils.interfaces.MotorIOInputsAutoLogged
+import frc.tecdroid3354.utils.interpolation.InterpolatingDouble
+import frc.tecdroid3354.utils.interpolation.InterpolatingTreeMap
 import frc.tecdroid3354.utils.meters
+import frc.tecdroid3354.utils.rotationsPerMinute
 import org.littletonrobotics.junction.Logger
 import java.util.function.Supplier
 
@@ -24,9 +29,16 @@ class HoodSubsystem(private val io: HoodIO): SubsystemBase(HoodConstants.Telemet
     private val leadMotorDisconnectedAlert: Alert =
         Alert(HoodConstants.Telemetry.LEAD_MOTOR_CONNECTION_ALERT_TAB, Alert.AlertType.kError)
 
+    /**
+     *Interpolation Variables
+     */
+    val scoringInterpolation: InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> = InterpolatingTreeMap()
+    val assistInterpolation: InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> = InterpolatingTreeMap()
     init {
         io.initialMotorConfiguration()
+        configureInterpolation()
     }
+
 
     override fun periodic() {
         io.updateHoodInputs(inputs, leadMotorInputs)
@@ -101,8 +113,11 @@ class HoodSubsystem(private val io: HoodIO): SubsystemBase(HoodConstants.Telemet
      */
     private fun getCalculatedHoodScoringAngle(flywheelDistanceToTarget: Distance): Angle {
         val distanceInMeters = flywheelDistanceToTarget.meters
-        val calculatedAngle = HoodConstants.StoredPolynomials.SCORING_POLYNOMIAL.getOrThrow().evaluate(distanceInMeters)
 
+        val calculatedAngle = when(RobotConstants.USING_INTERPOLATION){
+            true -> scoringInterpolation.getInterpolated(InterpolatingDouble(distanceInMeters)).value
+            false -> HoodConstants.StoredPolynomials.SCORING_POLYNOMIAL.getOrThrow().evaluate(distanceInMeters)
+        }
         return calculatedAngle.degrees
     }
 
@@ -122,8 +137,19 @@ class HoodSubsystem(private val io: HoodIO): SubsystemBase(HoodConstants.Telemet
      */
     private fun getCalculatedHoodAssistAngle(flywheelDistanceToTarget: Distance): Angle {
         val distanceInMeters = flywheelDistanceToTarget.meters
-        val calculatedAngle = HoodConstants.StoredPolynomials.ASSIST_POLYNOMIAL.getOrThrow().evaluate(distanceInMeters)
-
+        val calculatedAngle =when(RobotConstants.USING_INTERPOLATION) {
+            true -> assistInterpolation.getInterpolated(InterpolatingDouble(distanceInMeters)).value
+            false -> HoodConstants.StoredPolynomials.ASSIST_POLYNOMIAL.getOrThrow().evaluate(distanceInMeters)
+    }
         return calculatedAngle.degrees
+    }
+
+    private fun configureInterpolation() {
+        for (points in FlywheelConstants.Interpolation.scoringInterpolation ) {
+            scoringInterpolation.put(InterpolatingDouble(points.key.meters), InterpolatingDouble(points.value.rotationsPerMinute))
+        }
+        for (points in FlywheelConstants.Interpolation.assistInterpolation){
+            assistInterpolation.put(InterpolatingDouble(points.key.meters), InterpolatingDouble(points.value.rotationsPerMinute))
+        }
     }
 }

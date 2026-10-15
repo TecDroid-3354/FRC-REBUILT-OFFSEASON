@@ -33,6 +33,10 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
 
     private val atTargetDebouncer: Debouncer = Debouncer(0.06, Debouncer.DebounceType.kBoth)
 
+    /**
+     * Interpolation Variables
+     * */
+
     val scoringInterpolation: InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> = InterpolatingTreeMap()
     val assistInterpolation: InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> = InterpolatingTreeMap()
 
@@ -49,16 +53,11 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
      * END OF CONNECTION ALERT VARIABLES
      */
     /**
-     * Interpolating Variables
-     * */
-
-
-
-    /**
      * Used for all sensors / actuators configuration.
      */
     init {
         io.initialMotorConfiguration()
+        configureInterpolation()
     }
 
     /**

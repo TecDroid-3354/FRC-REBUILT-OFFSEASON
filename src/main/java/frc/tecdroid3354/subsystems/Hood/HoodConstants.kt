@@ -9,6 +9,8 @@ import com.ctre.phoenix6.configs.Slot2Configs
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.NeutralModeValue
+import edu.wpi.first.units.measure.Angle
+import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Current
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.MomentOfInertia
@@ -19,10 +21,14 @@ import frc.tecdroid3354.constants.SubsystemsControlGains
 import frc.tecdroid3354.constants.SubsystemsMotionTargets
 import frc.tecdroid3354.utils.amps
 import frc.tecdroid3354.utils.controlProfiles.Polynomials
+import frc.tecdroid3354.utils.degrees
+import frc.tecdroid3354.utils.degreesPerSecond
 import frc.tecdroid3354.utils.devices.KrakenMotors
 import frc.tecdroid3354.utils.inches
 import frc.tecdroid3354.utils.kilogramSquareMeters
 import frc.tecdroid3354.utils.mechanical.Reduction
+import frc.tecdroid3354.utils.meters
+import frc.tecdroid3354.utils.rotationsPerMinute
 import java.util.Optional
 import kotlin.math.pow
 
@@ -57,6 +63,48 @@ object HoodConstants {
                         .times(NUMBER_OF_MOTORS.toDouble())
                         .times(REDUCTION.getRatio().pow(2))
                 )
+    }
+
+    /**
+     * Object created in case polynomials do not work properly and it is deemed necesary to use
+     * interpolatiion rather tan polynomial.s
+     * */
+    object Interpolation{
+        val scoringInterpolation : Map<Distance, Angle> =
+            //The angular velocity gets divided by 0 to turn RPM into RPS.
+            mapOf<Distance, Angle>(
+                0.750.meters to 10.0.degrees,
+                1.000.meters to 10.0.degrees,
+                1.250.meters to 10.0.degrees,
+                1.500.meters to 10.0.degrees,
+                1.750.meters to 10.0.degrees,
+                2.000.meters to 10.0.degrees,
+                2.250.meters to 10.0.degrees,
+                2.500.meters to 10.0.degrees,
+                2.750.meters to 10.0.degrees,
+                3.000.meters to 10.0.degrees,
+                3.250.meters to 10.0.degrees,
+                3.500.meters to 10.0.degrees,
+                3.750.meters to 10.0.degrees,
+                4.000.meters to 10.0.degrees,
+                4.250.meters to 10.0.degrees,
+                4.500.meters to 10.0.degrees,
+                4.750.meters to 10.0.degrees,
+                5.000.meters to 10.0.degrees,
+                5.250.meters to 10.0.degrees,
+
+                )
+
+        val assistInterpolation : Map<Distance, Angle> = mapOf(
+            1.500.meters to 10.0.degrees,
+            2.000.meters to 10.0.degrees,
+            2.500.meters to 10.0.degrees,
+            3.000.meters to 10.0.degrees,
+            3.500.meters to 10.0.degrees,
+            4.000.meters to 10.0.degrees,
+            4.500.meters to 10.0.degrees,
+            5.000.meters to 10.0.degrees,
+        )
     }
 
     /**
