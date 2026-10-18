@@ -377,6 +377,23 @@ class Superstructure(private val controller: CommandPS5Controller,
     }
 
     /** A [ParallelCommandGroup] enabling shooter, waiting for [flywheel] to achieve target and then enabling
+     * indexer, waiting some time and then clustering the [intakeDeploy]. Scoring polynomials are used. Allows SOTM.
+     * During simulation, FUELS are also launched, used when the battery's voltage comes below 12.0 */
+    fun setAuxiliaryScoringSequence(): Command {
+        return ParallelCommandGroup(
+            InstantCommand({ drive.updateCurrentLimits(
+                SwerveTunerConstants.DRIVE_SECONDARY_CURRENT_LIMITS, SwerveTunerConstants.STEER_SECONDARY_CURRENT_LIMITS) })
+                .andThen(setAuxiliaryShooterScoring()),
+            WaitUntilCommand { flywheel.getIsAtTarget() }
+                .withTimeout(SubsystemTolerances.MAX_TIME_BEFORE_SCORE_SHOOTING)
+                .andThen(setIndexerPreset())
+                .andThen(WaitCommand(SubsystemTolerances.ADDED_TIME_BEFORE_INTAKE_CLUSTER))
+                .andThen(setClusterTeleopControl()),
+            launchSimFuel() // Has inside condition of being SIM. Won't do anything in a real robot
+        )
+    }
+
+    /** A [ParallelCommandGroup] enabling shooter, waiting for [flywheel] to achieve target and then enabling
      * indexer, waiting some time and then clustering the [intakeDeploy]. Assist polynomials are used. Allows SOTM.
      * During simulation, FUELS are also launched */
     fun setAssistSequence(): Command {
@@ -412,6 +429,16 @@ class Superstructure(private val controller: CommandPS5Controller,
             stopIndexer(),
             stopShooting(),
             stopIntakeRollers()
+        )
+    }
+
+    /** Stops all subsystems; [intakeDeploy] and [intakeRollers] are not affected */
+    fun stopShootingSequenceWithoutIntake(): Command {
+        return SequentialCommandGroup(
+            InstantCommand({ drive.updateCurrentLimits(
+                SwerveTunerConstants.DRIVE_PRIMARY_CURRENT_LIMITS, SwerveTunerConstants.STEER_PRIMARY_CURRENT_LIMITS) }),
+            stopIndexer(),
+            stopShooting()
         )
     }
 
@@ -452,7 +479,7 @@ class Superstructure(private val controller: CommandPS5Controller,
     /** Enables the manual targets of [flywheel] and [hood] decided by the user in Elastic */
     fun setShooterManualControl(): Command {
         return ParallelCommandGroup(
-            setFlywheelManualControl(),
+            setFlywheelManualControl { getFlywheelFeedforward() },
             setHoodManualControl(),
         )
     }
@@ -460,7 +487,15 @@ class Superstructure(private val controller: CommandPS5Controller,
     /** Enables [flywheel] and [hood] with their calculated scoring targets*/
     fun setShooterScoring(): Command {
         return ParallelCommandGroup(
-            setFlywheelScoringTarget { getVirtualDistance(filteredDistanceToScoringTarget, false) },
+            setFlywheelScoringTarget({ getVirtualDistance(filteredDistanceToAssistTarget, false) }, { getFlywheelFeedforward() }),
+            setHoodScoringTarget { getVirtualDistance(filteredDistanceToScoringTarget, false) },
+        )
+    }
+
+    /** Enables [flywheel] and [hood] with their calculated scoring targets*/
+    fun setAuxiliaryShooterScoring(): Command {
+        return ParallelCommandGroup(
+            setFlywheelAuxiliaryScoringTarget({ getVirtualDistance(filteredDistanceToAssistTarget, false) }, { getFlywheelFeedforward() }),
             setHoodScoringTarget { getVirtualDistance(filteredDistanceToScoringTarget, false) },
         )
     }
@@ -468,7 +503,7 @@ class Superstructure(private val controller: CommandPS5Controller,
     /** Enables [flywheel] and [hood] with their calculated assist targets*/
     fun setShooterAssist(): Command {
         return ParallelCommandGroup(
-            setFlywheelAssistTarget { getVirtualDistance(filteredDistanceToAssistTarget, true) },
+            setFlywheelAssistTarget({ getVirtualDistance(filteredDistanceToAssistTarget, true) }, { getFlywheelFeedforward() }),
             setHoodAssistTarget { getVirtualDistance(filteredDistanceToAssistTarget, true) },
         )
     }
@@ -677,24 +712,30 @@ class Superstructure(private val controller: CommandPS5Controller,
 
     /** Uses [tower] load current (amount of FUELS coming) to calculate appropriate feedforward to [flywheel] motors */
     private fun getFlywheelFeedforward(): Current {
-        return SubsystemsTunableValues.FLYWHEEL_LOAD_CONSTANT.get().times(
-            max(tower.getLoadCurrent().amps, SubsystemTolerances.FLYWHEEL_MAX_FEEDFORWARD.amps)
-        ).amps
+        return 0.0.amps // Because values were not tested before competition.
+//        return SubsystemsTunableValues.FLYWHEEL_LOAD_CONSTANT.get().times(
+//            max(tower.getLoadCurrent().amps, SubsystemTolerances.FLYWHEEL_MAX_FEEDFORWARD.amps)
+//        ).amps
     }
 
     /** Calculates target RPMs based on [flywheelDistanceToTarget] and scoring polynomial coefficients */
-    fun setFlywheelScoringTarget(flywheelDistanceToTarget: Supplier<Distance>): Command {
-        return flywheel.enableFlywheelCalculatedScoringVelocity(flywheelDistanceToTarget)
+    fun setFlywheelScoringTarget(flywheelDistanceToTarget: Supplier<Distance>, feedforward: Supplier<Current>): Command {
+        return flywheel.enableFlywheelCalculatedScoringVelocity(flywheelDistanceToTarget, feedforward)
+    }
+
+    /** Calculates target RPMs based on [flywheelDistanceToTarget] and scoring polynomial coefficients */
+    fun setFlywheelAuxiliaryScoringTarget(flywheelDistanceToTarget: Supplier<Distance>, feedforward: Supplier<Current>): Command {
+        return flywheel.enableFlywheelCalculatedAuxiliaryScoringVelocity(flywheelDistanceToTarget, feedforward)
     }
 
     /** Calculates target RPMs based on [flywheelDistanceToTarget] and assist polynomial coefficients */
-    fun setFlywheelAssistTarget(flywheelDistanceToTarget: Supplier<Distance>): Command {
-        return flywheel.enableFlywheelCalculatedAssistVelocity(flywheelDistanceToTarget)
+    fun setFlywheelAssistTarget(flywheelDistanceToTarget: Supplier<Distance>, feedforward: Supplier<Current>): Command {
+        return flywheel.enableFlywheelCalculatedAssistVelocity(flywheelDistanceToTarget, feedforward)
     }
 
     /** Takes the manual velocity set by the user in Elastic */
-    fun setFlywheelManualControl(): Command {
-        return flywheel.enableFlywheelManualVelocity().InstantCommand(flywheel)
+    fun setFlywheelManualControl(feedforward: Supplier<Current>): Command {
+        return flywheel.enableFlywheelManualVelocity(feedforward).InstantCommand(flywheel)
     }
 
     /** Stops the flywheel */

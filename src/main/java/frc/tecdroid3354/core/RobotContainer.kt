@@ -181,8 +181,8 @@ object RobotContainer
         // If not configured, the autoChooser may return Null inside getAutonomousCommand()
         autoChooser.addDefaultOption("None", Commands.none())
 
-        autoChooser.addOption("Left_Two_Sweep", AutoBuilder.buildAuto("Left_Two_Sweep"))
-        autoChooser.addOption("Right_Two_Sweep", AutoBuilder.buildAuto("Right_Two_Sweep"))
+        autoChooser.addOption("Left_One_Sweep", AutoBuilder.buildAuto("Left_One_Sweep"))
+        autoChooser.addOption("Right_One_Sweep", AutoBuilder.buildAuto("Right_One_Sweep"))
     }
 
     /**
@@ -211,30 +211,32 @@ object RobotContainer
             .onFalse(superstructure.stopShootingSequenceIncludingDeploy())
 
         driverController.R1() // Enables intake
-            .whileTrue(superstructure.setIntakeTeleopControl())
+            .onTrue(superstructure.setIntakeTeleopControl()
+                .alongWith(superstructure.stopShootingSequenceWithoutIntake()))
             .onFalse(superstructure.stopIntake())
 
-        driverController.L1() // Enables outtake in case of intake jam
-            .whileTrue(superstructure.setOuttakeTeleopControl())
-            .onFalse(superstructure.stopIntake())
+        driverController.L1() // Shooting sequence when the battery is dying at comp
+            .whileTrue(superstructure.setAuxiliaryScoringSequence())
+            .onFalse(superstructure.stopShootingSequenceIncludingDeploy())
 
         driverController.square() // Shooter (Hood + Flywheel) manual control
-            .whileTrue(superstructure.setShooterManualControl())
+            .onTrue(superstructure.setShooterManualControl())
             .onFalse(superstructure.stopShooting())
 
         driverController.triangle() // Indexer (Tower + Hopper) manual control
-            .whileTrue(superstructure.setIndexerManualControl())
+            .onTrue(superstructure.setIndexerManualControl())
             .onFalse(superstructure.stopIndexer())
 
         driverController.circle() // Intake (Deploy + Rollers) manual control
-            .whileTrue(superstructure.setIntakeManualControl())
+            .onTrue(superstructure.setIntakeManualControl())
             .onFalse(superstructure.stopIntake())
 
         driverController.povLeft() // Launches FUEL. SIMULATION ONLY.
-            .onTrue(superstructure.launchSimFuel())
+            //.onTrue(superstructure.launchSimFuel())
+            .onTrue(superstructure.idleIntake()) // To close the intake when not used
 
         driverController.povRight() // Clusters Intake. Rollers are activated too.
-            .whileTrue(superstructure.clusterIntakeDeploy().alongWith(superstructure.enableIntakeRollersPreset()))
+            .onTrue(superstructure.clusterIntakeDeploy().alongWith(superstructure.enableIntakeRollersPreset()))
             .onFalse(superstructure.stopIntake())
 
         driverController.povUp() // Coasts hood and deploy regardless of being disabled

@@ -5,9 +5,35 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Left_Trench_To_Neutral_1"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Left_Trench_To_Neutral_1"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.05
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Enable_Intake"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         },
         {
@@ -20,6 +46,38 @@
           "type": "path",
           "data": {
             "pathName": "Left_Bump_To_Score"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Enable_Score_Static"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 5.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Disable_Score_Static"
+                }
+              }
+            ]
           }
         }
       ]

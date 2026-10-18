@@ -69,7 +69,7 @@ object HopperConstants {
         private val neutralMode: NeutralModeValue = NeutralModeValue.Coast
 
         private val supplyCurrentLimit: Current = 30.0.amps
-        private val statorCurrentLimit: Current = 70.0.amps
+        private val statorCurrentLimit: Current = 60.0.amps
 
         val initialMotorsConfiguration: TalonFXConfiguration = KrakenMotors.createTalonFXConfiguration(
             Optional.of<MotorOutputConfigs>(

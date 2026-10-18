@@ -3,11 +3,13 @@ package frc.tecdroid3354.subsystems.Flywheel
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.units.Units.DegreesPerSecond
 import edu.wpi.first.units.measure.AngularVelocity
+import edu.wpi.first.units.measure.Current
 import edu.wpi.first.units.measure.MutAngularVelocity
 import frc.tecdroid3354.constants.SubsystemsControlGains
 import frc.tecdroid3354.constants.SubsystemsControlRequests
 import frc.tecdroid3354.constants.SubsystemsMovementLimits
 import frc.tecdroid3354.constants.SubsystemsPresetTargets
+import frc.tecdroid3354.utils.amps
 import frc.tecdroid3354.utils.interfaces.MotorIO
 import frc.tecdroid3354.utils.devices.OpTalonFX
 import frc.tecdroid3354.utils.rotationsPerMinute
@@ -81,7 +83,7 @@ class FlywheelIOTalonFX: FlywheelIO {
         followerMotorRightTwoController.applyConfigAndClearFaults(newMotorsConfig)
     }
 
-    override fun enableFlywheelManualVelocity(): Runnable {
+    override fun enableFlywheelManualVelocity(feedforward: Current): Runnable {
         return {
             flywheelVelocityTarget.mut_replace(manualFlywheelVelocityTarget) // Update target velocity
 
@@ -89,12 +91,13 @@ class FlywheelIOTalonFX: FlywheelIO {
                 SubsystemsControlRequests.FLYWHEEL_CONTROL_TYPE,
                 manualFlywheelVelocityTarget,
                 SubsystemsMovementLimits.FLYWHEEL_VELOCITY_LIMITS,
-                FlywheelConstants.Mechanical.REDUCTION
+                FlywheelConstants.Mechanical.REDUCTION,
+                feedforward = feedforward.amps
             )
         }
     }
 
-    override fun enableFlywheelPresetVelocity(): Runnable {
+    override fun enableFlywheelPresetVelocity(feedforward: Current): Runnable {
         return {
             flywheelVelocityTarget.mut_replace(SubsystemsPresetTargets.FLYWHEEL_PRESET_RPM) // Update target velocity
 
@@ -102,11 +105,12 @@ class FlywheelIOTalonFX: FlywheelIO {
                 SubsystemsControlRequests.FLYWHEEL_CONTROL_TYPE,
                 SubsystemsPresetTargets.FLYWHEEL_PRESET_RPM,
                 SubsystemsMovementLimits.FLYWHEEL_VELOCITY_LIMITS,
-                FlywheelConstants.Mechanical.REDUCTION
+                FlywheelConstants.Mechanical.REDUCTION,
+                feedforward = feedforward.amps
             )
         }
     }
-    override fun enableFlywheelCalculatedVelocity(flywheelCalculatedVelocity: AngularVelocity): Runnable {
+    override fun enableFlywheelCalculatedVelocity(flywheelCalculatedVelocity: AngularVelocity, feedforward: Current): Runnable {
         return {
             flywheelVelocityTarget.mut_replace(flywheelCalculatedVelocity) // Update target velocity
 
@@ -114,7 +118,8 @@ class FlywheelIOTalonFX: FlywheelIO {
                 SubsystemsControlRequests.FLYWHEEL_CONTROL_TYPE,
                 flywheelCalculatedVelocity,
                 SubsystemsMovementLimits.FLYWHEEL_VELOCITY_LIMITS,
-                FlywheelConstants.Mechanical.REDUCTION
+                FlywheelConstants.Mechanical.REDUCTION,
+                feedforward = feedforward.amps
             )
         }
     }

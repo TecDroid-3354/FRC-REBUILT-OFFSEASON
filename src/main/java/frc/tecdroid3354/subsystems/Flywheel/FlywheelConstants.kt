@@ -75,24 +75,20 @@ object FlywheelConstants {
      */
     object StoredPolynomials {
         val SCORING_POLYNOMIAL          : Result<Polynomials> = Polynomials.of(degree = 3,
-            -7.397047, 80.652681, -84.339549, 1694.796037
-        )
+            -7.397047, 80.652681, -84.339549, (1694.796037 + 215.0)
+        ) // The 215 RPM offset (17-10-2026) Allows to reach the HUB with great accuracy (at ~2 - 2.5 meters)
+
+        val AUXILIARY_SCORING_POLYNOMIAL          : Result<Polynomials> = Polynomials.of(degree = 3,
+            -7.397047, 80.652681, -84.339549, (1694.796037 + 350.0)
+        ) // In case the battery becomes a barrier to reach the HUB with SCORING_POLYNOMIAL. Just gives a greater offset
 
         val TOF_SCORING_POLYNOMIAL      : Result<Polynomials> = Polynomials.of(degree = 3,
             -0.009125, 0.072298, -0.112208, 0.941459
         )
 
-//        val SCORING_POLYNOMIAL          : Result<Polynomials> = Polynomials.of(degree = 3,
-//            37.420357, -274.592075, 690.971251, 1494.382284
-//        )
-//
-//        val TOF_SCORING_POLYNOMIAL      : Result<Polynomials> = Polynomials.of(degree = 3,
-//            0.036836, -0.289828, 0.700136, 0.707265
-//        )
-
         val ASSIST_POLYNOMIAL           : Result<Polynomials> = Polynomials.of(degree = 3,
             -7.631235, 137.810114, -594.245958, 2571.936791
-        )
+        ) // Wasn't used as much to save battery at comp
 
         val TOF_ASSIST_POLYNOMIAL       : Result<Polynomials> = Polynomials.of(degree = 3,
             -0.003982, 0.084914, -0.454582, 2.013256
@@ -114,7 +110,7 @@ object FlywheelConstants {
         private val neutralMode: NeutralModeValue = NeutralModeValue.Coast
 
         private val supplyCurrentLimit: Current = 40.0.amps
-        private val statorCurrentLimit: Current = 65.0.amps
+        private val statorCurrentLimit: Current = 60.0.amps
 
         val initialMotorsConfiguration: TalonFXConfiguration = KrakenMotors.createTalonFXConfiguration(
             Optional.of<MotorOutputConfigs>(

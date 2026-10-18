@@ -70,7 +70,7 @@ object SubsystemTolerances {
     val MAX_TIME_BEFORE_SCORE_SHOOTING                  : Time = 1.0.seconds
     val MAX_TIME_BEFORE_ASSIST_SHOOTING                 : Time = 1.26.seconds
 
-    val TIME_BEFORE_SHOOT_SEQUENCE_AUTO                 : Time = 1.5.seconds
+    val TIME_BEFORE_SHOOT_SEQUENCE_AUTO                 : Time = 1.0.seconds
 
     val FLYWHEEL_MAX_FEEDFORWARD                        : Current = 30.0.amps
 
@@ -141,7 +141,7 @@ object SubsystemsPresetTargets {
     //
     // FLYWHEEL ONLY
     //
-    val FLYWHEEL_PRESET_RPM: AngularVelocity = 3_200.0.rotationsPerMinute
+    val FLYWHEEL_PRESET_RPM: AngularVelocity = 2_400.0.rotationsPerMinute
 
     //
     // TOWER ONLY
@@ -181,10 +181,10 @@ object SubsystemsTunableValues {
     // FLYWHEEL ONLY
     //
     val FLYWHEEL_MANUAL_RPM: LoggedTunableNumber =
-        LoggedTunableNumber("${ FlywheelConstants.Telemetry.SUBSYSTEM_TAB }/Manual RPMs", 3_800.0)
+        LoggedTunableNumber("${ FlywheelConstants.Telemetry.SUBSYSTEM_TAB }/Manual RPMs", 2_400.0)
 
     val FLYWHEEL_LOAD_CONSTANT: LoggedTunableNumber =
-        LoggedTunableNumber("${ FlywheelConstants.Telemetry.SUBSYSTEM_TAB }/K_load", 0.15)
+        LoggedTunableNumber("${ FlywheelConstants.Telemetry.SUBSYSTEM_TAB }/K_load", 0.0)
 
     //
     // TOWER ONLY
@@ -232,7 +232,7 @@ object SubsystemsControlGains {
     // FLYWHEEL ONLY
     //
      val FLYWHEEL_MOTOR_PRIMARY_GAINS   : TunableControlGains = TunableControlGains(FlywheelConstants.Telemetry.SUBSYSTEM_PRIMARY_GAINS,
-        kP = 8.25, kI = 0.0, kD = 0.0, kS = 0.0, kV = 0.3, kA = 0.0, kG = 0.0) // TODO() = TRY WITH FUELS
+        kP = 8.25, kI = 0.0, kD = 0.0, kS = 0.0, kV = 0.3, kA = 0.0, kG = 0.0) // TUNED (~100 - 160 RPM error spike)
 
      //
      // TOWER ONLY

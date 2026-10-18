@@ -67,15 +67,11 @@ object HoodConstants {
      */
     object StoredPolynomials {
         val SCORING_POLYNOMIAL           : Result<Polynomials> = Polynomials.of(degree = 3,
-            0.154157, -1.256876, 9.491531, 1.908159
-        )
-
-//        val SCORING_POLYNOMIAL           : Result<Polynomials> = Polynomials.of(degree = 3,
-//            -0.942347, 7.636364, -12.675369, 12.420746
-//        )
+            0.154157, -1.256876, 9.491531, (1.908159 - 1.0)
+        ) // The one degree offset allows for a higher curve, resulting in more accuracy (17-10-2026)
 
         val ASSIST_POLYNOMIAL            : Result<Polynomials> = Polynomials.of(degree = 3,
-            0.130994, -3.213622, 24.175404, -29.079567)
+            0.130994, -3.213622, 24.175404, -29.079567) // Wasn't used as much to save battery in comp
     }
 
     /**
@@ -90,7 +86,7 @@ object HoodConstants {
         private val neutralMode: NeutralModeValue = NeutralModeValue.Brake
 
         private val supplyCurrentLimit: Current = 20.0.amps
-        private val statorCurrentLimit: Current = 50.0.amps
+        private val statorCurrentLimit: Current = 40.0.amps
 
         val initialMotorsConfiguration: TalonFXConfiguration = KrakenMotors.createTalonFXConfiguration(
             Optional.of<MotorOutputConfigs>(

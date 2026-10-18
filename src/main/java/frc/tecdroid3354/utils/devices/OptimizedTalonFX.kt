@@ -367,6 +367,7 @@ class OpTalonFX(private val id: Int, private val canBusName: String = "rio"): Mo
     /**
      * This method applies the limits, converts the target from subsystem units to motor units and calls a private
      * method -> [handleVelocityRequest] for the corresponding control request.
+     * @param feedforward Is assumed to be in your control request's ([controlType]) units (Volts / Amps)
      */
     fun angularSubsystemVelocityRequest(controlType: OpVelocityControlRequests, subsystemVelocity: AngularVelocity,
                                         limits: MeasureLimits<AngularVelocityUnit>, reduction: Reduction, slot: Int = 0,

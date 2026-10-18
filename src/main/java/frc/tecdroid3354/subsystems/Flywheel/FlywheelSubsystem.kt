@@ -2,6 +2,7 @@ package frc.tecdroid3354.subsystems.Flywheel
 
 import edu.wpi.first.math.filter.Debouncer
 import edu.wpi.first.units.measure.AngularVelocity
+import edu.wpi.first.units.measure.Current
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.Time
 import edu.wpi.first.wpilibj.Alert
@@ -87,15 +88,15 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
     /**
      * Enables live-tuned velocity. See implementation comment for details.
      */
-    fun enableFlywheelManualVelocity(): Runnable {
-        return io.enableFlywheelManualVelocity()
+    fun enableFlywheelManualVelocity(feedforward: Supplier<Current>): Runnable {
+        return io.enableFlywheelManualVelocity(feedforward.get())
     }
 
     /**
      * Enables pre-stored velocity. See implementation comment for details.
      */
-    fun enableFlywheelPresetVelocity(): Runnable {
-        return io.enableFlywheelPresetVelocity()
+    fun enableFlywheelPresetVelocity(feedforward: Supplier<Current>): Runnable {
+        return io.enableFlywheelPresetVelocity(feedforward.get())
     }
 
     /**
@@ -104,11 +105,25 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
      * See I/O implementation comment for details.
      * @param flywheelDistanceToTarget Differs from robot distance to target (odometry); account for offsets from robot center.
      */
-    fun enableFlywheelCalculatedScoringVelocity(flywheelDistanceToTarget: Supplier<Distance>): Command {
+    fun enableFlywheelCalculatedScoringVelocity(flywheelDistanceToTarget: Supplier<Distance>, feedforward: Supplier<Current>): Command {
         // The .run() is because of how Runnables work, it ensures it runs again and doesn't freeze (even inside a RunCommand)
         return RunCommand({
             val flywheelCalculatedVelocity = getCalculatedFlywheelScoringVelocity(flywheelDistanceToTarget.get())
-            io.enableFlywheelCalculatedVelocity(flywheelCalculatedVelocity).run()
+            io.enableFlywheelCalculatedVelocity(flywheelCalculatedVelocity, feedforward.get()).run()
+        }, this)
+    }
+
+    /**
+     * Calls [getCalculatedFlywheelScoringVelocity], which is then fed to the I/O.
+     *
+     * See I/O implementation comment for details. Used when battery's voltage comes below 12 volts
+     * @param flywheelDistanceToTarget Differs from robot distance to target (odometry); account for offsets from robot center.
+     */
+    fun enableFlywheelCalculatedAuxiliaryScoringVelocity(flywheelDistanceToTarget: Supplier<Distance>, feedforward: Supplier<Current>): Command {
+        // The .run() is because of how Runnables work, it ensures it runs again and doesn't freeze (even inside a RunCommand)
+        return RunCommand({
+            val flywheelCalculatedVelocity = getCalculatedFlywheelAuxiliaryScoringVelocity(flywheelDistanceToTarget.get())
+            io.enableFlywheelCalculatedVelocity(flywheelCalculatedVelocity, feedforward.get()).run()
         }, this)
     }
 
@@ -118,11 +133,11 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
      * See I/O implementation comment for details.
      * @param flywheelDistanceToTarget Differs from robot distance to target (odometry); account for offsets from robot center.
      */
-    fun enableFlywheelCalculatedAssistVelocity(flywheelDistanceToTarget: Supplier<Distance>): Command {
+    fun enableFlywheelCalculatedAssistVelocity(flywheelDistanceToTarget: Supplier<Distance>, feedforward: Supplier<Current>): Command {
         // The .run() is because of how Runnables work, it ensures it runs again and doesn't freeze (even inside a RunCommand)
         return RunCommand({
             val flywheelCalculatedVelocity = getCalculatedFlywheelAssistVelocity(flywheelDistanceToTarget.get())
-            io.enableFlywheelCalculatedVelocity(flywheelCalculatedVelocity).run()
+            io.enableFlywheelCalculatedVelocity(flywheelCalculatedVelocity, feedforward.get()).run()
         }, this)
     }
 
@@ -201,6 +216,28 @@ class FlywheelSubsystem(private val io: FlywheelIO) : SubsystemBase(FlywheelCons
     private fun getCalculatedFlywheelScoringVelocity(flywheelDistanceToTarget: Distance): AngularVelocity {
         val distanceInMeters = flywheelDistanceToTarget.meters
         val calculatedRPMs = FlywheelConstants.StoredPolynomials.SCORING_POLYNOMIAL.getOrThrow().evaluate(distanceInMeters)
+
+        return calculatedRPMs.rotationsPerMinute
+    }
+
+    /**
+     * Uses the stored scoring polynomial in [FlywheelConstants.StoredPolynomials] and evaluates
+     * with the given flywheel distance to target.
+     *
+     *
+     * Assumed Units:
+     *
+     *   - Distance: Meters
+     *
+     *   - Polynomial Output: Rotations Per Minute
+     *
+     * Used when the battery comes below 12 volts.
+     * @param flywheelDistanceToTarget Differs from robot distance to target; account for offsets from robot center.
+     * @return The [AngularVelocity] calculated by the scoring polynomial.
+     */
+    private fun getCalculatedFlywheelAuxiliaryScoringVelocity(flywheelDistanceToTarget: Distance): AngularVelocity {
+        val distanceInMeters = flywheelDistanceToTarget.meters
+        val calculatedRPMs = FlywheelConstants.StoredPolynomials.AUXILIARY_SCORING_POLYNOMIAL.getOrThrow().evaluate(distanceInMeters)
 
         return calculatedRPMs.rotationsPerMinute
     }

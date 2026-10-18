@@ -83,7 +83,7 @@ public interface FlywheelIO {
      * @see #updateFlywheelManualVelocity(AngularVelocity)
      * @return A {@link Runnable} setting the subsystem manual target velocity
      */
-    Runnable enableFlywheelManualVelocity();
+    Runnable enableFlywheelManualVelocity(Current feedforward);
 
     /**
      * Only if applicable.
@@ -92,7 +92,7 @@ public interface FlywheelIO {
      * <p>Make sure to update your subsystem target velocity variable for telemetry</p>
      * @return A {@link Runnable} setting the subsystem preset target velocity
      */
-    Runnable enableFlywheelPresetVelocity();
+    Runnable enableFlywheelPresetVelocity(Current feedforward);
 
     /**
      * Only if applicable. For distance based / state based subsystems specifically.
@@ -102,7 +102,7 @@ public interface FlywheelIO {
      * @param flywheelCalculatedVelocity Flywheel velocity; must be calculated beforehand.
      * @return A {@link Runnable} setting the subsystem calculated target velocity
      */
-    Runnable enableFlywheelCalculatedVelocity(AngularVelocity flywheelCalculatedVelocity);
+    Runnable enableFlywheelCalculatedVelocity(AngularVelocity flywheelCalculatedVelocity, Current feedforward);
 
     /**
      * Disables the subsystem motors.
@@ -156,17 +156,17 @@ public interface FlywheelIO {
         }
 
         @Override
-        public Runnable enableFlywheelManualVelocity() {
+        public Runnable enableFlywheelManualVelocity(Current feedforward) {
             return null;
         }
 
         @Override
-        public Runnable enableFlywheelPresetVelocity() {
+        public Runnable enableFlywheelPresetVelocity(Current feedforward) {
             return null;
         }
 
         @Override
-        public Runnable enableFlywheelCalculatedVelocity(AngularVelocity flywheelCalculatedVelocity) {
+        public Runnable enableFlywheelCalculatedVelocity(AngularVelocity flywheelCalculatedVelocity, Current feedforward) {
             return null;
         }
 
